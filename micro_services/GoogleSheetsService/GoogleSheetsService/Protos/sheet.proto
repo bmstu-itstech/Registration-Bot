@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+option csharp_namespace = "GoogleSheetsService";
+
+package SheetWorkerService;
+
+service SheetAppenderService{
+	rpc AppendSheet (AppendSheetRequest) returns (AppendSheetResponse);
+	rpc AppendRecord (AppendRecordRequest) returns (AppendRecordResponse);
+}
+
+message AppendSheetRequest{
+	string title = 1;
+	int32 from_user =2;
+	string table_id = 3;
+}
+message AppendSheetResponse{
+	string state = 1;
+	int32 code = 2;
+}
+
+message AppendRecordRequest{
+	string title = 1;
+	int32 from_user =2;
+	string table_id = 3;
+
+}
+message AppendRecordResponse{
+	string state = 1;
+	int32 code = 2;
+}
+
+
