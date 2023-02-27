@@ -8,4 +8,6 @@ micro_services/GoogleSheetsService/.vs/
 
 # Ignore PyCharm settings files
 .idea/
+
+# Ignore venv
 venv/
