@@ -2,8 +2,11 @@
 using Google.Apis.Services;
 using Google.Apis.Sheets.v4;
 using Google.Apis.Sheets.v4.Data;
+using GoogleSheetsService.Services;
 
-
+//TODO
+// Нужно где-то запоминать спсок с созданными пользователями листами
+// Скорее всего можно заюзать локал базу данных, для микросервиса норм практика
 
 namespace GoogleSheetsService.Backend
 {
@@ -12,16 +15,17 @@ namespace GoogleSheetsService.Backend
         private static readonly string[] Scopes = { SheetsService.Scope.Spreadsheets };
         private static readonly string ApplicationName = "baumanbot";
 
-        public static readonly List<string> Sheets = new List<string>();
 
         private SheetsService service;
         private GoogleCredential credential;
 
-        // private static readonly string SpreadSheetId = Strings.Tokens.GogleToken;
+        private  string SpreadSheetId;
 
 
-        public GoogleHelper()
+        public GoogleHelper(string table_id)
         {
+
+            this.SpreadSheetId = table_id;
             using (var stream = new FileStream("secretes.json", FileMode.Open, FileAccess.Read))
             {
                 this.credential = GoogleCredential.FromStream(stream).CreateScoped(Scopes);
@@ -33,6 +37,10 @@ namespace GoogleSheetsService.Backend
                 HttpClientInitializer = credential,
                 ApplicationName = ApplicationName
             });
+
+
+
+
         }
 
         public Task<string> InputObject(object inputObject, string sheet_title)
@@ -51,12 +59,33 @@ namespace GoogleSheetsService.Backend
             });
         }
 
-        public Task AddNewSheet(string sheet_title)
+        public async Task<BatchUpdateSpreadsheetResponse> AddNewSheet(string sheet_title, ILogger<AppenderService> _logger)
         {
-            return Task.Run(() =>
-            {
-                Sheets.Add(sheet_title);
-                // Тут должен быть код, запускающий действие добавления нового листа в новом Task 
+            return await Task.Run(async () =>
+            {   
+                var body = new BatchUpdateSpreadsheetRequest()
+                {
+                    Requests = new List<Request>()
+                    {
+                        new Request()
+                        {
+                            AddSheet = new AddSheetRequest()
+                            {
+                                Properties = new SheetProperties()
+                                {
+                                    Title = sheet_title,
+
+                                }
+                            }
+                        }
+                    }
+                };
+
+                 var request = service.Spreadsheets.BatchUpdate(body, this.SpreadSheetId);
+
+              
+                 return await request.ExecuteAsync();
+
             });
 
         }
