@@ -5,3 +5,4 @@ micro_services/GoogleSheetsService/GoogleSheetsService/bin/
 micro_services/GoogleSheetsService/GoogleSheetsService/obj/
 micro_services/GoogleSheetsService/GoogleSheetsService/Properties/
 micro_services/GoogleSheetsService/.vs/
+.venv/
