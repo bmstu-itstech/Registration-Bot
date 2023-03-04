@@ -1,4 +1,6 @@
 micro_services/GoogleSheetsService/GoogleSheetsService/appsettings.Development.json
+micro_services/GoogleSheetsService\GoogleSheetsService/appsettings.json
+micro_services/GoogleSheetsService/GoogleSheetsService/GoogleSheetsService.csproj
 micro_services/GoogleSheetsService/GoogleSheetsService/bin/
 micro_services/GoogleSheetsService/GoogleSheetsService/obj/
 micro_services/GoogleSheetsService/GoogleSheetsService/Properties/
@@ -6,3 +8,10 @@ micro_services/GoogleSheetsService/.vs/
 micro_services/GoogleSheetsService/GoogleSheetsService/secretes.json
 micro_services/GoogleSheetsService.sln
 micro_services/GoogleSheetsService/GoogleSheetsService/Backend/Strings.cs
+
+
+# Ignore PyCharm settings files
+.idea/
+
+# Ignore venv
+venv/
