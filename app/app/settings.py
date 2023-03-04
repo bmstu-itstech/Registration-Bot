@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-&&c3j(6t@s6w_==23+_$6e7f91y^a^z2@kb_pw%=2lo7t-tv^h
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1', '{TEST_ALLOWED_HOST}', 'localhost']
 
 
 # Application definition
@@ -37,8 +37,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.postgres',
+    'reciver.apps.RecieverConfig'
 ]
-
+# Проверить необходимость csrf, чтобы избавиться от кошмара из декораторов в views
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -75,8 +77,12 @@ WSGI_APPLICATION = 'app.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': '{TABLE_NAME}',
+        'USER': '{DB_USER}',
+        'PASSWORD': '{DB_PASSWORD}',
+        'HOST': '{APP_HOST}',
+        'PORT': '5432',
     }
 }
 
@@ -121,3 +127,11 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Конфигурация кэша(установлен файловое кеширование)
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+        'LOCATION': '{CACHE_FILE_PATH}',
+    }
+}
