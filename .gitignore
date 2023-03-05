@@ -15,3 +15,7 @@ micro_services/GoogleSheetsService/GoogleSheetsService/Backend/Strings.cs
 
 # Ignore venv
 venv/
+
+# Ignore DBs
+*.sqlite
+*.db
