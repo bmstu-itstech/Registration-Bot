@@ -6,13 +6,13 @@ import sqlite3
 def create_tree(data, bot_id):
     tree_ent = Tree(bot_id)
 
-    for module in data:
-        tree_ent.add_module(module[0], module[1], module[2], module[3])
+    for key in data.keys():
+        tree_ent.add_module(key, data[key][0], data[key][1], data[key][2])
 
     # Написал максимально простой тест дерева на SQLite
     sqlite_connection = None
     try:
-        sqlite_connection = sqlite3.connect('test.db')
+        sqlite_connection = sqlite3.connect('./test.db')
         cursor = sqlite_connection.cursor()
 
         sql = (
@@ -47,7 +47,7 @@ def create_tree(data, bot_id):
 def read_tree(bot_id):
     sqlite_connection = None
     try:
-        sqlite_connection = sqlite3.connect('test.db')
+        sqlite_connection = sqlite3.connect('./test.db')
         cursor = sqlite_connection.cursor()
 
         module_id = 1
