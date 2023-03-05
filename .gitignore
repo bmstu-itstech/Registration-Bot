@@ -10,6 +10,13 @@ micro_services/GoogleSheetsService.sln
 micro_services/GoogleSheetsService/GoogleSheetsService/Backend/Strings.cs
 
 
+MDan
+.venv/
+main
+
+
+=======
+
 # Ignore PyCharm settings files
 .idea/
 
