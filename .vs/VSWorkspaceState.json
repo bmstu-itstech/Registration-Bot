@@ -1,0 +1,10 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\micro_services",
+    "\\micro_services\\GoogleSheetsService",
+    "\\micro_services\\GoogleSheetsService\\GoogleSheetsService"
+  ],
+  "SelectedNode": "\\micro_services\\GoogleSheetsService\\GoogleSheetsService\\GoogleSheetsService.csproj",
+  "PreviewInSolutionExplorer": false
+}

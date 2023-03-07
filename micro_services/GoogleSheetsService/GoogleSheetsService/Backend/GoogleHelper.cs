@@ -27,7 +27,7 @@ namespace GoogleSheetsService.Backend
         {
 
             this.SpreadSheetId = table_id;
-            using (var stream = new FileStream("secretes.json", FileMode.Open, FileAccess.Read))
+            using (var stream = new FileStream("secrets.json", FileMode.Open, FileAccess.Read))
             {
                 this.credential = GoogleCredential.FromStream(stream).CreateScoped(Scopes);
 
@@ -38,9 +38,6 @@ namespace GoogleSheetsService.Backend
                 HttpClientInitializer = credential,
                 ApplicationName = ApplicationName
             });
-
-
-
 
         }
 
@@ -160,18 +157,47 @@ namespace GoogleSheetsService.Backend
 
         }
 
-        public Task<object> ReadTableString(string sheet_title, string exel_id)
+        public Task<List<string>> ReadTableString(string exel_id)
         {
-            object get_object = null;
+            return Task.Run(() => 
+            {
+                // Понял, что метод чтения строки идентичен чтению диапазона, но из 1 строки
+                // однако, логически более правильно разделить это на 2 метода
+                // потому что в будущем нужно будет, например, считать строку соотвествующему конкретному пользователю
 
-            return Task.FromResult(get_object);
+                return ReadTableRange(exel_id).Result[0];
+            });
         }
 
-        public Task<List<object>> ReadTableRange(string sheet_title, string exel_id, string range)
+        public Task<List<List<string>>> ReadTableRange( string range)
         {
-            List<object> get_objects = new List<object>();
+            return Task.Run(async () =>
+            {
 
-            return Task.FromResult(get_objects);
+                var request = service.Spreadsheets.Values.Get(this.SpreadSheetId, range);
+
+                var response = await request.ExecuteAsync();
+
+                List<List<string>> values = new List<List<string>>();
+
+                if (response.Values?.Count > 0)
+                {
+                    foreach(var row in response.Values)
+                    {
+                        List<string> curr_row = new List<string>();
+
+                        foreach(var elem in row)
+                        {
+                            curr_row.Add(elem.ToString());
+                        }
+
+                        values.Add(curr_row);
+                    }
+                }
+
+
+                return values;
+            });
         }
 
     }

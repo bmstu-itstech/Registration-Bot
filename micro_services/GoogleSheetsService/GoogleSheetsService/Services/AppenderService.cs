@@ -16,16 +16,16 @@ namespace GoogleSheetsService.Services
         }
 
 
-        public override  Task<AppendRecordResponse> AppendRecord(AppendRecordRequest request, ServerCallContext context)
+        public override Task<AppendRecordResponse> AppendRecord(AppendRecordRequest request, ServerCallContext context)
         {
             _logger.LogInformation("Append new Recored request");
 
-          
+
 
 
             var db_controller = new DataBaseController(Strings.DB_HOST, Strings.DB_USER, Strings.DB_PASS, Strings.DB_PORT, Strings.DB_NAME);
 
-            string current_bot_sheet_id =  db_controller.Get_bot_sheetId(request.BotId).Result;
+            string current_bot_sheet_id = db_controller.Get_bot_sheetId(request.BotId).Result;
 
             var googleHelper = new GoogleHelper(current_bot_sheet_id);
 
@@ -63,16 +63,16 @@ namespace GoogleSheetsService.Services
                 Code = code,
                 State = state,
                 ExelId = exel_id,
-                
+
             }); ;
         }
 
-        public override  Task<AppendSheetResponse> AppendSheet(AppendSheetRequest request, ServerCallContext context)
+        public override Task<AppendSheetResponse> AppendSheet(AppendSheetRequest request, ServerCallContext context)
         {
             _logger.LogInformation("Append new Sheet request ");
 
-            var db_controller = new DataBaseController(Strings.DB_HOST, Strings.DB_USER, Strings.DB_PASS, Strings.DB_PORT,Strings.DB_NAME);
-            
+            var db_controller = new DataBaseController(Strings.DB_HOST, Strings.DB_USER, Strings.DB_PASS, Strings.DB_PORT, Strings.DB_NAME);
+
             string current_bot_sheet_id = db_controller.Get_bot_sheetId(request.BotId).Result;
 
             var googleHelper = new GoogleHelper(current_bot_sheet_id);
@@ -85,7 +85,7 @@ namespace GoogleSheetsService.Services
             {
                 try
                 {
-                    
+
                     var response = googleHelper.AddNewSheet(request.Title, request.Header.ToList(), _logger);
                     response.Wait();
 
@@ -125,15 +125,15 @@ namespace GoogleSheetsService.Services
             string state = "Google API error!\n";
             int code = 1;
 
-            if (googleHelper!= null)
+            if (googleHelper != null)
             {
                 try
                 {
-                    var task_response =  googleHelper.UpdateObject(request.NewData.ToList(), request.ExelId);
+                    var task_response = googleHelper.UpdateObject(request.NewData.ToList(), request.ExelId);
                     task_response.Wait();
 
 
-                    if (!task_response.IsFaulted) 
+                    if (!task_response.IsFaulted)
                     {
                         state = "OK";
                         code = 0;
@@ -146,11 +146,11 @@ namespace GoogleSheetsService.Services
                 }
             }
 
-            return Task.FromResult(new UpdateRecordResponse 
-            { 
+            return Task.FromResult(new UpdateRecordResponse
+            {
                 State = state,
                 Code = code,
-            });;
+            }); ;
         }
     }
 }
