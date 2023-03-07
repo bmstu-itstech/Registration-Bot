@@ -1,5 +1,5 @@
 micro_services/GoogleSheetsService/GoogleSheetsService/appsettings.Development.json
-micro_services/GoogleSheetsService\GoogleSheetsService/appsettings.json
+micro_services/GoogleSheetsService.GoogleSheetsService/appsettings.json
 micro_services/GoogleSheetsService/GoogleSheetsService/GoogleSheetsService.csproj
 micro_services/GoogleSheetsService/GoogleSheetsService/bin/
 micro_services/GoogleSheetsService/GoogleSheetsService/obj/
