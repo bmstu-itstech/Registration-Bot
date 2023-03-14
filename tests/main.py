@@ -1,7 +1,7 @@
 from constructor import writer
+import asyncio
 
-
-def test():
+async def test():
     data = {
 
         1: {
@@ -35,9 +35,8 @@ def test():
         }
     }
 
-    writer.create_tree(data, 23178)
-    writer.read_tree(23178)
+    await asyncio.gather(writer.create_tree(data, 23178), writer.read_tree(23178))
 
 
 if __name__ == "__main__":
-    test()
+    asyncio.run(test())
