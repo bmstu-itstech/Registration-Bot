@@ -31,7 +31,7 @@ def test():
         5: {
             "links": [],
             "question": "rate us pls",
-            "asnwers": None
+            "answers": None
         }
     }
 
