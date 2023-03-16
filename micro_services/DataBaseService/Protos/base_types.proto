@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+message BaseResponse{
+  string  state = 1;
+  int32  code = 2;
+}
+
+message Bot{
+  int32 bot_id=1;
+  string  title =2;
+  // Нужен класс, описывающий бота
+}

@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+import "base_types.proto";
+
+service BotGetter{
+  rpc GetBotById (GetBotRequest) returns (Bot);
+}
+message GetBotRequest{
+  int32 bot_id =1;
+}
