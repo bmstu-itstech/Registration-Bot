@@ -1,0 +1,16 @@
+import os
+
+DEBAG_SERVER_IP = "localhost"
+DEBAG_SERVER_PORT = 8080
+
+DEBAG = True
+
+HOST = ""
+PORT = 5432
+USER = ""
+PASSWORD = ""
+DB_NAME = ""
+
+SERVER_IP = ""
+SERVER_PORT = 0000
+

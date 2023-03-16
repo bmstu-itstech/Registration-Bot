@@ -8,7 +8,7 @@ micro_services/GoogleSheetsService/.vs/
 micro_services/GoogleSheetsService/GoogleSheetsService/secretes.json
 micro_services/GoogleSheetsService.sln
 micro_services/GoogleSheetsService/GoogleSheetsService/Backend/Strings.cs
-
+.vs
 
 MDan
 .venv/
