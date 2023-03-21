@@ -15,7 +15,7 @@ MDan
 main
 
 
-=======
+=======darleet=======
 
 # Ignore PyCharm settings files
 .idea/
@@ -26,3 +26,6 @@ venv/
 # Ignore DBs
 *.sqlite
 *.db
+
+# Ignore cache
+*/__pycache__/
