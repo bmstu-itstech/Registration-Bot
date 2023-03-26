@@ -29,3 +29,6 @@ venv/
 
 # Ignore cache
 */__pycache__/
+
+# Ignore configs
+config.py
