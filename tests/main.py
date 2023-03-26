@@ -1,4 +1,5 @@
 from constructor import writer
+from asker_bot import bot_instance, config
 import asyncio
 
 async def test():
@@ -35,7 +36,8 @@ async def test():
         }
     }
 
-    await asyncio.gather(writer.create_tree(data, 23178), writer.read_tree(23178))
+    await writer.create_tree(data, 23178)
+    await bot_instance.run(config.bot_token, 23178)
 
 
 if __name__ == "__main__":

@@ -7,9 +7,6 @@ import aioconsole
 
 # Эта функция будет заполнять данными дерево и связываться с микросервисом БД
 async def create_tree(data, bot_id):
-    print('create_start')
-    await asyncio.sleep(3)
-    print('created')
     tree_ent = Tree(bot_id)
 
     for key in data.keys():
@@ -35,7 +32,7 @@ async def create_tree(data, bot_id):
 
         for module in tree_ent.get_data():
             sql = (
-                f"INSERT INTO id{bot_id} (module_id, next_ids, question_text, answers)"
+                f"INSERT INTO id{bot_id} (module_id, next_ids, question_text, answers) "
                 f"VALUES (?, ?, ?, ?)"
             )
             await cursor.execute(sql, module)
@@ -44,10 +41,6 @@ async def create_tree(data, bot_id):
 
 
 async def read_tree(bot_id):
-    print('read_start')
-    await asyncio.sleep(1)
-    print('read')
-
     async with aiosqlite.connect('./test.db') as connection:
         cursor = await connection.cursor()
         module_id = 1
