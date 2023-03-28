@@ -21,9 +21,7 @@ namespace GoogleSheetsService.Services
             _logger.LogInformation("Append new Recored request");
 
 
-
-
-            var db_controller = new DataBaseController(Strings.DB_HOST, Strings.DB_USER, Strings.DB_PASS, Strings.DB_PORT, Strings.DB_NAME);
+            var db_controller = new DataBaseController();
 
             string current_bot_sheet_id = db_controller.Get_bot_sheetId(request.BotId).Result;
 
@@ -71,7 +69,7 @@ namespace GoogleSheetsService.Services
         {
             _logger.LogInformation("Append new Sheet request ");
 
-            var db_controller = new DataBaseController(Strings.DB_HOST, Strings.DB_USER, Strings.DB_PASS, Strings.DB_PORT, Strings.DB_NAME);
+            var db_controller = new DataBaseController();
 
             string current_bot_sheet_id = db_controller.Get_bot_sheetId(request.BotId).Result;
 
@@ -116,7 +114,7 @@ namespace GoogleSheetsService.Services
         {
             _logger.LogInformation($"Update Record at {request.ExelId}");
 
-            var db_controller = new DataBaseController(Strings.DB_HOST, Strings.DB_USER, Strings.DB_PASS, Strings.DB_PORT, Strings.DB_NAME);
+            var db_controller = new DataBaseController();
 
             string current_bot_sheet_id = db_controller.Get_bot_sheetId(request.BotId).Result;
 

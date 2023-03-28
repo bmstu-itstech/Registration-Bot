@@ -1,10 +1,9 @@
 secrets.json
-
-MDan
-.venv/
-main
-
-
+.vs/
+bin/
+obj/
+appsettings.json
+*.editorconfig
 =======darleet=======
 
 # Ignore PyCharm settings files

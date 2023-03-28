@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-import "base_types.proto";
+import "Protos/base_types.proto";
 
 service BotGetter{
   rpc GetBotById (GetBotRequest) returns (Bot);

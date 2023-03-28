@@ -6,19 +6,14 @@
     //
     public class DataBaseController
     {
-        private string host;
-        private string user;
-        private string password;
-        private int port;
-        private string data_base_name;
+        private string connetion;
 
-        public DataBaseController(string host, string user, string password, int port, string data_base_name)
+        public DataBaseController()
         {
-            this.host = host;
-            this.user = user;
-            this.password = password;
-            this.port = port;
-            this.data_base_name = data_base_name;
+
+            var _config = new ConfigManager();
+
+            this.connetion = _config.GetConnetion();
         }
 
         public async Task<string> Get_bot_sheetId(int bot_id)
