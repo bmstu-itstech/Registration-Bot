@@ -3,8 +3,24 @@ syntax = "proto3";
 import "Protos/base_types.proto";
 
 service BotGetter{
-  rpc GetBotById (GetBotRequest) returns (Bot);
+  rpc GetBotById (GetBotRequest) returns (BotSurvey);
+  
 }
+service BotWorker {
+	rpc CreateBot(CreateBotRequest) returns (BaseResponse);
+	rpc DeleteBot(DeleteBotRequest) returns (BaseResponse);
+}
+
 message GetBotRequest{
-  int32 bot_id =1;
+  int32 bot_id = 1;
+}
+
+message CreateBotRequest{
+	int32 from_user = 1;
+}
+
+message DeleteBotRequest{
+	int32 from_user = 1;
+	int32 bot_id = 2;
+
 }

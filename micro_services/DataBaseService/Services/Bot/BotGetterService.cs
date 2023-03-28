@@ -1,7 +1,7 @@
 ﻿using Grpc.Core;
 using System.Net;
-
-namespace DataBaseService.Services
+using DataBaseService.DataBase;
+namespace DataBaseService.Services.bot
 {
     public class BotGetterService : BotGetter.BotGetterBase
     {
@@ -12,15 +12,21 @@ namespace DataBaseService.Services
             _logger = logger;
         }
 
-        public override Task<Bot> GetBotById(GetBotRequest request, ServerCallContext context)
+        public override Task<BotSurvey> GetBotById(GetBotRequest request, ServerCallContext context)
         {
             _logger.LogInformation("Get Bot by id Request");
 
-            return Task.FromResult(new Bot
+            BotSurvey botSurvey = null;
+
+            //
+            // METHODS
+            //
+
+            return Task.FromResult(new BotSurvey
             {
                 BotId = 1,
                 Title = "BCG BOT"
-            }) ;
+            });
         }
     }
 }

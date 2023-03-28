@@ -5,8 +5,20 @@ message BaseResponse{
   int32  code = 2;
 }
 
-message Bot{
-  int32 bot_id=1;
-  string  title =2;
-  // Нужен класс, описывающий бота
+message BotSurvey{
+  int32  bot_id = 1;
+  string  title = 2;
+  int32 owner = 3;
+
+}
+message Module {
+	string question = 1;
+	repeated int32 next_ids = 2;
+	repeated int32 answers = 3;
+}
+
+message Journal
+{
+	int32 bot_id =1;
+	map<int32, Module> modules=2; 
 }

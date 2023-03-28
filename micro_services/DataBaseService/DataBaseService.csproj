@@ -6,6 +6,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+
+
   <ItemGroup>
     <PackageReference Include="Grpc.AspNetCore" Version="2.52.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.4" />
@@ -19,9 +21,15 @@
   <ItemGroup>
     <Protobuf Include="Protos\bot.proto" GrpcServices="Server" />
   </ItemGroup>
-  
+
   <ItemGroup>
-    <Folder Include="Services\" />
+    <Protobuf Include="Protos\user.proto" GrpcServices="Server" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Backend\Exeptions\" />
+    <Folder Include="Backend\Types\" />
+    <Folder Include="Models\" />
   </ItemGroup>
 
 </Project>
