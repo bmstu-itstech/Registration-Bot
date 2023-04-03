@@ -1,5 +1,5 @@
 ﻿using Grpc.Core;
-
+using DataBaseService.DataBase;
 
 namespace DataBaseService.Services.Bot
 {
@@ -14,14 +14,16 @@ namespace DataBaseService.Services.Bot
         }
         public override Task<BaseResponse> CreateBot(CreateBotRequest request, ServerCallContext context)
         {
-            _logger.LogInformation("Create new Bot Request");
+            _logger.LogInformation("Create new Bot Survey Request");
 
             string state = "OK";
             int code = 200;
 
-            //
-            // METHODS
-            //
+            var modules = request.Modules.ToDictionary(m => m.Key, m => m.Value);
+
+
+            DataBase.BotSurvey.CreateNewBotSurvey(request.FromUser,modules).Wait();
+
 
             return Task.FromResult(new BaseResponse()
             {

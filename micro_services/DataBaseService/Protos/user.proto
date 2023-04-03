@@ -7,6 +7,7 @@ import "Protos/base_types.proto";
 service UserWorker{
 	rpc RegNewUser(RegUserRequest ) returns (BaseResponse);
 	rpc EndReg(EndRegRequest ) returns (BaseResponse);
+	rpc GetUserBotsList(GetUserBotsListRequest) returns (GetUserBotsListResponse);
 }
 
 message RegUserRequest
@@ -17,3 +18,10 @@ message RegUserRequest
 message EndRegRequest{
 	int32 user_id = 1;
 }
+
+message GetUserBotsListRequest{
+
+}
+ message GetUserBotsListResponse{
+
+ }
