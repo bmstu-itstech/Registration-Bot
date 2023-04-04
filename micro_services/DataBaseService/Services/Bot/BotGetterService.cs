@@ -1,6 +1,8 @@
 ﻿using Grpc.Core;
 using System.Net;
 using DataBaseService.DataBase;
+using DataBaseService.Protos;
+
 namespace DataBaseService.Services.bot
 {
     public class BotGetterService : BotGetter.BotGetterBase
@@ -12,17 +14,17 @@ namespace DataBaseService.Services.bot
             _logger = logger;
         }
 
-        public override Task<BotSurvey> GetBotById(GetBotRequest request, ServerCallContext context)
+        public override Task<Protos.BotSurvey> GetBotById(GetBotRequest request, ServerCallContext context)
         {
             _logger.LogInformation("Get Bot by id Request");
 
-            BotSurvey botSurvey = null;
+            Protos.BotSurvey botSurvey = null;
 
             //
             // METHODS
             //
 
-            return Task.FromResult(new BotSurvey
+            return Task.FromResult(new Protos.BotSurvey
             {
                 BotId = 1,
                 Title = "BCG BOT"

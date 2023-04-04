@@ -2,14 +2,15 @@
 {
     public class Module
     {
-        public Module(List<int> answers, List<int> next_ids, string question)
+
+        public Module()
         {
-            Answers = answers;
-            Next_ids = next_ids;
-            Question = question;
+
         }
 
         public string Question { get; set; }
+        public string Type { get; set; }
+        public string Title { get; set; }
         public List<int> Next_ids { get; set; }
         public List<int> Answers { get; set; }
 

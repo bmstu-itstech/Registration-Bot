@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+option csharp_namespace = "DataBaseService.Protos";
+
 message BaseResponse{
   string  state = 1;
   int32  code = 2;
@@ -15,10 +17,11 @@ message Module {
 	string question = 1;
 	repeated int32 next_ids = 2;
 	repeated int32 answers = 3;
+	string type = 4;
+	string title = 5;
 }
 
 message Journal
 {
-	int32 bot_id =1;
-	map<int32, Module> modules=2; 
+	map<int32, Module> modules = 1; 
 }

@@ -1,5 +1,9 @@
 ﻿using Grpc.Core;
 using DataBaseService.DataBase;
+using DataBaseService.Protos;
+using DataBaseService.Backend.Types;
+using Journal = DataBaseService.Backend.Types.Journal;
+using System.Linq;
 
 namespace DataBaseService.Services.Bot
 {
@@ -19,17 +23,26 @@ namespace DataBaseService.Services.Bot
             string state = "OK";
             int code = 200;
 
-            var modules = request.Modules.ToDictionary(m => m.Key, m => m.Value);
+            var journal = request.Journal;
 
+            Journal my_journal = new Journal()
+            {
+                Modules = request.Journal.Modules.ToDictionary(m => m.Key, m => new Backend.Types.Module 
+                { 
+                    Answers = m.Value.Answers.ToList(),
+                    Question = m.Value.Question,
 
-            DataBase.BotSurvey.CreateNewBotSurvey(request.FromUser,modules).Wait();
+                })
+            };
+
+            DataBase.BotSurvey.CreateNewBotSurvey(request.FromUser, my_journal).Wait();
 
 
             return Task.FromResult(new BaseResponse()
             {
                 State = state,
                 Code = code
-            }) ;
+            });
         }
 
         public override Task<BaseResponse> DeleteBot(DeleteBotRequest request, ServerCallContext context)

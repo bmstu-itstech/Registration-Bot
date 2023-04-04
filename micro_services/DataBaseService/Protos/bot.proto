@@ -1,9 +1,11 @@
 syntax = "proto3";
 
+option csharp_namespace = "DataBaseService.Protos";
+
 import "Protos/base_types.proto";
 
 service BotGetter{
-  rpc GetBotById (GetBotRequest) returns (BotSurvey);
+    rpc GetBotById (GetBotRequest) returns (BotSurvey);
   
 }
 service BotWorker {
@@ -17,7 +19,8 @@ message GetBotRequest{
 
 message CreateBotRequest{
 	int32 from_user = 1;
-	map<int32, Module> modules = 2;
+	Journal journal = 2;
+
 }
 
 message DeleteBotRequest{
