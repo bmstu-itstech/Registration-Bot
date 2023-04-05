@@ -14,31 +14,37 @@ namespace DataBaseService.Services.User
             _logger = logger;
         }
 
-        public override Task<BaseResponse> EndReg(EndRegRequest request, ServerCallContext context)
+        public override Task<UserResponse> GetUser(GetUserRequest request, ServerCallContext context)
         {
-            _logger.LogInformation("End Rigistatrion request");
+            _logger.LogInformation($"Get user {request.UserId} Request");
 
-            string state = "OK";
-            int code = 200;
 
-            return Task.FromResult(new BaseResponse()
-            {
-                State = state,
-                Code = code
-            }) ;
+            return base.GetUser(request, context);
         }
 
-        public override Task<BaseResponse> RegNewUser(RegUserRequest request, ServerCallContext context)
+        public override Task<GetUserBotsListResponse> GetUserBotsList(GetUserBotsListRequest request, ServerCallContext context)
         {
-            _logger.LogInformation($"Reg new user in bot {request.BotId}");
+            _logger.LogInformation($"Get user {request.UserId} bots Request");
+
+
+            return base.GetUserBotsList(request, context);
+        }
+
+        public override Task<BaseResponse> RegNewUser(Protos.User request, ServerCallContext context)
+        {
+            _logger.LogInformation($"reg new user Request");
 
             string state = "OK";
             int code = 200;
 
-            return Task.FromResult(new BaseResponse()
+            // 
+            // METHODS
+            //
+
+            return Task.FromResult(new BaseResponse
             {
                 State = state,
-                Code = code
+                Code = code,
             });
         }
     }

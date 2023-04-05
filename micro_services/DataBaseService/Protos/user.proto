@@ -5,23 +5,21 @@ option csharp_namespace = "DataBaseService.Protos";
 import "Protos/base_types.proto";
 
 service UserWorker{
-	rpc RegNewUser(RegUserRequest ) returns (BaseResponse);
-	rpc EndReg(EndRegRequest ) returns (BaseResponse);
+	rpc RegNewUser(User) returns (BaseResponse);
+	rpc GetUser(GetUserRequest) returns (UserResponse);
 	rpc GetUserBotsList(GetUserBotsListRequest) returns (GetUserBotsListResponse);
 }
 
-message RegUserRequest
-{
-	int32 bot_id =1;
-}
-
-message EndRegRequest{
-	int32 user_id = 1;
-}
 
 message GetUserBotsListRequest{
-
+	int32 user_id = 1;
 }
- message GetUserBotsListResponse{
+message GetUserRequest{
+	int32 user_id =1;
+}
 
+ message GetUserBotsListResponse{
+	 int32 code = 1;
+	 string state = 2;
+	 repeated BotSurvey bots = 3;
  }
