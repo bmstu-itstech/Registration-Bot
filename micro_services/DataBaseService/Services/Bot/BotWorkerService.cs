@@ -27,15 +27,35 @@ namespace DataBaseService.Services.Bot
 
             Journal my_journal = new Journal()
             {
-                Modules = request.Journal.Modules.ToDictionary(m => m.Key, m => new Backend.Types.Module 
-                { 
+                Modules = request.Journal.Modules.ToDictionary(m => m.Key, m => new Backend.Types.Module
+                {
                     Answers = m.Value.Answers.ToList(),
                     Question = m.Value.Question,
 
                 })
             };
 
-            DataBase.BotSurvey.CreateNewBotSurvey(request.FromUser, my_journal).Wait();
+            //main code 
+            try
+            {
+
+
+                var response = DataBase.BotSurvey.CreateNewBotSurvey(request.FromUser, my_journal);
+
+                response.Wait();
+
+                if (response.IsFaulted)
+                {
+                    state = "Erorr while Creating new Bot Survey";
+                    code = 401;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                state = $"Erorr while Creating new Bot Survey\n{ex.Message}";
+                code = 401;
+            }
 
 
             return Task.FromResult(new BaseResponse()
@@ -53,9 +73,27 @@ namespace DataBaseService.Services.Bot
             string state = "OK";
             int code = 200;
 
-            //
-            // METHODS
-            //
+            //main code 
+            try
+            {
+
+
+                var response = DataBase.BotSurvey.DeleteBotSurvey(request.FromUser, request.BotId);
+
+                response.Wait();
+
+                if (response.IsFaulted)
+                {
+                    state = "Erorr while Deleting Bot Survey";
+                    code = 401;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                state = $"Erorr while Deleting Bot Survey\n{ex.Message}";
+                code = 401;
+            }
 
             return Task.FromResult(new BaseResponse()
             {
