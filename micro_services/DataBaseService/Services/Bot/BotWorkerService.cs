@@ -31,7 +31,9 @@ namespace DataBaseService.Services.Bot
                 { 
                     Answers = m.Value.Answers.ToList(),
                     Question = m.Value.Question,
-
+                    Title = m.Value.Title,
+                    Type = m.Value.Type,
+                    Next_ids = m.Value.NextIds.ToList(),    
                 })
             };
 
