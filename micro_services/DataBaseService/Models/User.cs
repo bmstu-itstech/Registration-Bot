@@ -12,4 +12,6 @@ public partial class User
     public string Description { get; set; } = null!;
 
     public string Owner { get; set; } = null!;
+
+    public virtual ICollection<Bot> Bots { get; } = new List<Bot>();
 }

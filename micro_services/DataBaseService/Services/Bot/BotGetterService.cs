@@ -14,20 +14,19 @@ namespace DataBaseService.Services.bot
             _logger = logger;
         }
 
-        public override Task<Protos.BotSurvey> GetBotById(GetBotRequest request, ServerCallContext context)
+        public override Task<Protos.BotResponse> GetBotById(GetBotRequest request, ServerCallContext context)
         {
             _logger.LogInformation("Get Bot by id Request");
 
-            Protos.BotSurvey botSurvey = null;
+            Protos.BotResponse botSurvey = null;
 
             //
             // METHODS
             //
 
-            return Task.FromResult(new Protos.BotSurvey
+            return Task.FromResult(new Protos.BotResponse
             {
-                BotId = 1,
-                Title = "BCG BOT"
+              
             });
         }
     }

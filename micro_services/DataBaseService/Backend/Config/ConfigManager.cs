@@ -16,6 +16,8 @@
 
             string debug = _config.GetValue<string>("DEBUG");
 
+
+
             if (debug == "true")
                 DEBUG = true;
 
@@ -24,7 +26,7 @@
         public string? GetConnetion()
         {
             if (DEBUG)
-                return _config.GetConnectionString("DEBAG_DB");
+                return _config.GetConnectionString("DEBUG_DB");
             return _config.GetConnectionString("DB");
         }
     }

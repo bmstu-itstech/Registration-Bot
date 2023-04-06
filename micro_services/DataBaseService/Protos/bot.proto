@@ -5,7 +5,7 @@ option csharp_namespace = "DataBaseService.Protos";
 import "Protos/base_types.proto";
 
 service BotGetter{
-    rpc GetBotById (GetBotRequest) returns (BotSurvey);
+    rpc GetBotById (GetBotRequest) returns (BotResponse);
   
 }
 service BotWorker {

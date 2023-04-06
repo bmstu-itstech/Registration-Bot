@@ -2,7 +2,7 @@
 using DataBaseService.DataBase;
 using DataBaseService.Protos;
 using DataBaseService.Backend.Types;
-using Journal = DataBaseService.Backend.Types.Journal;
+using MyJournal = DataBaseService.Backend.Types.MyJournal;
 using System.Linq;
 
 namespace DataBaseService.Services.Bot
@@ -25,7 +25,7 @@ namespace DataBaseService.Services.Bot
 
             var journal = request.Journal;
 
-            Journal my_journal = new Journal()
+            MyJournal my_journal = new MyJournal()
             {
                 Modules = request.Journal.Modules.ToDictionary(m => m.Key, m => new Backend.Types.Module
                 {

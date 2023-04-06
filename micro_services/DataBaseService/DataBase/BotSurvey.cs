@@ -1,4 +1,5 @@
-﻿using DataBaseService.Backend.Config;
+﻿using DataBaseService.backend.Types;
+using DataBaseService.Backend.Config;
 using DataBaseService.Backend.Exeptions;
 using DataBaseService.Backend.Types;
 
@@ -9,7 +10,7 @@ namespace DataBaseService.DataBase
 {
     public class BotSurvey
     {
-        public static Task CreateNewBotSurvey(int user_id, Journal journal)
+        public static Task CreateNewBotSurvey(int user_id, MyJournal journal)
         {
             return Task.Run(async () =>
             {
@@ -20,13 +21,25 @@ namespace DataBaseService.DataBase
                     colums.Add(key: module.Value.Title, value: module.Value.Type);
                 }
 
-                int bot_id = CreateBotSurveyTable().Result;
+                int bot_id = (int)CreateBotSurveyTable().Result;
 
                 await CreateBotSurveyAnswerTable(bot_id, colums);
                 await CreateBotSurveyAdminTable(bot_id);
 
+      
 
                 await FillBotSurveyTable(bot_id, journal);
+
+                try
+                {
+                    await MyBot.AddNewBot(bot_id, user_id);
+                }
+                catch (Exception ex)
+                {
+
+                    Console.WriteLine(ex);
+                }
+              
             });
 
         }
@@ -37,28 +50,32 @@ namespace DataBaseService.DataBase
             {
                 await DropBotSurveyTable(bot_id);
                 await DropBotSurveyAnswerTable(bot_id);
-                await CreateBotSurveyAdminTable(bot_id);
+                await DroBotSurveyAdminTable(bot_id);
             });
         }
 
-        private static async Task<int> CreateBotSurveyTable()
+        private static async Task<long> CreateBotSurveyTable()
         {
             return await Task.Run(async () =>
             {
 
-                int next_bot_id = -1;
+                long next_bot_id = -1;
 
                 using (var conn = new NpgsqlConnection(new ConfigManager().GetConnetion()))
                 {
                     await conn.OpenAsync();
 
-                    string get_next_id = "SELECT nextval FROM bot_id_sequence--";
+                    string get_next_id = "SELECT nextval('bot_id_sequence');--";
 
                     using (var command = new NpgsqlCommand(get_next_id, conn))
                     {
                         using (var reader = await command.ExecuteReaderAsync())
                         {
-                            next_bot_id = reader.GetInt32(0);
+                            while (await reader.ReadAsync())
+                            {
+                                next_bot_id = reader.GetInt64(0);
+                            }
+
                         }
                     }
 
@@ -240,28 +257,30 @@ namespace DataBaseService.DataBase
                 string answers = "";
 
                 foreach (var next_id in module.Next_ids)
-                    next_ids += next_id.ToString() + "'\'";
+                    next_ids += next_id.ToString() + "\\";
 
                 foreach (var answer in module.Answers)
-                    answers += answer.ToString() + "'\'";
+                    answers += answer.ToString() + '\\' ;
 
                 next_ids = next_ids.Remove(next_ids.Length - 1, 1);
                 answers = answers.Remove(answers.Length - 1, 1);
 
 
-                string insert = $"INSERT INTO bot_{bot_id} (module_id,next_ids,question_text,answers) VALUES " +
+                string insert = $"INSERT INTO bot_{bot_id} (module_id,next_ids,question_text,answers) VALUES" +
                     $"(" +
                     $"{module_id}," +
-                    $"{next_ids}," +
-                    $"{module.Question}" +
-                    $"{answers},)" +
+                    $"'{next_ids}'," +
+                    $"'{module.Question}'," +
+                    $"'{answers}')" +
                     $"--";
+
+               
 
                 return insert;
             });
         }
 
-        private static async Task FillBotSurveyTable(int bot_id, Journal journal)
+        private static async Task FillBotSurveyTable(int bot_id, MyJournal journal)
         {
 
             foreach (var modul in journal.Modules)
@@ -271,10 +290,19 @@ namespace DataBaseService.DataBase
                 {
                     await conn.OpenAsync();
 
-                    using (var command = new NpgsqlCommand(generate_insert_into_bot_survey(bot_id, modul.Key, modul.Value).Result, conn))
+                    try
                     {
-                        await command.ExecuteNonQueryAsync();
+                        using (var command = new NpgsqlCommand(generate_insert_into_bot_survey(bot_id, modul.Key, modul.Value).Result, conn))
+                        {
+                            await command.ExecuteNonQueryAsync();
+                        }
                     }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex);
+
+                    }
+                    
                 }
             }
         }
