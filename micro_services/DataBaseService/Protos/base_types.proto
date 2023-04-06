@@ -25,3 +25,18 @@ message Journal
 {
 	map<int32, Module> modules = 1; 
 }
+
+message User{
+	string title = 1;
+	string description =2;
+	string contact =3 ;
+}
+
+message UserResponse{
+	string title = 1;
+	string description =2;
+	string contact =3 ;
+	string state = 4;
+	int32  code =5;
+
+}
