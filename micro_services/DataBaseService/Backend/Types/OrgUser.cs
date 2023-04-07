@@ -17,11 +17,27 @@ namespace DataBaseService.Backend.Types
             {
                 using (RegistrationBotContext db = new RegistrationBotContext())
                 {
-                    List<MyBot> bots = new List<MyBot>();
 
-                    bots = (List<MyBot>)db.Users.Where(user => user.Id == user_id).ToList().First().Bots;
+                    List<MyBot> userBots = new List<MyBot>();
 
-                    return bots;
+                    var bots = db.Bots.Where(bot => bot.Owner == user_id).ToList();
+                    Console.WriteLine(bots.Count);
+
+
+                    foreach(var bot in bots)
+                    {
+                        userBots.Add(new MyBot
+                        {
+                            bot_survey_id = bot.Id,
+                            google_token = bot.GoogleToken,
+                            tg_token = bot.TgToken,
+                            owner = bot.Owner,
+                            Id = bot.Id,
+                            
+                        });
+                    }
+
+                    return userBots;
                 }
 
             });

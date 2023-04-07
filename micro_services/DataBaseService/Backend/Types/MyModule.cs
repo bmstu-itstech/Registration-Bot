@@ -1,9 +1,9 @@
 ﻿namespace DataBaseService.Backend.Types
 {
-    public class Module
+    public class MyModule
     {
 
-        public Module()
+        public MyModule()
         {
 
         }

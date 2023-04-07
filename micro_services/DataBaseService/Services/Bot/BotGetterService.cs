@@ -1,7 +1,8 @@
 ﻿using Grpc.Core;
 using System.Net;
-using DataBaseService.DataBase;
+
 using DataBaseService.Protos;
+using DataBaseService.backend.Types;
 
 namespace DataBaseService.Services.bot
 {
@@ -14,20 +15,34 @@ namespace DataBaseService.Services.bot
             _logger = logger;
         }
 
-        public override Task<Protos.BotResponse> GetBotById(GetBotRequest request, ServerCallContext context)
+        public override Task<BotResponse> GetBot(GetBotRequest request, ServerCallContext context)
         {
             _logger.LogInformation("Get Bot by id Request");
 
-            Protos.BotResponse botSurvey = null;
 
-            //
-            // METHODS
-            //
 
-            return Task.FromResult(new Protos.BotResponse
+            var bot = MyBot.GetBot(request.BotId, request.Owner).Result;
+            var bot_response = new BotResponse()
             {
-              
-            });
+                State = "OK",
+                Code = 200,
+            };
+
+
+            if (bot == null)
+            {
+                bot_response.State = "Error while getting bot";
+                bot_response.Code = 401;
+
+                return Task.FromResult(bot_response);
+            }
+
+            bot_response.BotSurveyId = bot.bot_survey_id;
+            bot_response.GoogleToken = bot.google_token;
+            bot_response.TgToken = bot.tg_token;
+            bot_response.Owner = bot.owner;
+
+            return Task.FromResult(bot_response);
         }
     }
 }

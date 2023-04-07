@@ -25,7 +25,7 @@ public partial class RegistrationBotContext : DbContext
         var _config = new ConfigManager();
 
 
-        Console.WriteLine(_config.GetConnetion());
+
         optionsBuilder.UseNpgsql(_config.GetConnetion());
     }
 

@@ -43,23 +43,26 @@ namespace DataBaseService.Services.User
 
             if (user_bots == null)
             {
-                state = "Erorr while geting user bots";
-                code = 401;
+                response.State = "Erorr while geting user bots";
+                response.Code = 401;
 
-                foreach(var bot in user_bots)
-                {
-                    response_bots.Add(new BotResponse
-                    { 
-                        Id = bot.Id,
-                        BotSurveyId = bot.bot_survey_id,
-                        TgToken = bot.tg_token,
-                        GoogleToken = bot.google_token,
-                        Owner = bot.owner,
 
-                    });
-                }
+
+                return Task.FromResult(response);
             }
 
+            foreach (var bot in user_bots)
+            {
+                response_bots.Add(new BotResponse
+                {
+                    Id = bot.Id,
+                    BotSurveyId = bot.bot_survey_id,
+                    TgToken = bot.tg_token,
+                    GoogleToken = bot.google_token,
+                    Owner = bot.owner,
+
+                });
+            }
 
             response.State = state;
             response.Code = code;

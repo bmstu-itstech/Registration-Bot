@@ -1,9 +1,10 @@
 ﻿using Grpc.Core;
-using DataBaseService.DataBase;
+
 using DataBaseService.Protos;
 using DataBaseService.Backend.Types;
 using MyJournal = DataBaseService.Backend.Types.MyJournal;
 using System.Linq;
+using DataBaseService.backend.Types;
 
 namespace DataBaseService.Services.Bot
 {
@@ -27,13 +28,13 @@ namespace DataBaseService.Services.Bot
 
             MyJournal my_journal = new MyJournal()
             {
-                Modules = request.Journal.Modules.ToDictionary(m => m.Key, m => new Backend.Types.Module
+                Modules = request.Journal.Modules.ToDictionary(m => m.Key, m => new MyModule
                 {
                     Answers = m.Value.Answers.ToList(),
                     Question = m.Value.Question,
                     Title = m.Value.Title,
                     Type = m.Value.Type,
-                    Next_ids = m.Value.NextIds.ToList(),    
+                    Next_ids = m.Value.NextIds.ToList(),
                 })
             };
 
@@ -42,7 +43,7 @@ namespace DataBaseService.Services.Bot
             {
 
 
-                var response = DataBase.BotSurvey.CreateNewBotSurvey(request.FromUser, my_journal);
+                var response = MyBot.CreateNewBotSurvey(request.FromUser, my_journal);
 
                 response.Wait();
 
@@ -80,7 +81,7 @@ namespace DataBaseService.Services.Bot
             {
 
 
-                var response = DataBase.BotSurvey.DeleteBotSurvey(request.FromUser, request.BotId);
+                var response = MyBot.DeleteBotSurvey(request.FromUser, request.BotId);
 
                 response.Wait();
 
@@ -94,6 +95,52 @@ namespace DataBaseService.Services.Bot
             catch (Exception ex)
             {
                 state = $"Erorr while Deleting Bot Survey\n{ex.Message}";
+                code = 401;
+            }
+
+            return Task.FromResult(new BaseResponse()
+            {
+                State = state,
+                Code = code
+            });
+        }
+
+        public override Task<BaseResponse> UpdateBotGoogleToken(UpdateBotGoogleTokenRequest request, ServerCallContext context)
+        {
+            _logger.LogInformation($"Update Bot {request.BotId} Google Token Request");
+
+            string state = "OK";
+            int code = 200;
+
+            var response = MyBot.UpdateBotGoogleToken(request.Token, request.BotId, request.Owner);
+
+            if (response.IsFaulted)
+            {
+                state = "Error while updating google token";
+                code = 401;
+            }
+
+
+            return Task.FromResult(new BaseResponse()
+            {
+                State = state,
+                Code = code
+            });
+        }
+
+        public override Task<BaseResponse> UpdateBotTgToken(UpdateBotTgTokenRequest request, ServerCallContext context)
+        {
+            _logger.LogInformation($"Update Bot {request.BotId} Google Token Request");
+
+            string state = "OK";
+            int code = 200;
+
+            var response = MyBot.UpdateBotTgToken(request.Token, request.BotId, request.Owner);
+
+
+            if (response.IsFaulted)
+            {
+                state = "Error while updating google token";
                 code = 401;
             }
 
