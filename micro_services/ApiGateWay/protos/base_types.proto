@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+option csharp_namespace = "DataBaseService.Protos";
+
+message BaseResponse{
+  string  state = 1;
+  int32  code = 2;
+}
+
+message BotResponse{
+   int32  id = 1;
+   string  tg_token = 2;
+   string  google_token = 3;
+   int32 owner =4;
+   int32 bot_survey_id =5;
+   string state = 6;
+   int32 code =7;
+
+}
+message Module {
+	string question = 1;
+	repeated int32 next_ids = 2;
+	repeated int32 answers = 3;
+	string type = 4;
+	string title = 5;
+}
+
+message Journal
+{
+	map<int32, Module> modules = 1; 
+}
+
+message User{
+	string title = 1;
+	string description =2;
+	string contact =3 ;
+}
+
+message UserResponse{
+	string title = 1;
+	string description =2;
+	string contact =3 ;
+	string state = 4;
+	int32  code =5;
+
+}

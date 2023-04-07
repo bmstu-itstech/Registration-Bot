@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+option csharp_namespace = "DataBaseService.Protos";
+
+import "base_types.proto";
+
+service UserWorker{
+	rpc RegNewUser(User) returns (BaseResponse);
+	rpc GetUser(GetUserRequest) returns (UserResponse);
+	rpc GetUserBotsList(GetUserBotsListRequest) returns (GetUserBotsListResponse);
+}
+
+
+message GetUserBotsListRequest{
+	int32 user_id = 1;
+}
+message GetUserRequest{
+	int32 user_id =1;
+}
+
+ message GetUserBotsListResponse{
+	 int32 code = 1;
+	 string state = 2;
+	 repeated BotResponse bots = 3;
+ }

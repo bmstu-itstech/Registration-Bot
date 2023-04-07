@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+option csharp_namespace = "DataBaseService.Protos";
+
+import "base_types.proto";
+
+service BotGetter{
+    rpc GetBot (GetBotRequest) returns (BotResponse);
+  
+}
+service BotWorker {
+	rpc CreateBot(CreateBotRequest) returns (BaseResponse);
+	rpc DeleteBot(DeleteBotRequest) returns (BaseResponse);
+	rpc UpdateBotTgToken (UpdateBotTgTokenRequest) returns (BaseResponse);
+	rpc UpdateBotGoogleToken (UpdateBotGoogleTokenRequest) returns (BaseResponse);
+}
+
+message GetBotRequest{
+  int32 bot_id = 1;
+  int32 owner = 2;
+}
+message UpdateBotTgTokenRequest{
+  int32 bot_id = 1;
+  int32 owner = 2;
+  string token = 3;
+}
+
+message UpdateBotGoogleTokenRequest{
+  int32 bot_id = 1;
+  int32 owner = 2;
+  string token = 3;
+}
+
+
+message CreateBotRequest{
+	int32 from_user = 1;
+	Journal journal = 2;
+
+}
+
+message DeleteBotRequest{
+	int32 from_user = 1;
+	int32 bot_id = 2;
+
+}
