@@ -1,20 +1,7 @@
-secrets.json
-.vs/
-bin/
-obj/
+launchSettings.json
 appsettings.json
-*.editorconfig
-=======darleet=======
-
-# Ignore PyCharm settings files
-.idea/
-
-# Ignore venv
-venv/
-
-# Ignore DBs
-*.sqlite
-*.db
-
-# Ignore cache
-*/__pycache__/
+.vs/
+obj/
+bin/
+appsettings.Development.json
+secrets.json

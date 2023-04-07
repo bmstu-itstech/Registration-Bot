@@ -28,5 +28,10 @@
             return _config.GetConnectionString("DB");
         }
 
+        public string GetConnetionToDataBaseMicroserice()
+        {
+            return _config.GetConnectionString("DB_MICROSERVICE");
+        }
+
     }
 }

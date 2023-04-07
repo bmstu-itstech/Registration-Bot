@@ -1,7 +1,7 @@
 ﻿using Google.Apis.Sheets.v4.Data;
 using Google.Protobuf.WellKnownTypes;
 using GoogleSheetsService.Backend;
-
+using GoogleSheetsService.Clients;
 using Grpc.Core;
 
 namespace GoogleSheetsService.Services
@@ -21,9 +21,9 @@ namespace GoogleSheetsService.Services
             _logger.LogInformation("Append new Recored request");
 
 
-            var db_controller = new DataBaseController();
 
-            string current_bot_sheet_id = db_controller.Get_bot_sheetId(request.BotId).Result;
+
+            string current_bot_sheet_id = TokenGetter.GetGoogleApiSheetsToken(request.BotId, request.FromUser).Result;
 
             var googleHelper = new GoogleHelper(current_bot_sheet_id);
 
@@ -69,9 +69,12 @@ namespace GoogleSheetsService.Services
         {
             _logger.LogInformation("Append new Sheet request ");
 
-            var db_controller = new DataBaseController();
+          
 
-            string current_bot_sheet_id = db_controller.Get_bot_sheetId(request.BotId).Result;
+            string current_bot_sheet_id = TokenGetter.GetGoogleApiSheetsToken(request.BotId, request.FromUser).Result;
+
+            Console.WriteLine(current_bot_sheet_id);
+
 
             var googleHelper = new GoogleHelper(current_bot_sheet_id);
 
@@ -114,9 +117,9 @@ namespace GoogleSheetsService.Services
         {
             _logger.LogInformation($"Update Record at {request.ExelId}");
 
-            var db_controller = new DataBaseController();
+    
 
-            string current_bot_sheet_id = db_controller.Get_bot_sheetId(request.BotId).Result;
+            string current_bot_sheet_id = TokenGetter.GetGoogleApiSheetsToken(request.BotId, request.FromUser).Result;
 
             var googleHelper = new GoogleHelper(current_bot_sheet_id);
 

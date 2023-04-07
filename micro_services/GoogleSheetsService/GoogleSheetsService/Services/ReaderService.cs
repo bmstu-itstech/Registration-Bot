@@ -1,5 +1,6 @@
 ﻿using Google.Protobuf.Collections;
 using GoogleSheetsService.Backend;
+using GoogleSheetsService.Clients;
 using Grpc.Core;
 using static GoogleSheetsService.SheetReaderService;
 
@@ -18,9 +19,8 @@ namespace GoogleSheetsService.Services
         {
             _logger.LogInformation("ReadLine request");
 
-            var db_controller = new DataBaseController();
 
-            string current_bot_sheet_id = db_controller.Get_bot_sheetId(request.BotId).Result;
+            string current_bot_sheet_id = TokenGetter.GetGoogleApiSheetsToken(request.BotId, request.FromUser).Result;
 
             var googleHelper = new GoogleHelper(current_bot_sheet_id);
 
@@ -56,9 +56,9 @@ namespace GoogleSheetsService.Services
 
             _logger.LogInformation("ReadRange request");
 
-            var db_controller = new DataBaseController();
+            
 
-            string current_bot_sheet_id = db_controller.Get_bot_sheetId(request.BotId).Result;
+            string current_bot_sheet_id = TokenGetter.GetGoogleApiSheetsToken(request.BotId, request.FromUser).Result;
 
             var googleHelper = new GoogleHelper(current_bot_sheet_id);
 
