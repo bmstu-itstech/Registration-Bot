@@ -99,7 +99,7 @@ namespace DataBaseService.backend.Types
         }
         public static Task<MyBot> GetBot(int bot_survey_id, int owner)
         {
-            return Task.Run(async () =>
+            return Task.Run( () =>
             {
                 using (RegistrationBotContext db = new RegistrationBotContext())
                 {

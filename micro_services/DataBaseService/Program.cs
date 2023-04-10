@@ -1,6 +1,7 @@
 using DataBaseService.Backend.Config;
 using DataBaseService.Services.bot;
 using DataBaseService.Services.Bot;
+using DataBaseService.Services.SheetConnector;
 using DataBaseService.Services.User;
 using System.Net.WebSockets;
 
@@ -23,6 +24,8 @@ app.MapGrpcService<BotGetterService>();
 app.MapGrpcService<BotWorkerService>();
 
 app.MapGrpcService<UserWorkerService>();
+app.MapGrpcService<SheetConnetService>();
+
 
 app.MapGet("/", () => "Communication with gRPC endpoints must be made through a gRPC client. To learn how to create a client, visit: https://go.microsoft.com/fwlink/?linkid=2086909");
 

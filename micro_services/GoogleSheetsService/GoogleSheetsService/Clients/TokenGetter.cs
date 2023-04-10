@@ -8,7 +8,10 @@ namespace GoogleSheetsService.Clients
     {
         public static async Task<string> GetGoogleApiSheetsToken(int bot_id, int owner)
         {
-            using (var channel = GrpcChannel.ForAddress(new ConfigManager().GetConnetionToDataBaseMicroserice()))
+            string teest = new ConfigManager().GetConnetionToDataBaseMicroserice();
+           
+
+            using (var channel = GrpcChannel.ForAddress(teest))
             {
                 var clinet = new SheetConnector.SheetConnectorClient(channel);
 
