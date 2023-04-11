@@ -29,7 +29,7 @@ async def create_tree(data, bot_id):
         tree_ent.add_module(key, data[key]["links"], data[key]["question"], data[key]["answers"])
 
     # Create database connection
-    conn = await connect_or_create('postgresql', f'id{bot_id}')
+    conn = await connect_or_create('postgres', f'id{bot_id}')
 
     sql = (
         f"DROP TABLE IF EXISTS id{bot_id}"

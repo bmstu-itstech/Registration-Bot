@@ -64,10 +64,11 @@ async def get_next_question_id(conn, button_id):
     return next_question_id[0]
 
 async def send_question(bot_id, state, bot, chat_id, question_id):
-    async with asyncpg.connect(f'postgresql://darleet@localhost/id{bot_id}') as conn:
-        # Get question text and type from database
-        question_text = await get_question_text(conn, question_id)
-        question_type = await get_question_type(conn, question_id)
+    # Create database connection
+    conn = await connect_or_create('postgres', f'id{bot_id}')
+    # Get question text and type from database
+    question_text = await get_question_text(conn, question_id)
+    question_type = await get_question_type(conn, question_id)
 
     # Send question
     if question_type == 'text':
@@ -106,7 +107,7 @@ async def run_instance(token, bot_id):
     dp.include_router(router)
 
     # Create database connection
-    conn = await connect_or_create('postgresql', f'id{bot_id}')
+    conn = await connect_or_create('postgres', f'id{bot_id}')
 
     # Create questions table
     await conn.execute('''
