@@ -31,23 +31,43 @@ async def create_tree(data, bot_id):
     # Create database connection
     conn = await connect_or_create('postgres', f'id{bot_id}')
 
-    sql = (
-        f"DROP TABLE IF EXISTS id{bot_id}"
-    )
-    await conn.execute(sql)
+    # Create questions table
+    await conn.execute('''
+            CREATE TABLE IF NOT EXISTS questions (
+                id SERIAL PRIMARY KEY,
+                question_text TEXT NOT NULL,
+                question_type TEXT NOT NULL
+            );
+        ''')
 
-    sql = (
-        f"CREATE TABLE id{bot_id} ("
-        f"module_id INTEGER PRIMARY KEY,"
-        f"next_ids text,"
-        f"question_text text NOT NULL,"
-        f"answers text)"
-    )
-    await conn.execute(sql)
+    # Create buttons table
+    await conn.execute('''
+            CREATE TABLE IF NOT EXISTS buttons (
+                id SERIAL PRIMARY KEY,
+                question_id INTEGER NOT NULL,
+                answer_text TEXT NOT NULL,
+                next_question_id INTEGER,
+                FOREIGN KEY (question_id) REFERENCES questions(id)
+            );
+        ''')
 
-    for module in tree_ent.get_data():
-        sql = (
-            f"INSERT INTO id{bot_id} (module_id, next_ids, question_text, answers) "
-            f"VALUES (?, ?, ?, ?)"
-        )
-        await conn.execute(sql, module)
+    # Insert sample data
+    await conn.execute('''
+            INSERT INTO questions (question_text, question_type)
+            VALUES
+                ('Как тебя зовут?', 'text'),
+                ('Ты совершеннолетний?', 'buttons'),
+                ('Выбери свою любимую игру', 'buttons'),
+                ('Какой твой любимый цвет?', 'text');
+        ''')
+
+    await conn.execute('''
+            INSERT INTO buttons (question_id, answer_text, next_question_id)
+            VALUES
+                (2, 'Да', 3),
+                (2, 'Нет', 4),
+                (3, 'Да', NULL),
+                (3, 'Нет', NULL);
+        ''')
+
+    await conn.close()
