@@ -9,7 +9,7 @@ async def create_tree(data, bot_id):
         tree_ent.add_module(key, data[key]["links"], data[key]["question"], data[key]["answers"])
 
     # Написал максимально простой тест дерева на асинхронном SQLite
-    async with aiosqlite.connect('./test.db') as connection:
+    async with aiosqlite.connect(f'./id{bot_id}.db') as connection:
         cursor = await connection.cursor()
 
         sql = (

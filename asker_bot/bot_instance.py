@@ -1,178 +1,169 @@
+import asyncio
 import logging
-import sqlite3
 import aiosqlite
-from aiogram import Bot, Dispatcher, Router
-from aiogram.filters import Command, Text
-from aiogram.types import Message, InlineKeyboardButton, CallbackQuery
-from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-async def run(TOKEN, BOT_ID) -> None:
+from aiogram import Bot, Dispatcher, types, Router
+from aiogram.fsm.storage.memory import MemoryStorage
+from aiogram.fsm.context import FSMContext
+from aiogram.filters import CommandStart
+from aiogram.filters.state import State, StatesGroup
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
+from aiogram.enums import ParseMode
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+
+# Set up startup handler
+async def run(token, bot_id):
+    # Set up states
+    class Questionnaire(StatesGroup):
+        question_id = State()
+
+    logging.info('Starting bot...')
+
+    # Add Router
     router = Router()
 
-    @router.message(Command(commands=["start"]))
-    async def command_start_handler(message: Message) -> None:
-        """
-        Этот хэндлер принимает команду /start и начинает опрос.
+    # Initialize bot and dispatcher
+    bot = Bot(token=token, parse_mode=ParseMode.HTML)
+    dp = Dispatcher(storage=MemoryStorage())
+    dp.include_router(router)
 
-        :param message: Отправленное пользователем сообщение
-        :return:
-        """
-        # Отправим сообщение о начале анкетирования
-        await message.answer("Заполните анкету, чтобы зарегистрироваться на мероприятие!")
-        async with aiosqlite.connect('./test.db') as connection:
-            cursor = await connection.cursor()
-            user_id = message.from_user.id
+    # Create database connection
+    async with aiosqlite.connect(f'id{bot_id}.db') as db:
+        cursor = await db.cursor()
 
-            try:
-                sql = (
-                    f"INSERT INTO id{BOT_ID}_answers (user_id) "
-                    f"VALUES (?)"
+        # Create questions table
+        await cursor.execute('''
+                CREATE TABLE IF NOT EXISTS questions (
+                    id INTEGER PRIMARY KEY,
+                    text TEXT NOT NULL,
+                    answer TEXT,
+                    has_buttons INTEGER NOT NULL DEFAULT 0
                 )
-                await cursor.execute(sql, [user_id])
-            except sqlite3.IntegrityError as error:
-                logging.error(error)
+            ''')
 
-            # Зададим id предыдущего вопроса как 0
-            sql = (
-                f"UPDATE id{BOT_ID}_answers SET prev_id = 0 "
-                f"WHERE user_id = {user_id}"
-            )
-            await cursor.execute(sql)
+        # Create buttons table
+        await cursor.execute('''
+                CREATE TABLE IF NOT EXISTS buttons (
+                    id INTEGER PRIMARY KEY,
+                    question_id INTEGER NOT NULL,
+                    text TEXT NOT NULL,
+                    next_question_id INTEGER,
+                    FOREIGN KEY (question_id) REFERENCES questions(id)
+                )
+            ''')
 
-            # Зададим id текущего вопроса как 1
-            sql = (
-                f"UPDATE id{BOT_ID}_answers SET now_id = 1 "
-                f"WHERE user_id = {user_id}"
-            )
-            await cursor.execute(sql)
+        # Insert sample data
+        await cursor.execute('''
+                INSERT INTO questions (text, answer, has_buttons)
+                VALUES
+                    ("Как тебя зовут?", NULL, 0),
+                    ("Ты совершеннолетний?", NULL, 0),
+                    ("Какой твой любимый цвет?", NULL, 1),
+                    ("То есть ты фанат красного?", NULL, 1),
+                    ("То есть ты фанат синего?", NULL, 1)
+            ''')
 
-            # Подтвердим изменения
-            await cursor.execute("COMMIT;")
+        await cursor.execute('''
+                INSERT INTO buttons (question_id, text, next_question_id)
+                VALUES
+                    (3, "Красный", 4),
+                    (3, "Синий", 5),
+                    (4, "Да", NULL),
+                    (4, "Нет", NULL),
+                    (5, "Да", NULL),
+                    (5, "Нет", NULL)
+            ''')
 
-            # Отправим первый вопрос в чат
-            sql = (
-                f"SELECT question_text FROM id{BOT_ID} "
-                f"WHERE module_id = 1"
-            )
-            await cursor.execute(sql)
-            question_text = (await cursor.fetchall())[0][0]
-            await message.answer(question_text)
+        await db.commit()
 
+    async def get_question_text(cursor, question_id):
+        # Get question text from database
+        cursor.execute('SELECT text FROM questions WHERE id = ?',
+                       (question_id,))
+        question_text = cursor.fetchone()[0]
+        return question_text
+
+    async def get_question_type(cursor, question_id):
+        # Get question type from database
+        cursor.execute('SELECT type FROM questions WHERE id = ?',
+                       (question_id,))
+        question_type = cursor.fetchone()[0]
+        return question_type
+
+    async def get_question_options(cursor, question_id):
+        # Get question options from database
+        cursor.execute('SELECT options FROM questions WHERE id = ?',
+                       (question_id,))
+        question_options = cursor.fetchone()[0]
+        return question_options.split(',') if question_options is not None else None
+
+    async def get_next_question_id(cursor, button_id):
+        # Get next question ID based on button ID
+        cursor.execute('SELECT next_question_id FROM question_options WHERE button_id = ?',
+                       (button_id,))
+        next_question_id = cursor.fetchone()[0]
+        return next_question_id
+
+    async def send_question(state, bot, chat_id, question_id):
+        async with aiosqlite.connect(f'id{bot_id}.db') as db:
+            cursor = await db.cursor()
+            # Get question text and type from database
+            question_text = await get_question_text(cursor, question_id)
+            question_type = await get_question_type(cursor, question_id)
+
+            # Get question options from database (if applicable)
+            question_options = await get_question_options(cursor, question_id)
+
+        # Send question
+        if question_type == 'text':
+            await bot.send_message(chat_id, question_text)
+        elif question_type == 'buttons':
+            keyboard = InlineKeyboardMarkup(row_width=1)
+
+            for option in question_options:
+                button = InlineKeyboardButton(text=option, callback_data=option)
+                keyboard.construct(button)
+
+            await bot.send_message(chat_id, question_text, reply_markup=keyboard)
+
+        # Update state with current question ID
+        async with state.get_data() as data:
+            data['question_id'] = question_id
+
+    async def send_next_question(state, bot, chat_id, button_id=None):
+        # Get current question ID from state
+        async with state.get_data() as data:
+            question_id = data.get('question_id')
+
+        # Get next question ID from database
+        if button_id is not None:
+            async with aiosqlite.connect(f'id{bot_id}.db') as db:
+                cursor = await db.cursor()
+                next_question_id = await get_next_question_id(cursor, button_id)
+        else:
+            next_question_id = question_id + 1
+
+        # Send next question
+        await send_question(state, bot, chat_id, next_question_id)
+
+    # Start command
+    @router.message(CommandStart())
+    async def cmd_start(message: types.Message, state: FSMContext):
+        await send_next_question(state, bot, message.chat.id)
+
+    # Callback query handler
+    @router.callback_query(lambda c: True)
+    async def process_callback(callback_query: CallbackQuery, state: FSMContext):
+        # Get button ID from callback data
+        button_id = callback_query.data
+
+        # Send next question based on button ID
+        await send_next_question(state, bot, callback_query.message.chat.id, button_id)
+
+    # Default message
     @router.message()
-    async def answer_handler(message: Message) -> None:
-        """
-        Этот хэндлер обрабатывает ответ пользователя на вопрос и
-        выводит следующий вопрос.
+    async def default_handler(message: types.Message):
+        await bot.send_message(message.chat.id, 'Неверный формат сообщения!')
 
-        :param message: Отправленное пользователем сообщение
-        :return:
-        """
-        async with aiosqlite.connect('./test.db') as connection:
-            cursor = await connection.cursor()
-            user_id = message.from_user.id
-            answer_text = message.text
-
-            # Получим id текущего вопроса
-            sql = (
-                f"SELECT now_id FROM id{BOT_ID}_answers "
-                f"WHERE user_id = {user_id}"
-            )
-            await cursor.execute(sql)
-            now_id = (await cursor.fetchall())[0][0]
-
-            # Если пользователь уже проходил анкетирование
-            if now_id is None:
-                await message.answer("Вы уже заполнили анкету!")
-            else:
-                # Запишем ответ пользователя
-                sql = (
-                    f"UPDATE id{BOT_ID}_answers SET answer{now_id} = '{answer_text}' "
-                    f"WHERE user_id = {user_id}"
-                )
-                await cursor.execute(sql)
-
-                # Запишем в предыдущий id текущий id
-                sql = (
-                    f"UPDATE id{BOT_ID}_answers SET prev_id = prev_id || '/' || now_id "
-                    f"WHERE user_id = {user_id}"
-                )
-                await cursor.execute(sql)
-
-                # Найдем id следующего вопроса
-                sql = (
-                    f"SELECT next_ids FROM id{BOT_ID} "
-                    f"WHERE module_id = {now_id}"
-                )
-                await cursor.execute(sql)
-                next_ids = (await cursor.fetchall())[0][0]
-
-                # Если следующего вопроса нет
-                if next_ids is None:
-                    sql = (
-                        f"UPDATE id{BOT_ID}_answers SET now_id = NULL "
-                        f"WHERE user_id = {user_id}"
-                    )
-                    await cursor.execute(sql)
-                    await message.answer("Ответы записаны!")
-                else:
-                    next_ids.split("/")
-                    next_id = next_ids[0]
-
-                    sql = (
-                        f"UPDATE id{BOT_ID}_answers SET now_id = {next_id} "
-                        f"WHERE user_id = {user_id}"
-                    )
-                    await cursor.execute(sql)
-
-                    sql = (
-                        f"SELECT question_text FROM id{BOT_ID} "
-                        f"WHERE module_id = {next_id}"
-                    )
-                    await cursor.execute(sql)
-                    question_text = (await cursor.fetchall())[0][0]
-                    await message.answer(question_text)
-
-                await cursor.execute("COMMIT;")
-
-    @router.callback_query(Text(startswith="answer_"))
-    async def keyboard_handler(callback: CallbackQuery):
-        pass
-
-    async def main() -> None:
-        dp = Dispatcher()
-        dp.include_router(router)
-
-        # Инициализация бота по переданному токену
-        bot = Bot(token=TOKEN, parse_mode="HTML")
-        await dp.start_polling(bot)
-
-    async with aiosqlite.connect('./test.db') as connection:
-        cursor = await connection.cursor()
-
-        sql = (
-            f"CREATE TABLE IF NOT EXISTS id{BOT_ID}_answers ("
-            f"user_id INTEGER PRIMARY KEY,"
-            f"prev_id INTEGER,"
-            f"now_id INTEGER)"
-        )
-        await cursor.execute(sql)
-
-        sql = (
-            f"SELECT module_id FROM id{BOT_ID}"
-        )
-        await cursor.execute(sql)
-        modules_ids = (await cursor.fetchall())
-
-        for id in modules_ids:
-            try:
-                sql = (
-                    f"ALTER TABLE id{BOT_ID}_answers "
-                    f"ADD COLUMN answer{id[0]} VARCHAR(256);"
-                )
-                await cursor.execute(sql)
-            except sqlite3.OperationalError as error:
-                logging.error(error)
-
-    logging.basicConfig(level=logging.INFO)
-    # Запуск бота
-    await main()
