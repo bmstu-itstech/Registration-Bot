@@ -3,30 +3,35 @@ import logging
 import aiosqlite
 
 from aiogram import Bot, Dispatcher, types, Router
-from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.fsm.context import FSMContext
 from aiogram.filters import CommandStart
 from aiogram.filters.state import State, StatesGroup
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
 from aiogram.enums import ParseMode
 
+from aiogram.fsm.storage.redis import RedisStorage
+from redis.asyncio.client import Redis
+
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 
 # Set up startup handler
-async def run(token, bot_id):
+async def run_instance(token, bot_id):
     # Set up states
     class Questionnaire(StatesGroup):
         question_id = State()
 
     logging.info('Starting bot...')
 
+    redis = Redis.from_url('redis://localhost:6379/1')
+    storage = RedisStorage(redis)
+
     # Add Router
     router = Router()
 
     # Initialize bot and dispatcher
     bot = Bot(token=token, parse_mode=ParseMode.HTML)
-    dp = Dispatcher(storage=MemoryStorage())
+    dp = Dispatcher(storage=storage)
     dp.include_router(router)
 
     # Create database connection
@@ -37,7 +42,7 @@ async def run(token, bot_id):
         await cursor.execute('''
                 CREATE TABLE IF NOT EXISTS questions (
                     id INTEGER PRIMARY KEY,
-                    text TEXT NOT NULL,
+                    question_text TEXT NOT NULL,
                     answer TEXT,
                     has_buttons INTEGER NOT NULL DEFAULT 0
                 )
@@ -48,7 +53,7 @@ async def run(token, bot_id):
                 CREATE TABLE IF NOT EXISTS buttons (
                     id INTEGER PRIMARY KEY,
                     question_id INTEGER NOT NULL,
-                    text TEXT NOT NULL,
+                    question_text TEXT NOT NULL,
                     next_question_id INTEGER,
                     FOREIGN KEY (question_id) REFERENCES questions(id)
                 )
@@ -56,7 +61,7 @@ async def run(token, bot_id):
 
         # Insert sample data
         await cursor.execute('''
-                INSERT INTO questions (text, answer, has_buttons)
+                INSERT INTO questions (question_text, answer, has_buttons)
                 VALUES
                     ("Как тебя зовут?", NULL, 0),
                     ("Ты совершеннолетний?", NULL, 0),
@@ -66,7 +71,7 @@ async def run(token, bot_id):
             ''')
 
         await cursor.execute('''
-                INSERT INTO buttons (question_id, text, next_question_id)
+                INSERT INTO buttons (question_id, question_text, next_question_id)
                 VALUES
                     (3, "Красный", 4),
                     (3, "Синий", 5),
@@ -80,7 +85,7 @@ async def run(token, bot_id):
 
     async def get_question_text(cursor, question_id):
         # Get question text from database
-        cursor.execute('SELECT text FROM questions WHERE id = ?',
+        cursor.execute('SELECT question_text FROM questions WHERE id = ?',
                        (question_id,))
         question_text = cursor.fetchone()[0]
         return question_text
@@ -128,9 +133,7 @@ async def run(token, bot_id):
 
             await bot.send_message(chat_id, question_text, reply_markup=keyboard)
 
-        # Update state with current question ID
-        async with state.get_data() as data:
-            data['question_id'] = question_id
+        await state.update_data(question_id=question_id)
 
     async def send_next_question(state, bot, chat_id, button_id=None):
         # Get current question ID from state
@@ -167,3 +170,7 @@ async def run(token, bot_id):
     async def default_handler(message: types.Message):
         await bot.send_message(message.chat.id, 'Неверный формат сообщения!')
 
+    async def main():
+        await dp.start_polling(bot)
+
+    await main()
