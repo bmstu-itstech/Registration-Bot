@@ -1,5 +1,5 @@
 from constructor.tree import Tree
-import aiosqlite
+import asyncpg
 
 # Эта функция будет заполнять данными дерево и связываться с микросервисом БД
 async def create_tree(data, bot_id):
@@ -9,13 +9,12 @@ async def create_tree(data, bot_id):
         tree_ent.add_module(key, data[key]["links"], data[key]["question"], data[key]["answers"])
 
     # Написал максимально простой тест дерева на асинхронном SQLite
-    async with aiosqlite.connect(f'./id{bot_id}.db') as connection:
-        cursor = await connection.cursor()
+    async with asyncpg.connect(f'./id{bot_id}.db') as conn:
 
         sql = (
             f"DROP TABLE IF EXISTS id{bot_id}"
         )
-        await cursor.execute(sql)
+        await conn.execute(sql)
 
         sql = (
             f"CREATE TABLE id{bot_id} ("
@@ -24,13 +23,13 @@ async def create_tree(data, bot_id):
             f"question_text text NOT NULL,"
             f"answers text)"
         )
-        await cursor.execute(sql)
+        await conn.execute(sql)
 
         for module in tree_ent.get_data():
             sql = (
                 f"INSERT INTO id{bot_id} (module_id, next_ids, question_text, answers) "
                 f"VALUES (?, ?, ?, ?)"
             )
-            await cursor.execute(sql, module)
+            await conn.execute(sql, module)
 
-        await cursor.execute("COMMIT;")
+        await conn.execute("COMMIT;")

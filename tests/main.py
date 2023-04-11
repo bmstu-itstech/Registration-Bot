@@ -36,7 +36,7 @@ async def test():
         }
     }
 
-    await writer.create_tree(data, 1)
+    # await writer.create_tree(data, 1)
     await bot_instance.run_instance(config.bot_token, 1)
 
 
