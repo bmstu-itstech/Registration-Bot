@@ -21,7 +21,7 @@ async def connect_or_create(user, database) -> asyncpg.Connection:
     try:
         conn = await asyncpg.connect(user=user, database=database)
     except asyncpg.InvalidCatalogNameError:
-        # Database does not exist, create it.
+        # Database does not exist, create it
         sys_conn = await asyncpg.connect(
             database='template1',
             user='postgres'
@@ -31,7 +31,7 @@ async def connect_or_create(user, database) -> asyncpg.Connection:
         )
         await sys_conn.close()
 
-        # Connect to the newly created database.
+        # Connect to the newly created database
         conn = await asyncpg.connect(user=user, database=database)
 
     return conn
@@ -39,29 +39,31 @@ async def connect_or_create(user, database) -> asyncpg.Connection:
 
 async def get_question_text(conn, question_id):
     # Get question text from database
-    question_text = await conn.fetchrow('SELECT question_text FROM questions WHERE id = ?',
-                                        (question_id,))
+    question_text = await conn.fetch('SELECT question_text FROM questions WHERE id = $1',
+                                     question_id)
     return question_text[0]
+
 
 async def get_question_type(conn, question_id):
     # Get question type from database
-    question_type = await conn.fetchrow('SELECT type FROM questions WHERE id = ?',
-                                        (question_id,))
+    question_type = await conn.fetch('SELECT question_type FROM questions WHERE id = $1',
+                                     question_id)
     return question_type[0]
+
 
 async def get_question_options(conn, question_id):
     # Get question options from database
-    question_options = await conn.fetch('SELECT (id, answer_text) FROM buttons '
-                                        'WHERE question_id = ?',
-                                        (question_id,))
+    question_options = await conn.fetch('SELECT (id, answer_text) FROM buttons WHERE question_id = $1',
+                                        question_id)
     return question_options[0] if question_options is not None else None
+
 
 async def get_next_question_id(conn, button_id):
     # Get next question ID based on button ID
-    next_question_id = await conn.fetchrow('SELECT next_question_id FROM buttons '
-                                           'WHERE id = ?',
-                                           (button_id,))
+    next_question_id = await conn.fetch('SELECT next_question_id FROM buttons WHERE id = $1',
+                                        button_id)
     return next_question_id[0]
+
 
 async def send_question(bot_id, state, bot, chat_id, question_id):
     # Create database connection
@@ -86,6 +88,7 @@ async def send_question(bot_id, state, bot, chat_id, question_id):
         await bot.send_message(chat_id, question_text, reply_markup=keyboard)
 
     await state.update_data(question_id=question_id)
+
 
 # Set up startup handler
 async def run_instance(token, bot_id):
@@ -112,43 +115,43 @@ async def run_instance(token, bot_id):
     # Create questions table
     await conn.execute('''
             CREATE TABLE IF NOT EXISTS questions (
-                id INTEGER PRIMARY KEY,
+                id SERIAL PRIMARY KEY,
                 question_text TEXT NOT NULL,
-                type TEXT NOT NULL DEFAULT "text"
-            )
+                question_type TEXT NOT NULL
+            );
         ''')
 
     # Create buttons table
     await conn.execute('''
             CREATE TABLE IF NOT EXISTS buttons (
-                id INTEGER PRIMARY KEY,
+                id SERIAL PRIMARY KEY,
                 question_id INTEGER NOT NULL,
                 answer_text TEXT NOT NULL,
                 next_question_id INTEGER,
                 FOREIGN KEY (question_id) REFERENCES questions(id)
-            )
+            );
         ''')
 
     # Insert sample data
     await conn.execute('''
-            INSERT INTO questions (question_text, type)
+            INSERT INTO questions (question_text, question_type)
             VALUES
-                ("Как тебя зовут?", "text"),
-                ("Ты совершеннолетний?", "text"),
-                ("Какой твой любимый цвет?", "buttons"),
-                ("То есть ты фанат красного?", "buttons"),
-                ("То есть ты фанат синего?", "buttons")
+                ('Как тебя зовут?', 'text'),
+                ('Ты совершеннолетний?', 'text'),
+                ('Какой твой любимый цвет?', 'buttons'),
+                ('То есть ты фанат красного?', 'buttons'),
+                ('То есть ты фанат синего?', 'buttons');
         ''')
 
     await conn.execute('''
             INSERT INTO buttons (question_id, answer_text, next_question_id)
             VALUES
-                (3, "Красный", 4),
-                (3, "Синий", 5),
-                (4, "Да", NULL),
-                (4, "Нет", NULL),
-                (5, "Да", NULL),
-                (5, "Нет", NULL)
+                (3, 'Красный', 4),
+                (3, 'Синий', 5),
+                (4, 'Да', NULL),
+                (4, 'Нет', NULL),
+                (5, 'Да', NULL),
+                (5, 'Нет', NULL);
         ''')
 
     await conn.close()
@@ -182,4 +185,5 @@ async def run_instance(token, bot_id):
 
 if __name__ == '__main__':
     import config
+
     asyncio.run(run_instance(config.bot_token, 1))
