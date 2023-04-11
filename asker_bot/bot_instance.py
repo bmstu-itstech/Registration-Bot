@@ -14,6 +14,7 @@ from redis import asyncio as aioredis
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 
+
 # Set up startup handler
 async def run_instance(token, bot_id):
     # Set up states
@@ -82,44 +83,42 @@ async def run_instance(token, bot_id):
 
     async def get_question_text(conn, question_id):
         # Get question text from database
-        await conn.fetchrow('SELECT question_text FROM questions WHERE id = ?',
-                           (question_id,))
-        question_text = (await conn.fetchone())[0]
-        return question_text
+        question_text = await conn.fetchrow('SELECT question_text FROM questions WHERE id = ?',
+                                            (question_id,))
+        return question_text[0]
 
     async def get_question_type(conn, question_id):
         # Get question type from database
-        question_type =await conn.fetchrow('SELECT type FROM questions WHERE id = ?',
-                           (question_id,))
+        question_type = await conn.fetchrow('SELECT type FROM questions WHERE id = ?',
+                                            (question_id,))
         return question_type[0]
 
-    async def get_question_options(cursor, question_id):
+    async def get_question_options(conn, question_id):
         # Get question options from database
-        await cursor.execute('SELECT (id, answer_text) FROM buttons WHERE question_id = ?',
-                       (question_id,))
-        question_options = (await cursor.fetchall())
+        question_options = await conn.fetch('SELECT (id, answer_text) FROM buttons '
+                                              'WHERE question_id = ?',
+                                            (question_id,))
         return question_options[0] if question_options is not None else None
 
-    async def get_next_question_id(cursor, button_id):
+    async def get_next_question_id(conn, button_id):
         # Get next question ID based on button ID
-        await cursor.execute('SELECT next_question_id FROM buttons WHERE id = ?',
-                       (button_id,))
-        next_question_id = (await cursor.fetchone())[0]
-        return next_question_id
+        next_question_id = await conn.fetchrow('SELECT next_question_id FROM buttons '
+                                                 'WHERE id = ?',
+                                               (button_id,))
+        return next_question_id[0]
 
     async def send_question(state, bot, chat_id, question_id):
-        async with asyncpg.connect(f'id{bot_id}.db') as db:
-            cursor = await db.cursor()
+        async with asyncpg.connect(f'id{bot_id}.db') as conn:
             # Get question text and type from database
-            question_text = await get_question_text(cursor, question_id)
-            question_type = await get_question_type(cursor, question_id)
+            question_text = await get_question_text(conn, question_id)
+            question_type = await get_question_type(conn, question_id)
 
         # Send question
         if question_type == 'text':
             await bot.send_message(chat_id, question_text)
         elif question_type == 'buttons':
             # Get question options from database (if applicable)
-            question_options = await get_question_options(cursor, question_id)
+            question_options = await get_question_options(conn, question_id)
 
             keyboard = InlineKeyboardMarkup(row_width=1)
 
@@ -128,7 +127,6 @@ async def run_instance(token, bot_id):
                 keyboard.construct(button)
 
             await bot.send_message(chat_id, question_text, reply_markup=keyboard)
-
 
         await state.update_data(question_id=question_id)
 
