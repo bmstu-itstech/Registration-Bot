@@ -23,11 +23,6 @@ async def connect_or_create(user, database) -> asyncpg.Connection:
 
 # Эта функция будет заполнять данными дерево и связываться с микросервисом БД
 async def create_tree(data, bot_id):
-    tree_ent = Tree(bot_id)
-
-    for key in data.keys():
-        tree_ent.add_module(key, data[key]["links"], data[key]["question"], data[key]["answers"])
-
     # Create database connection
     conn = await connect_or_create('postgres', f'id{bot_id}')
 
