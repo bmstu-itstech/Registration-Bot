@@ -6,7 +6,6 @@ from aiogram.filters import Command, Text
 from aiogram.types import Message, InlineKeyboardButton, CallbackQuery
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-
 async def run(TOKEN, BOT_ID) -> None:
     router = Router()
 
