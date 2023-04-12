@@ -32,7 +32,8 @@ async def create_tree(bot_id):
             CREATE TABLE IF NOT EXISTS questions (
                 id SERIAL PRIMARY KEY,
                 question_text TEXT NOT NULL,
-                question_type TEXT NOT NULL
+                question_type TEXT NOT NULL,
+                next_question_id INTEGER
             );
         ''')
 
@@ -49,12 +50,12 @@ async def create_tree(bot_id):
 
     # Insert sample data
     await conn.execute('''
-            INSERT INTO questions (question_text, question_type)
+            INSERT INTO questions (question_text, question_type, next_question_id)
             VALUES
-                ('Как тебя зовут?', 'text'),
-                ('Ты совершеннолетний?', 'buttons'),
-                ('Выбери свою любимую игру', 'buttons'),
-                ('Какой твой любимый цвет?', 'text');
+                ('Как тебя зовут?', 'text', 2),
+                ('Ты совершеннолетний?', 'buttons', NULL),
+                ('Выбери свою любимую игру', 'buttons', NULL),
+                ('Какой твой любимый цвет?', 'text', NULL);
         ''')
 
     await conn.execute('''
@@ -62,9 +63,22 @@ async def create_tree(bot_id):
             VALUES
                 (2, 'Да', 3),
                 (2, 'Нет', 4),
-                (3, 'Да', NULL),
-                (3, 'Нет', NULL);
+                (3, 'GTA', NULL),
+                (3, 'CSGO', NULL);
         ''')
+
+    await conn.execute('''
+            CREATE TABLE IF NOT EXISTS answers (
+                id SERIAL PRIMARY KEY,
+                user_id INT
+            );
+        ''')
+
+    for i in range(1, 5):
+        await conn.execute(f'''
+                ALTER TABLE answers
+                ADD COLUMN answer{i} TEXT;
+            ''')
 
     await conn.close()
 

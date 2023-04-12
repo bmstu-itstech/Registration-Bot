@@ -1,8 +1,10 @@
 import asyncio
 import logging
 import asyncpg
+import magic_filter
 
 from aiogram import Bot, Dispatcher, types, Router
+from aiogram.filters.callback_data import CallbackData
 from aiogram.fsm.context import FSMContext
 from aiogram.filters import CommandStart
 from aiogram.types import CallbackQuery
@@ -27,6 +29,12 @@ class Questionnaire(StatesGroup):
     completed = State()
 
 
+class ButtonCallback(CallbackData, prefix="button"):
+    question_id: int
+    next_question_id: str
+    answer_text: str
+
+
 # Database connect function
 async def connect_or_create(user, database) -> asyncpg.Connection:
     try:
@@ -48,52 +56,6 @@ async def connect_or_create(user, database) -> asyncpg.Connection:
     return conn
 
 
-async def get_question_text(conn, question_id):
-    # Get question text from database
-    question_text = await conn.fetchrow('SELECT question_text FROM questions WHERE id = $1',
-                                        question_id)
-    return question_text[0]
-
-
-async def get_question_type(conn, question_id):
-    # Get question type from database
-    question_type = await conn.fetchrow('SELECT question_type FROM questions WHERE id = $1',
-                                        question_id)
-    return question_type[0]
-
-
-async def get_question_options(conn, question_id):
-    # Get question options from database
-    rows = await conn.fetch('SELECT (next_question_id, answer_text) FROM buttons WHERE question_id = $1',
-                            question_id)
-    question_options = [dict(row) for row in rows]
-    return question_options
-
-
-async def send_question(bot_id, bot, state, chat_id, question_id) -> None:
-    # Create database connection
-    conn = await connect_or_create('postgres', f'id{bot_id}')
-    # Get question text and type from database
-    question_text = await get_question_text(conn, question_id)
-    question_type = await get_question_type(conn, question_id)
-
-    # Send question
-    if question_type == 'text':
-        await bot.send_message(chat_id, question_text)
-    elif question_type == 'buttons':
-        # Get question options from database (if applicable)
-        question_options = await get_question_options(conn, question_id)
-        keyboard = InlineKeyboardBuilder()
-
-        for element in question_options:
-            # Symbol ; is used to split callback_data
-            keyboard.button(callback_data=str(element['row'][0]) + ';' + str(element['row'][1]),
-                            text=str(element['row'][1]))
-
-        await bot.send_message(chat_id, question_text, reply_markup=keyboard.as_markup())
-
-    await state.update_data(question_id=question_id)
-
 
 # Set up startup handler
 async def run_instance(token, bot_id):
@@ -114,47 +76,125 @@ async def run_instance(token, bot_id):
     dp = Dispatcher(storage=storage)
     dp.include_router(router)
 
+    async def get_question_text(conn, question_id):
+        # Get question text from database
+        question_text = await conn.fetchrow('SELECT question_text FROM questions WHERE id = $1',
+                                            question_id)
+        return question_text[0]
+
+    async def get_question_type(conn, question_id):
+        # Get question type from database
+        question_type = await conn.fetchrow('SELECT question_type FROM questions WHERE id = $1',
+                                            question_id)
+        return question_type[0]
+
+    async def get_question_options(conn, question_id):
+        # Get question options from database
+        rows = await conn.fetch('SELECT (question_id, next_question_id, answer_text) FROM buttons '
+                                'WHERE question_id = $1',
+                                question_id)
+        question_options = [row[0] for row in rows]
+        return question_options
+
+    async def send_question(state, chat_id, question_id) -> None:
+        # Create database connection
+        conn = await connect_or_create('postgres', f'id{bot_id}')
+        # Get question text and type from database
+        question_text = await get_question_text(conn, question_id)
+        question_type = await get_question_type(conn, question_id)
+
+        # Send question
+        if question_type == 'text':
+            await bot.send_message(chat_id, question_text)
+        elif question_type == 'buttons':
+            # Get question options from database (if applicable)
+            question_options = await get_question_options(conn, question_id)
+            keyboard = InlineKeyboardBuilder()
+
+            for element in question_options:
+                # Symbol ; is used to split callback_data
+                keyboard.button(callback_data=ButtonCallback(question_id=element[0],
+                                                             next_question_id=str(element[1]),
+                                                             answer_text=element[2]).pack(),
+                                text=str(element[2]))
+
+            await bot.send_message(chat_id, question_text, reply_markup=keyboard.as_markup())
+
+        await state.update_data(question_id=question_id)
+        await conn.close()
+
+    async def get_next_question_id(question_id):
+        conn = await connect_or_create('postgres', f'id{bot_id}')
+        next_question_id = await conn.fetchrow('SELECT next_question_id FROM questions '
+                                               'WHERE id = $1',
+                                               question_id)
+        return next_question_id[0]
+
+    async def finish_questionnaire(state, user_id):
+        # Create database connection
+        conn = await connect_or_create('postgres', f'id{bot_id}')
+        await conn.execute(f'INSERT INTO answers (user_id) '
+                           f'VALUES ({user_id});')
+        answers = (await state.get_data())['answers']
+        for answer in answers:
+            await conn.execute(f"UPDATE answers SET answer{answer[0]} = '{answer[1]}' "
+                               f"WHERE user_id = {user_id};")
+        await state.set_state(questionnaire.completed)
+        await conn.close()
+
     # Start command
     @router.message(CommandStart())
     async def cmd_start(message: types.Message, state: FSMContext) -> None:
         await state.update_data(answers=[])
-        await send_question(bot_id, bot, state, message.chat.id, 1)
+        await send_question(state, message.chat.id, 1)
 
     @router.message()
     async def process_text(message: types.Message, state: FSMContext) -> None:
         data = await state.get_data()
-        # Write the answer to the state
+        # Get answers list from the state
         answers = data['answers']
-        answers.append(message.text)
-        await state.update_data(answers=answers)
         # Get the question id
         question_id = data['question_id']
-        next_question_id = question_id + 1
-        # Send next question
-        await send_question(bot_id, bot, state, message.chat.id, next_question_id)
+        # Write the answer to the state
+        answers.append((question_id, message.text))
+        await state.update_data(answers=answers)
+        # Get next question id
+        next_question_id = await get_next_question_id(question_id)
+
+        if next_question_id is not None:
+            # Send next question
+            await send_question(state, message.chat.id, next_question_id)
+        else:
+            await finish_questionnaire(state, message.from_user.id)
+            await message.answer('Ответы записаны!')
 
     # Callback query handler
-    @router.callback_query()
-    async def process_callback(callback_query: CallbackQuery, state: FSMContext) -> None:
+    @router.callback_query(ButtonCallback.filter())
+    async def process_callback(callback_query: CallbackQuery,
+                               callback_data: ButtonCallback,
+                               state: FSMContext) -> None:
         data = await state.get_data()
-        callback_data = callback_query.data.split(';')
-        # Write the answer to the state
+        # Get answers list from the state
         answers = data['answers']
-        answers.append(callback_data[1])
+        # Get the question id
+        question_id = data['question_id']
+        # Write the answer to the state
+        answers.append((question_id, callback_data.answer_text))
         await state.update_data(answers=answers)
 
         # If there is next question
-        if callback_data[0] != 'None':
-            button_id = int(callback_data[0])
+        if callback_data.next_question_id != 'None':
+            button_id = int(callback_data.next_question_id)
             # Send next question based on button ID
-            await send_question(bot_id, bot, state, callback_query.message.chat.id, button_id)
+            await send_question(state, callback_query.message.chat.id, button_id)
+            await callback_query.answer(None)
 
         # If the user passed all the questions
         else:
+            await finish_questionnaire(state, callback_query.from_user.id)
+            await callback_query.answer('Ответы записаны!')
             await bot.send_message(callback_query.message.chat.id, 'Ответы записаны!')
-            answers = (await state.get_data())['answers']
-            print(answers)
-            await state.set_state(questionnaire.completed)
+
 
     await dp.start_polling(bot)
 
