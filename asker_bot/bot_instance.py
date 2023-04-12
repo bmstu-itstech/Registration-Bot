@@ -25,6 +25,8 @@ class Questionnaire(StatesGroup):
     question_id = State()
     # Будет хранить ответы пользователя
     answers = State()
+    # Будет обозначать прохождение анкеты
+    in_process = State()
     # Будет обозначать завершенное состояние анкетирования
     completed = State()
 
@@ -54,7 +56,6 @@ async def connect_or_create(user, database) -> asyncpg.Connection:
         conn = await asyncpg.connect(user=user, database=database)
 
     return conn
-
 
 
 # Set up startup handler
@@ -145,56 +146,68 @@ async def run_instance(token, bot_id):
     # Start command
     @router.message(CommandStart())
     async def cmd_start(message: types.Message, state: FSMContext) -> None:
+        await state.set_state(questionnaire.in_process)
         await state.update_data(answers=[])
         await send_question(state, message.chat.id, 1)
 
     @router.message()
     async def process_text(message: types.Message, state: FSMContext) -> None:
-        data = await state.get_data()
-        # Get answers list from the state
-        answers = data['answers']
-        # Get the question id
-        question_id = data['question_id']
-        # Write the answer to the state
-        answers.append((question_id, message.text))
-        await state.update_data(answers=answers)
-        # Get next question id
-        next_question_id = await get_next_question_id(question_id)
+        user_status = await state.get_state()
+        if user_status == questionnaire.in_process:
+            data = await state.get_data()
+            # Get answers list from the state
+            answers = data['answers']
+            # Get the question id
+            question_id = data['question_id']
+            # Write the answer to the state
+            answers.append((question_id, message.text))
+            await state.update_data(answers=answers)
+            # Get next question id
+            next_question_id = await get_next_question_id(question_id)
 
-        if next_question_id is not None:
-            # Send next question
-            await send_question(state, message.chat.id, next_question_id)
+            if next_question_id is not None:
+                # Send next question
+                await send_question(state, message.chat.id, next_question_id)
+            else:
+                await finish_questionnaire(state, message.from_user.id)
+                await message.answer('Ответы записаны!')
+        # If the user has already passed the questionnaire
         else:
-            await finish_questionnaire(state, message.from_user.id)
-            await message.answer('Ответы записаны!')
+            await message.answer('Вы уже проходили тест! Для повторного прохождения '
+                                 'напишите /start')
 
     # Callback query handler
     @router.callback_query(ButtonCallback.filter())
     async def process_callback(callback_query: CallbackQuery,
                                callback_data: ButtonCallback,
                                state: FSMContext) -> None:
-        data = await state.get_data()
-        # Get answers list from the state
-        answers = data['answers']
-        # Get the question id
-        question_id = data['question_id']
-        # Write the answer to the state
-        answers.append((question_id, callback_data.answer_text))
-        await state.update_data(answers=answers)
+        user_status = await state.get_state()
+        if user_status == questionnaire.in_process:
+            data = await state.get_data()
+            # Get answers list from the state
+            answers = data['answers']
+            # Get the question id
+            question_id = data['question_id']
+            # Write the answer to the state
+            answers.append((question_id, callback_data.answer_text))
+            await state.update_data(answers=answers)
 
-        # If there is next question
-        if callback_data.next_question_id != 'None':
-            button_id = int(callback_data.next_question_id)
-            # Send next question based on button ID
-            await send_question(state, callback_query.message.chat.id, button_id)
-            await callback_query.answer(None)
+            # If there is next question
+            if callback_data.next_question_id != 'None':
+                button_id = int(callback_data.next_question_id)
+                # Send next question based on button ID
+                await send_question(state, callback_query.message.chat.id, button_id)
+                await callback_query.answer(None)
 
-        # If the user passed all the questions
+            # If the user passed all the questions
+            else:
+                await finish_questionnaire(state, callback_query.from_user.id)
+                await callback_query.answer('Ответы записаны!')
+                await bot.send_message(callback_query.message.chat.id, 'Ответы записаны!')
+        # If the user has already passed the questionnaire
         else:
-            await finish_questionnaire(state, callback_query.from_user.id)
-            await callback_query.answer('Ответы записаны!')
-            await bot.send_message(callback_query.message.chat.id, 'Ответы записаны!')
-
+            await bot.send_message(callback_query.message.chat.id,
+                                   'Вы уже проходили тест! Для повторного прохождения напишите /start')
 
     await dp.start_polling(bot)
 
