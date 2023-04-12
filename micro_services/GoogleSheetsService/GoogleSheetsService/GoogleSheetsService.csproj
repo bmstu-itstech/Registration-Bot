@@ -10,7 +10,12 @@
   <ItemGroup>
     <Protobuf Include="Protos\sheet.proto" GrpcServices="Server" />
   </ItemGroup>
-  
+
+  <ItemGroup>
+    <Protobuf Include="Protos\sheet_connector.proto" GrpcServices="Client" />
+  </ItemGroup>
+
+
   <ItemGroup>
     <PackageReference Include="Google.Apis" Version="1.60.0" />
     <PackageReference Include="Google.Apis.Auth" Version="1.60.0" />

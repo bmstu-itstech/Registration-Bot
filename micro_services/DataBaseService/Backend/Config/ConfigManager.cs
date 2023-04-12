@@ -1,4 +1,4 @@
-﻿namespace GoogleSheetsService.Backend
+﻿namespace DataBaseService.Backend.Config
 {
     public class ConfigManager
     {
@@ -16,22 +16,18 @@
 
             string debug = _config.GetValue<string>("DEBUG");
 
+
+
             if (debug == "true")
                 DEBUG = true;
 
         }
 
-        public string GetConnetion()
+        public string? GetConnetion()
         {
             if (DEBUG)
-                return _config.GetConnectionString("DEBAG_DB");
+                return _config.GetConnectionString("DEBUG_DB");
             return _config.GetConnectionString("DB");
         }
-
-        public string GetConnetionToDataBaseMicroserice()
-        {
-            return _config.GetConnectionString("DB_MICROSERVICE");
-        }
-
     }
 }

@@ -2,7 +2,7 @@ syntax = "proto3";
 
 option csharp_namespace = "DataBaseService.Protos";
 
-import "Protos/base_types.proto";
+import "base_types.proto";
 
 service BotGetter{
     rpc GetBot (GetBotRequest) returns (BotResponse);

@@ -4,4 +4,4 @@ appsettings.json
 obj/
 bin/
 appsettings.Development.json
-.idea/
+secrets.json
