@@ -1,5 +1,6 @@
 from constructor.tree import Tree
 import asyncpg
+import asyncio
 
 # Database connect function
 async def connect_or_create(user, database) -> asyncpg.Connection:
@@ -22,7 +23,7 @@ async def connect_or_create(user, database) -> asyncpg.Connection:
     return conn
 
 # Эта функция будет заполнять данными дерево и связываться с микросервисом БД
-async def create_tree(data, bot_id):
+async def create_tree(bot_id):
     # Create database connection
     conn = await connect_or_create('postgres', f'id{bot_id}')
 
@@ -66,3 +67,7 @@ async def create_tree(data, bot_id):
         ''')
 
     await conn.close()
+
+
+if __name__ == '__main__':
+    asyncio.run(create_tree(1))
