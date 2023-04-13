@@ -43,7 +43,8 @@ async def create_tree(bot_id):
                 question_id INTEGER NOT NULL,
                 answer_text TEXT NOT NULL,
                 next_question_id INTEGER,
-                FOREIGN KEY (question_id) REFERENCES questions(id)
+                FOREIGN KEY (question_id) REFERENCES questions(id),
+                FOREIGN KEY (next_question_id) REFERENCES questions(id)
             );
         ''')
 
@@ -52,7 +53,7 @@ async def create_tree(bot_id):
             INSERT INTO questions (question_text, question_type, next_question_id)
             VALUES
                 ('Привет! Я тестовый бот-опросник!', 'buttons', 2),
-                ('Как тебя зовут?', 'text', 2),
+                ('Как тебя зовут?', 'text', 3),
                 ('Ты совершеннолетний?', 'buttons', NULL),
                 ('Выбери свою любимую игру', 'buttons', NULL),
                 ('Какой твой любимый цвет?', 'text', NULL);
@@ -75,7 +76,7 @@ async def create_tree(bot_id):
             );
         ''')
 
-    for i in range(1, 5):
+    for i in range(2, 6):
         await conn.execute(f'''
                 ALTER TABLE answers
                 ADD COLUMN answer{i} TEXT;
