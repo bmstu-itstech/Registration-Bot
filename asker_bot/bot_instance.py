@@ -138,8 +138,9 @@ async def run_instance(token, bot_id):
                            f'VALUES ({user_id});')
         answers = (await state.get_data())['answers']
         for answer in answers:
-            await conn.execute(f"UPDATE answers SET answer{answer[0]} = '{answer[1]}' "
-                               f"WHERE user_id = {user_id};")
+            if answer[0] != 1:
+                await conn.execute(f"UPDATE answers SET answer{answer[0]} = '{answer[1]}' "
+                                   f"WHERE user_id = {user_id};")
         await state.set_state(questionnaire.completed)
         await conn.close()
 
