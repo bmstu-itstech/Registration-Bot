@@ -27,22 +27,26 @@ namespace DataBaseService.backend.Types
                     colums.Add(key: module.Value.Title, value: module.Value.Type);
                 }
 
-                int bot_id = (int)CreateBotSurveyTable().Result;
 
-                await CreateBotSurveyAnswerTable(bot_id, colums);
-                await CreateBotSurveyAdminTable(bot_id);
+                int next_bot_id = GenerateNewBotId().Result;
+
+                CreateBotSurveyDataBase(next_bot_id).Wait();
+
+                await CreateBotSurveyAnswerTable(next_bot_id, colums);
+                await CreateBotSurveyAdminTable(next_bot_id);
+                await CreateBotSurveyButtons(next_bot_id);
+                await CreateBotSurveyQuestionsTable(next_bot_id);
 
 
 
-                await FillBotSurveyTable(bot_id, journal);
+                await FillBotSurveyQuestionTable(next_bot_id, journal);
 
                 try
                 {
-                    await AddNewBot(bot_id, user_id);
+                    await AddNewBot(next_bot_id, user_id);
                 }
                 catch (Exception ex)
                 {
-
                     Console.WriteLine(ex);
                 }
 
@@ -54,11 +58,17 @@ namespace DataBaseService.backend.Types
 
             return Task.Run(async () =>
             {
-                await DropBotSurveyTable(bot_id);
+
                 await DropBotSurveyAnswerTable(bot_id);
                 await DroBotSurveyAdminTable(bot_id);
+                await DropBotSurveyButtonsTable(bot_id);
+                await DropBotSurveyQuestionTable(bot_id);
+
+                await DropBotSurveyDataBase(bot_id);
 
                 await RemoveBot(bot_id, user_id);
+
+                
             });
         }
 
@@ -99,7 +109,7 @@ namespace DataBaseService.backend.Types
         }
         public static Task<MyBot> GetBot(int bot_survey_id, int owner)
         {
-            return Task.Run( () =>
+            return Task.Run(() =>
             {
                 using (RegistrationBotContext db = new RegistrationBotContext())
                 {
@@ -119,50 +129,43 @@ namespace DataBaseService.backend.Types
             });
         }
 
-
-        private static async Task<long> CreateBotSurveyTable()
+        private static async Task<int> GenerateNewBotId()
         {
-            return await Task.Run(async () =>
+            using (var conn = new NpgsqlConnection(new ConfigManager().GetConnetion()))
             {
+                await conn.OpenAsync();
 
-                long next_bot_id = -1;
+                string get_next_id = "SELECT nextval('bot_id_sequence');--";
+
+                using (var command = new NpgsqlCommand(get_next_id, conn))
+                {
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+
+                        await reader.ReadAsync();
+
+                        return (int)reader.GetInt64(0);
+                    }
+                }
+
+
+            }
+        }
+
+        private static Task CreateBotSurveyDataBase(int data_base_id)
+        {
+            return Task.Run(async () =>
+            {
 
                 using (var conn = new NpgsqlConnection(new ConfigManager().GetConnetion()))
                 {
                     await conn.OpenAsync();
 
-                    string get_next_id = "SELECT nextval('bot_id_sequence');--";
-
-                    using (var command = new NpgsqlCommand(get_next_id, conn))
-                    {
-                        using (var reader = await command.ExecuteReaderAsync())
-                        {
-                            while (await reader.ReadAsync())
-                            {
-                                next_bot_id = reader.GetInt64(0);
-                            }
-
-                        }
-                    }
-
-                    if (next_bot_id < 0)
-                    {
-                        throw new DataBaseError("Erorr while creating new bot Survey table\n next_bot_id less than zero!");
-                    }
-
-
-                    string create_table = $"CREATE TABLE bot_{next_bot_id} " +
-                    $"(" +
-                    $"module_id INT PRIMARY KEY," +
-                    $"next_ids CHARACTER VARYING(255)," +
-                    $"question_text CHARACTER VARYING(255) NOT NULL," +
-                    $"answers CHARACTER VARYING(255)" +
-                    $")--";
-
+                    string create_database = $"CREATE DATABASE BOT_{data_base_id} OWNER postgres--";
 
                     try
                     {
-                        using (var command = new NpgsqlCommand(create_table, conn))
+                        using (var command = new NpgsqlCommand(create_database, conn))
                         {
                             await command.ExecuteNonQueryAsync();
                         }
@@ -175,144 +178,266 @@ namespace DataBaseService.backend.Types
 
                 }
 
-                return next_bot_id;
             });
         }
-        private static async Task CreateBotSurveyAnswerTable(int bot_id, Dictionary<string, string> colums)
+        private static Task CreateBotSurveyQuestionsTable(int data_base_id)
         {
-            using (var conn = new NpgsqlConnection(new ConfigManager().GetConnetion()))
+            return Task.Run(async () =>
             {
-                await conn.OpenAsync();
-
-                string create_table = $"CREATE TABLE bot_{bot_id}_answers " +
-                "(" +
-                $"user_id BIGINT PRIMARY KEY," +
-                $"prev_id INT," +
-                $"now_id INT" +
-                ")--";
-
-                try
+                using (var conn = new NpgsqlConnection(new ConfigManager().GetBotConnetion(data_base_id)))
                 {
+                    await conn.OpenAsync();
+
+                    string create_table = $"CREATE TABLE questions " +
+                    $"(" +
+                    $"ID SERIAL PRIMARY KEY," +
+                    $"next_ids CHARACTER VARYING(255)," +
+                    $"question_text CHARACTER VARYING(255) NOT NULL" +
+                    $")--";
+
                     using (var command = new NpgsqlCommand(create_table, conn))
                     {
                         await command.ExecuteNonQueryAsync();
                     }
+                }
 
-                    foreach (var col in colums)
+
+
+            });
+        }
+        private static Task CreateBotSurveyAnswerTable(int data_base_id, Dictionary<string, string> colums)
+        {
+            return Task.Run(async () =>
+            {
+                using (var conn = new NpgsqlConnection(new ConfigManager().GetBotConnetion(data_base_id)))
+                {
+                    await conn.OpenAsync();
+
+                    string create_table = $"CREATE TABLE answers" +
+                    "(" +
+                    $"user_chat_id BIGINT PRIMARY KEY," +
+                    $"code INTEGER" +
+                    ")--";
+
+                    try
                     {
-                        string alter_table = $"ALTER TABLE bot_{bot_id}_answers ADD COLUMN {col.Key} {col.Value} --";
-
-                        using (var command = new NpgsqlCommand(alter_table, conn))
+                        using (var command = new NpgsqlCommand(create_table, conn))
                         {
                             await command.ExecuteNonQueryAsync();
                         }
 
+                        foreach (var col in colums)
+                        {
+                            string alter_table = $"ALTER TABLE answers ADD COLUMN {col.Key} {col.Value} --";
+
+                            using (var command = new NpgsqlCommand(alter_table, conn))
+                            {
+                                await command.ExecuteNonQueryAsync();
+                            }
+
+                        }
                     }
-                }
-                catch (Exception ex)
-                {
-                    throw new DataBaseError($"Erorr while creating new bot Survey table\n {ex.Message}\n\n{ex.StackTrace}");
-
-                }
-            }
-        }
-        private static async Task CreateBotSurveyAdminTable(int bot_id)
-        {
-            using (var conn = new NpgsqlConnection(new ConfigManager().GetConnetion()))
-            {
-                await conn.OpenAsync();
-
-                string create_table = $"CREATE TABLE bot_{bot_id}_admins " +
-                "(" +
-                $"admin_tg BIGINT PRIMARY KEY," +
-                $"curr_cmd CHARACTER VARYING(255)," +
-                $"is_main_admin BOOLEAN" +
-                ")--";
-
-                try
-                {
-                    using (var command = new NpgsqlCommand(create_table, conn))
+                    catch (Exception ex)
                     {
-                        await command.ExecuteNonQueryAsync();
+                        throw new DataBaseError($"Erorr while creating new bot Survey table\n {ex.Message}\n\n{ex.StackTrace}");
+
                     }
                 }
-                catch (Exception ex)
-                {
-
-                    throw new DataBaseError($"Erorr while creating new bot Survey table\n{ex.Message}");
-                }
-
-
-            }
+            });
         }
-
-        private static async Task DropBotSurveyTable(int bot_id)
+        private static Task CreateBotSurveyButtons(int data_base_id)
         {
-            using (var conn = new NpgsqlConnection(new ConfigManager().GetConnetion()))
+            return Task.Run(async () =>
             {
-                await conn.OpenAsync();
-
-                string drop_table = $"DROP TABLE bot_{bot_id}--";
-
-                try
+                using (var conn = new NpgsqlConnection(new ConfigManager().GetBotConnetion(data_base_id)))
                 {
-                    using (var command = new NpgsqlCommand(drop_table, conn))
+                    await conn.OpenAsync();
+
+                    string create_table = $"CREATE TABLE buttons" +
+                    "(" +
+                    $"id SERIAL PRIMARY KEY," +
+                    $"question_id INTEGER," +
+                    $"next_question_id INTEGER," +
+                    $"answer_text TEXT," +
+                    $"FOREIGN KEY (question_id) REFERENCES questions(id)" +
+                    ")--";
+
+                    try
                     {
-                        await command.ExecuteNonQueryAsync();
+                        using (var command = new NpgsqlCommand(create_table, conn))
+                        {
+                            await command.ExecuteNonQueryAsync();
+                        }
+
+
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new DataBaseError($"Erorr while creating new bot Survey table\n {ex.Message}\n\n{ex.StackTrace}");
+
                     }
                 }
-                catch (Exception ex)
-                {
-                    throw new DataBaseError($"Erorr while droppin bot{bot_id} Survey table\n {ex.Message}\n\n{ex.StackTrace}");
-
-                }
-            }
-        }
-        private static async Task DropBotSurveyAnswerTable(int bot_id)
-        {
-            using (var conn = new NpgsqlConnection(new ConfigManager().GetConnetion()))
-            {
-                await conn.OpenAsync();
-
-                string drop_table = $"DROP TABLE bot_{bot_id}_answers--";
-
-                try
-                {
-                    using (var command = new NpgsqlCommand(drop_table, conn))
-                    {
-                        await command.ExecuteNonQueryAsync();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    throw new DataBaseError($"Erorr while droppin bot_{bot_id}_answers Survey table\n {ex.Message}\n\n{ex.StackTrace}");
-
-                }
-            }
+            });
 
         }
-        private static async Task DroBotSurveyAdminTable(int bot_id)
+        private static Task CreateBotSurveyAdminTable(int data_base_id)
         {
-            using (var conn = new NpgsqlConnection(new ConfigManager().GetConnetion()))
+            return Task.Run(async () =>
             {
-                await conn.OpenAsync();
-
-                string drop_table = $"DROP TABLE bot_{bot_id}_admins--";
-
-                try
+                using (var conn = new NpgsqlConnection(new ConfigManager().GetBotConnetion(data_base_id)))
                 {
-                    using (var command = new NpgsqlCommand(drop_table, conn))
+                    await conn.OpenAsync();
+
+                    string create_table = $"CREATE TABLE admins " +
+                    "(" +
+                    $"admin_tg BIGINT PRIMARY KEY," +
+                    $"curr_cmd CHARACTER VARYING(255)," +
+                    $"is_main_admin BOOLEAN" +
+                    ")--";
+
+                    try
                     {
-                        await command.ExecuteNonQueryAsync();
+                        using (var command = new NpgsqlCommand(create_table, conn))
+                        {
+                            await command.ExecuteNonQueryAsync();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+
+                        throw new DataBaseError($"Erorr while creating new bot Survey table\n{ex.Message}");
+                    }
+
+
+                }
+            });
+        }
+
+        private static Task DropBotSurveyDataBase(int data_base_id)
+        {
+            return Task.Run(async () =>
+            {
+                using (var conn = new NpgsqlConnection(new ConfigManager().GetConnetion()))
+                {
+                    await conn.OpenAsync();
+
+                    string drop_table = $"DROP DATABASE BOT_{data_base_id}--";
+
+                    try
+                    {
+                        using (var command = new NpgsqlCommand(drop_table, conn))
+                        {
+                            await command.ExecuteNonQueryAsync();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new DataBaseError($"Erorr while droppin bot Survey database\n {ex.Message}\n\n{ex.StackTrace}");
+
                     }
                 }
-                catch (Exception ex)
+            });
+           
+        }
+        private static Task DropBotSurveyAnswerTable(int data_base_id)
+        {
+            return Task.Run(async () =>
+            {
+                using (var conn = new NpgsqlConnection(new ConfigManager().GetBotConnetion(data_base_id)))
                 {
-                    throw new DataBaseError($"Erorr while droppin bot_{bot_id}_admins Survey table\n {ex.Message}\n\n{ex.StackTrace}");
+                    await conn.OpenAsync();
 
+                    string drop_table = $"DROP TABLE answers--";
+
+                    try
+                    {
+                        using (var command = new NpgsqlCommand(drop_table, conn))
+                        {
+                            await command.ExecuteNonQueryAsync();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new DataBaseError($"Erorr while droppin answers Survey table\n {ex.Message}\n\n{ex.StackTrace}");
+
+                    }
                 }
-            }
+            });
+        }
+        private static Task DroBotSurveyAdminTable(int data_base_id)
+        {
+            return Task.Run(async () =>
+            {
+                using (var conn = new NpgsqlConnection(new ConfigManager().GetBotConnetion(data_base_id)))
+                {
+                    await conn.OpenAsync();
 
+                    string drop_table = $"DROP TABLE admins--";
+
+                    try
+                    {
+                        using (var command = new NpgsqlCommand(drop_table, conn))
+                        {
+                            await command.ExecuteNonQueryAsync();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new DataBaseError($"Erorr while droppin admins Survey table\n {ex.Message}\n\n{ex.StackTrace}");
+
+                    }
+                }
+            });
+        }
+        private static Task DropBotSurveyButtonsTable(int data_base_id)
+        {
+            return Task.Run(async () =>
+            {
+                using (var conn = new NpgsqlConnection(new ConfigManager().GetBotConnetion(data_base_id)))
+                {
+                    await conn.OpenAsync();
+
+                    string drop_table = $"DROP TABLE buttons--";
+
+                    try
+                    {
+                        using (var command = new NpgsqlCommand(drop_table, conn))
+                        {
+                            await command.ExecuteNonQueryAsync();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new DataBaseError($"Erorr while droppin admins Survey table\n {ex.Message}\n\n{ex.StackTrace}");
+
+                    }
+                }
+            });
+        }
+        private static Task DropBotSurveyQuestionTable(int data_base_id)
+        {
+            return Task.Run(async () =>
+            {
+                using (var conn = new NpgsqlConnection(new ConfigManager().GetBotConnetion(data_base_id)))
+                {
+                    await conn.OpenAsync();
+
+                    string drop_table = $"DROP TABLE questions--";
+
+                    try
+                    {
+                        using (var command = new NpgsqlCommand(drop_table, conn))
+                        {
+                            await command.ExecuteNonQueryAsync();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new DataBaseError($"Erorr while droppin admins Survey table\n {ex.Message}\n\n{ex.StackTrace}");
+
+                    }
+                }
+            });
         }
 
         private static Task<string> generate_insert_into_bot_survey(int bot_id, int module_id, MyModule module)
@@ -349,7 +474,7 @@ namespace DataBaseService.backend.Types
             });
         }
 
-        private static async Task FillBotSurveyTable(int bot_id, MyJournal journal)
+        private static async Task FillBotSurveyQuestionTable(int bot_id, MyJournal journal)
         {
 
             foreach (var modul in journal.Modules)
