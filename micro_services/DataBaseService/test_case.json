@@ -1,0 +1,62 @@
+{
+  "from_user": 1,
+
+  "journal": {
+    "modules": {
+      "1": {
+        "question": "Скажи своё ФИО",
+        "question_type": "TEXT",
+        "answer_type": "TEXT",
+        "title": "Fio",
+        "buttons": [
+
+        ],
+        "next_question_id": 2
+      },
+      "2": {
+        "question": "Ты из МГТУ ",
+        "question_type": "INLINE",
+        "answer_type": "BOOLEAN",
+        "title": "isBMSTU",
+
+        "buttons": [
+          {
+            "question_id": 2,
+            "answer_text": "Да",
+            "next_question_id": 3
+          },
+          {
+
+            "question_id": 2,
+            "answer_text": "Нет",
+            "next_question_id": 4
+          }
+        ],
+        "next_question_id": 0
+      },
+      "3": {
+        "question": "Учебная группа",
+        "question_type": "TEXT",
+        "answer_type": "TEXT",
+        "title": "university_group",
+
+        "buttons": [
+
+        ],
+        "next_question_id": 0
+      },
+      "4": {
+        "question": "Название ВУЗа",
+        "question_type": "TEXT",
+        "answer_type": "TEXT",
+        "title": "university",
+
+        "buttons": [
+
+        ],
+        "next_question_id": 0
+      }
+    }
+
+  }
+}

@@ -3,6 +3,7 @@ using System.Net;
 
 using DataBaseService.Protos;
 using DataBaseService.backend.Types;
+using DataBaseService.Backend.Types;
 
 namespace DataBaseService.Services.bot
 {
@@ -43,6 +44,17 @@ namespace DataBaseService.Services.bot
             bot_response.Owner = bot.owner;
 
             return Task.FromResult(bot_response);
+        }
+
+        public override Task<Module> GetQuestion(GetQuestionRequest request, ServerCallContext context)
+        {
+            _logger.LogInformation($"Get Bot #{request.BotId}  Question #{request.QuestionId}");
+
+            MyModule question = MyModule.GetMoudleById(request.BotId, request.QuestionId).Result;
+
+            _logger.LogInformation(question.Question);
+
+            return Task.FromResult(MyModule.ConvertToRPC(question));
         }
     }
 }

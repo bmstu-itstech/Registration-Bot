@@ -24,19 +24,8 @@ namespace DataBaseService.Services.Bot
             string state = "OK";
             int code = 200;
 
-            var journal = request.Journal;
 
-            MyJournal my_journal = new MyJournal()
-            {
-                Modules = request.Journal.Modules.ToDictionary(m => m.Key, m => new MyModule
-                {
-                    Answers = m.Value.Answers.ToList(),
-                    Question = m.Value.Question,
-                    Title = m.Value.Title,
-                    Type = m.Value.Type,
-                    Next_ids = m.Value.NextIds.ToList(),
-                })
-            };
+            MyJournal my_journal = MyJournal.ConvertFromRPC(request.Journal);
 
             //main code 
             try
@@ -99,6 +88,33 @@ namespace DataBaseService.Services.Bot
             }
 
             return Task.FromResult(new BaseResponse()
+            {
+                State = state,
+                Code = code
+            });
+        }
+
+        public override Task<BaseResponse> SetAnswers(SetAnswersRequest request, ServerCallContext context)
+        {
+            _logger.LogInformation($"Set new Answer Request {request.TgChatId} ");
+
+            string state = "OK";
+            int code = 200;
+
+            try
+            {
+
+                List<MyAnswer> answers = request.Answers.Select(answer => MyAnswer.ConvertFromRPC(answer)).ToList();
+
+                MyBot.SetAnswers(request.BotId, request.TgChatId, answers);
+            }
+            catch (Exception ex)
+            {
+                state = ex.Message;
+                code = 401;
+            }
+
+            return Task.FromResult(new BaseResponse
             {
                 State = state,
                 Code = code
