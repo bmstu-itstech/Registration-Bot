@@ -53,10 +53,10 @@ async def create_tree(bot_id):
             INSERT INTO questions (question_text, question_type, next_question_id)
             VALUES
                 ('Привет! Я тестовый бот-опросник!', 'buttons', 2),
-                ('Как тебя зовут?', 'text', 3),
-                ('Ты совершеннолетний?', 'buttons', NULL),
-                ('Выбери свою любимую игру', 'buttons', NULL),
-                ('Какой твой любимый цвет?', 'text', NULL);
+                ('Как тебя зовут? (ФИО)', 'text', 3),
+                ('Ты из МГТУ?', 'buttons', NULL),
+                ('Напиши номер своей группы', 'text', NULL),
+                ('Из какого ты ВУЗа?', 'text', NULL);
         ''')
 
     await conn.execute('''
@@ -64,9 +64,7 @@ async def create_tree(bot_id):
             VALUES
                 (1, 'Начать', 2),
                 (3, 'Да', 4),
-                (3, 'Нет', 5),
-                (4, 'GTA', NULL),
-                (4, 'CSGO', NULL);
+                (3, 'Нет', 5);
         ''')
 
     await conn.execute('''
