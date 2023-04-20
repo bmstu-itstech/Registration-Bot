@@ -58,7 +58,7 @@ async def connect_or_create(user, database) -> asyncpg.Connection:
 
 
 # Set up startup handler
-async def main(token, bot_id):
+async def run_instance(token, bot_id):
     # Set up states
     logging.info(f'Starting bot id{bot_id}...')
 
@@ -166,10 +166,12 @@ async def main(token, bot_id):
             next_question_id = await get_next_question_id(question_id)
 
             if next_question_id is not None:
+                # Showing that bot is typing it's question
+                await bot.send_chat_action(message.chat.id, 'typing')
                 # Send next question
                 await send_question(state, message.chat.id, next_question_id)
             else:
-                await finish_questionnaire(state, message.from_user.id)
+                await finish_questionnaire(state, message.chat.id)
                 await message.answer('Ответы записаны!')
         # If the user has already passed the questionnaire
         else:
@@ -182,7 +184,10 @@ async def main(token, bot_id):
                                callback_data: ButtonCallback,
                                state: FSMContext) -> None:
         user_status = await state.get_state()
-        await callback_query.message.edit_reply_markup()
+        # Deleting message with buttons after the answer
+        await callback_query.message.delete()
+        # Alternative:
+        # await callback_query.message.edit_reply_markup()
         if user_status == questionnaire.in_process:
             data = await state.get_data()
             # Get answers list from the state
@@ -196,13 +201,15 @@ async def main(token, bot_id):
             # If there is next question
             if callback_data.next_question_id != 'None':
                 button_id = int(callback_data.next_question_id)
+                # Showing that bot is typing it's question
+                await bot.send_chat_action(callback_query.message.chat.id, 'typing')
                 # Send next question based on button ID
                 await send_question(state, callback_query.message.chat.id, button_id)
                 await callback_query.answer(None)
 
             # If the user passed all the questions
             else:
-                await finish_questionnaire(state, callback_query.from_user.id)
+                await finish_questionnaire(state, callback_query.message.chat.id)
                 await callback_query.answer('Ответы записаны!')
                 await bot.send_message(callback_query.message.chat.id, 'Ответы записаны!')
         # If the user has already passed the questionnaire
@@ -213,13 +220,14 @@ async def main(token, bot_id):
     await dp.start_polling(bot)
 
 
-def run_instance(token, bot_id):
-    asyncio.run(main(token, bot_id))
+async def main():
+    import config
+    tasks = [
+        run_instance(config.bot_token, 1),
+        run_instance(config.bot_token2, 2)
+    ]
+    await asyncio.gather(*tasks)
 
 
 if __name__ == '__main__':
-    import config
-    from threading import Thread
-
-    main_thread = Thread(target=run_instance, args=(config.bot_token, 1), daemon=True)
-    main_thread.start()
+    asyncio.run(main())
