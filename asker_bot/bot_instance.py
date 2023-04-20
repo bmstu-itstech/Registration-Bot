@@ -1,5 +1,6 @@
 import logging
 import asyncpg
+import asyncio
 
 from aiogram import Bot, Dispatcher, types, Router
 from aiogram.filters.callback_data import CallbackData
@@ -57,7 +58,7 @@ async def connect_or_create(user, database) -> asyncpg.Connection:
 
 
 # Set up startup handler
-def run_instance(token, bot_id):
+async def main(token, bot_id):
     # Set up states
     logging.info(f'Starting bot id{bot_id}...')
 
@@ -212,10 +213,13 @@ def run_instance(token, bot_id):
     await dp.start_polling(bot)
 
 
+def run_instance(token, bot_id):
+    asyncio.run(main(token, bot_id))
+
+
 if __name__ == '__main__':
     import config
     from threading import Thread
 
-    main_thread = Thread(target=run_instance, args=(config.bot_token, 1))
+    main_thread = Thread(target=run_instance, args=(config.bot_token, 1), daemon=True)
     main_thread.start()
-    main_thread.join()
