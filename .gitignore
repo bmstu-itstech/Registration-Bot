@@ -1,12 +1,6 @@
 secrets.json
 .vs/
 
-
-MDan
-.venv/
-main
-
-
 =======darleet=======
 
 # Ignore PyCharm settings files
@@ -21,3 +15,6 @@ venv/
 
 # Ignore cache
 */__pycache__/
+
+# Ignore configs
+config.py
