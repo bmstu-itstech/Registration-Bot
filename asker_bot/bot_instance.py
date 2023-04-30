@@ -1,5 +1,4 @@
 import logging
-import asyncpg
 import asyncio
 
 from aiogram import Bot, Dispatcher, types, Router
@@ -14,47 +13,30 @@ from aiogram.enums import ParseMode
 from aiogram.fsm.storage.redis import RedisStorage
 from redis import asyncio as aioredis
 
+from connection_router import connection
+
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 
 
 # State class
 class Questionnaire(StatesGroup):
-    # Будет хранить id текущего вопроса
+    # Stores current question id
     question_id = State()
-    # Будет хранить ответы пользователя
+    # Stores user's answers
     answers = State()
-    # Будет обозначать прохождение анкеты
+    # Shows that the questionnaire is in process
     in_process = State()
-    # Будет обозначать завершенное состояние анкетирования
+    # Shows that the questionnaire is completed
     completed = State()
+    # Stores previous questions' ids
+    previous = State()
 
 
 class ButtonCallback(CallbackData, prefix="button"):
     question_id: int
-    next_question_id: str
+    next_question_id: int | None
     answer_text: str
-
-
-# Database connect function
-async def connect_or_create(user, database) -> asyncpg.Connection:
-    try:
-        conn = await asyncpg.connect(user=user, database=database)
-    except asyncpg.InvalidCatalogNameError:
-        # Database does not exist, create it
-        sys_conn = await asyncpg.connect(
-            database='template1',
-            user='postgres'
-        )
-        await sys_conn.execute(
-            f'CREATE DATABASE "{database}" OWNER "{user}"',
-        )
-        await sys_conn.close()
-
-        # Connect to the newly created database
-        conn = await asyncpg.connect(user=user, database=database)
-
-    return conn
 
 
 # Set up startup handler
@@ -76,39 +58,37 @@ async def run_instance(token, bot_id):
     dp = Dispatcher(storage=storage)
     dp.include_router(router)
 
-    async def get_question_text(conn, question_id):
+    async def get_question(conn, question_id):
         # Get question text from database
-        question_text = await conn.fetchrow('SELECT question_text FROM questions WHERE id = $1',
-                                            question_id)
-        return question_text[0]
-
-    async def get_question_type(conn, question_id):
-        # Get question type from database
-        question_type = await conn.fetchrow('SELECT question_type FROM questions WHERE id = $1',
-                                            question_id)
-        return question_type[0]
-
-    async def get_question_options(conn, question_id):
-        # Get question options from database
+        question = await conn.fetchrow('SELECT * FROM questions WHERE id = $1',
+                                       question_id)
         rows = await conn.fetch('SELECT (question_id, next_question_id, answer_text) FROM buttons '
                                 'WHERE question_id = $1',
                                 question_id)
-        question_options = [row[0] for row in rows]
-        return question_options
+        buttons = [row[0] for row in rows]
+        return question, buttons
+
+    async def get_next_question_id(question_id):
+        conn = await connection.connect_or_create('postgres', f'id{bot_id}')
+        next_question_id = await conn.fetchrow('SELECT next_question_id FROM questions '
+                                               'WHERE id = $1',
+                                               question_id)
+        return next_question_id[0]
 
     async def send_question(state, chat_id, question_id) -> None:
         # Create database connection
-        conn = await connect_or_create('postgres', f'id{bot_id}')
+        conn = await connection.connect_or_create('postgres', f'id{bot_id}')
         # Get question text and type from database
-        question_text = await get_question_text(conn, question_id)
-        question_type = await get_question_type(conn, question_id)
+        question, buttons = await get_question(conn, question_id)
+        question_text = question[0]
+        question_type = question[1]
 
         # Send question
         if question_type == 'text':
             await bot.send_message(chat_id, question_text)
         elif question_type == 'buttons':
             # Get question options from database (if applicable)
-            question_options = await get_question_options(conn, question_id)
+            question_options = question[2]
             keyboard = InlineKeyboardBuilder()
 
             for element in question_options:
@@ -123,23 +103,17 @@ async def run_instance(token, bot_id):
         await state.update_data(question_id=question_id)
         await conn.close()
 
-    async def get_next_question_id(question_id):
-        conn = await connect_or_create('postgres', f'id{bot_id}')
-        next_question_id = await conn.fetchrow('SELECT next_question_id FROM questions '
-                                               'WHERE id = $1',
-                                               question_id)
-        return next_question_id[0]
-
-    async def finish_questionnaire(state, user_id):
+    async def push_answers(state, user_id):
         # Create database connection
-        conn = await connect_or_create('postgres', f'id{bot_id}')
+        conn = await connection.connect_or_create('postgres', f'id{bot_id}')
         await conn.execute(f'INSERT INTO answers (user_id) '
                            f'VALUES ({user_id});')
         answers = (await state.get_data())['answers']
         for answer in answers:
             if answer[0] != 1:
-                await conn.execute(f"UPDATE answers SET answer{answer[0]} = '{answer[1]}' "
-                                   f"WHERE user_id = {user_id};")
+                await conn.execute(f"UPDATE answers SET answer{answer[0]} = $1 "
+                                   f"WHERE user_id = $2;",
+                                   answer[1], user_id)
         await state.set_state(questionnaire.completed)
         await conn.close()
 
@@ -166,12 +140,12 @@ async def run_instance(token, bot_id):
             next_question_id = await get_next_question_id(question_id)
 
             if next_question_id is not None:
-                # Showing that bot is typing it's question
+                # Showing that bot is typing its question
                 await bot.send_chat_action(message.chat.id, 'typing')
                 # Send next question
                 await send_question(state, message.chat.id, next_question_id)
             else:
-                await finish_questionnaire(state, message.chat.id)
+                await push_answers(state, message.chat.id)
                 await message.answer('Ответы записаны!')
         # If the user has already passed the questionnaire
         else:
@@ -199,9 +173,9 @@ async def run_instance(token, bot_id):
             await state.update_data(answers=answers)
 
             # If there is next question
-            if callback_data.next_question_id != 'None':
+            if callback_data.next_question_id is not None:
                 button_id = int(callback_data.next_question_id)
-                # Showing that bot is typing it's question
+                # Showing that bot is typing its question
                 await bot.send_chat_action(callback_query.message.chat.id, 'typing')
                 # Send next question based on button ID
                 await send_question(state, callback_query.message.chat.id, button_id)
@@ -209,7 +183,7 @@ async def run_instance(token, bot_id):
 
             # If the user passed all the questions
             else:
-                await finish_questionnaire(state, callback_query.message.chat.id)
+                await push_answers(state, callback_query.message.chat.id)
                 await callback_query.answer('Ответы записаны!')
                 await bot.send_message(callback_query.message.chat.id, 'Ответы записаны!')
         # If the user has already passed the questionnaire
