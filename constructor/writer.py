@@ -1,10 +1,9 @@
-import asyncpg
 import asyncio
 
 from connection_router import connection
 
 
-# Эта функция будет заполнять данными дерево и связываться с микросервисом БД
+# The function will create tables for bot
 async def create_tree(bot_id):
     # Create database connection
     conn = await connection.connect_or_create('postgres', f'id{bot_id}')
