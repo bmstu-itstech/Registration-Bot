@@ -12,7 +12,7 @@ service UserWorker{
 
 
 message GetUserBotsListRequest{
-	int32 user_id = 1;
+	int32 user_id = 1;	
 }
 message GetUserRequest{
 	int32 user_id =1;

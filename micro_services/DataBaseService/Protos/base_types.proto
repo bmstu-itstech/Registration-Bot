@@ -19,10 +19,17 @@ message BotResponse{
 }
 message Module {
 	string question = 1;
-	repeated int32 next_ids = 2;
-	repeated int32 answers = 3;
-	string type = 4;
-	string title = 5;
+	string question_type = 2;
+	string answer_type = 3;
+	string title = 4;
+	repeated Button buttons = 5;
+	int32 next_question_id =6;
+	int32 id = 7;
+}
+
+message Answer{
+	int32 module_id = 1;
+	string ansewer_text = 2;
 }
 
 message Journal
@@ -34,6 +41,12 @@ message User{
 	string title = 1;
 	string description =2;
 	string contact =3 ;
+}
+
+message Button{
+	int32 question_id = 1;
+	string answer_text = 2;
+	int32 next_question_id =3;
 }
 
 message UserResponse{

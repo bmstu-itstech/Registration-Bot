@@ -29,5 +29,18 @@
                 return _config.GetConnectionString("DEBUG_DB");
             return _config.GetConnectionString("DB");
         }
+        
+        public string GetBotConnetion(int data_base_id)
+        {
+            string conn = _config.GetConnectionString("DB");
+
+            if (DEBUG)
+                conn = _config.GetConnectionString("DEBUG_DB");
+
+            conn = conn.Replace(_config.GetValue<string>("DATA_BASE_NAME"), $"bot_{data_base_id}");
+
+            return conn;
+
+        }
     }
 }
