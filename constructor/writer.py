@@ -52,8 +52,7 @@ async def create_tree(bot_id):
 
     await conn.execute('''
             CREATE TABLE IF NOT EXISTS answers (
-                id SERIAL PRIMARY KEY,
-                user_id INT
+                chat_id INT PRIMARY KEY
             );
         ''')
 
