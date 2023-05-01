@@ -1,30 +1,12 @@
-import asyncpg
 import asyncio
 
-# Database connect function
-async def connect_or_create(user, database) -> asyncpg.Connection:
-    try:
-        conn = await asyncpg.connect(user=user, database=database)
-    except asyncpg.InvalidCatalogNameError:
-        # Database does not exist, create it.
-        sys_conn = await asyncpg.connect(
-            database='template1',
-            user='postgres'
-        )
-        await sys_conn.execute(
-            f'CREATE DATABASE "{database}" OWNER "{user}"',
-        )
-        await sys_conn.close()
+from connection_router import connection
 
-        # Connect to the newly created database.
-        conn = await asyncpg.connect(user=user, database=database)
 
-    return conn
-
-# Эта функция будет заполнять данными дерево и связываться с микросервисом БД
+# The function will create tables for bot
 async def create_tree(bot_id):
     # Create database connection
-    conn = await connect_or_create('postgres', f'id{bot_id}')
+    conn = await connection.connect_or_create('postgres', f'id{bot_id}')
 
     # Create questions table
     await conn.execute('''
@@ -69,8 +51,7 @@ async def create_tree(bot_id):
 
     await conn.execute('''
             CREATE TABLE IF NOT EXISTS answers (
-                id SERIAL PRIMARY KEY,
-                user_id INT
+                chat_id INT PRIMARY KEY
             );
         ''')
 
