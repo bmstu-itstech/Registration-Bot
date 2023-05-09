@@ -10,7 +10,7 @@ service BotGetter{
 
 }
 service BotWorker {
-	rpc CreateBot(CreateBotRequest) returns (BaseResponse);
+	rpc CreateBot(CreateBotRequest) returns (CreateBotResponse);
 	rpc DeleteBot(DeleteBotRequest) returns (BaseResponse);
 	rpc UpdateBotTgToken (UpdateBotTgTokenRequest) returns (BaseResponse);
 	rpc UpdateBotGoogleToken (UpdateBotGoogleTokenRequest) returns (BaseResponse);
@@ -36,10 +36,11 @@ message UpdateBotGoogleTokenRequest{
 
 message CreateBotRequest{
 	int32 from_user = 1;
-	Journal journal = 2;
+	string tg_token = 2;
+	string sheets_token = 3;
+	Journal journal = 4;
 
 }
-
 message DeleteBotRequest{
 	int32 from_user = 1;
 	int32 bot_id = 2;
@@ -55,4 +56,10 @@ message SetAnswersRequest{
 	int64 tg_chat_id = 1;
 	int32 bot_id =2;
 	repeated Answer answers = 3;
+}
+
+message CreateBotResponse{
+  string  state = 1;
+  int32  code = 2;
+  int32 bot_id = 3;
 }

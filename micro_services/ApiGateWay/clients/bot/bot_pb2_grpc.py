@@ -2,8 +2,8 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-import my_types.base_types_pb2 as base__types__pb2
-import clients.bot.bot_pb2 as bot__pb2
+import base_types_pb2 as base__types__pb2
+import bot_pb2 as bot__pb2
 
 
 class BotGetterStub(object):
@@ -112,7 +112,7 @@ class BotWorkerStub(object):
         self.CreateBot = channel.unary_unary(
                 '/BotWorker/CreateBot',
                 request_serializer=bot__pb2.CreateBotRequest.SerializeToString,
-                response_deserializer=base__types__pb2.BaseResponse.FromString,
+                response_deserializer=bot__pb2.CreateBotResponse.FromString,
                 )
         self.DeleteBot = channel.unary_unary(
                 '/BotWorker/DeleteBot',
@@ -175,7 +175,7 @@ def add_BotWorkerServicer_to_server(servicer, server):
             'CreateBot': grpc.unary_unary_rpc_method_handler(
                     servicer.CreateBot,
                     request_deserializer=bot__pb2.CreateBotRequest.FromString,
-                    response_serializer=base__types__pb2.BaseResponse.SerializeToString,
+                    response_serializer=bot__pb2.CreateBotResponse.SerializeToString,
             ),
             'DeleteBot': grpc.unary_unary_rpc_method_handler(
                     servicer.DeleteBot,
@@ -220,7 +220,7 @@ class BotWorker(object):
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/BotWorker/CreateBot',
             bot__pb2.CreateBotRequest.SerializeToString,
-            base__types__pb2.BaseResponse.FromString,
+            bot__pb2.CreateBotResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 

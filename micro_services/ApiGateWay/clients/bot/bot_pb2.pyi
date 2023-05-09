@@ -7,12 +7,26 @@ from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Map
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class CreateBotRequest(_message.Message):
-    __slots__ = ["from_user", "journal"]
+    __slots__ = ["from_user", "journal", "sheets_token", "tg_token"]
     FROM_USER_FIELD_NUMBER: _ClassVar[int]
     JOURNAL_FIELD_NUMBER: _ClassVar[int]
+    SHEETS_TOKEN_FIELD_NUMBER: _ClassVar[int]
+    TG_TOKEN_FIELD_NUMBER: _ClassVar[int]
     from_user: int
     journal: _base_types_pb2.Journal
-    def __init__(self, from_user: _Optional[int] = ..., journal: _Optional[_Union[_base_types_pb2.Journal, _Mapping]] = ...) -> None: ...
+    sheets_token: str
+    tg_token: str
+    def __init__(self, from_user: _Optional[int] = ..., tg_token: _Optional[str] = ..., sheets_token: _Optional[str] = ..., journal: _Optional[_Union[_base_types_pb2.Journal, _Mapping]] = ...) -> None: ...
+
+class CreateBotResponse(_message.Message):
+    __slots__ = ["bot_id", "code", "state"]
+    BOT_ID_FIELD_NUMBER: _ClassVar[int]
+    CODE_FIELD_NUMBER: _ClassVar[int]
+    STATE_FIELD_NUMBER: _ClassVar[int]
+    bot_id: int
+    code: int
+    state: str
+    def __init__(self, state: _Optional[str] = ..., code: _Optional[int] = ..., bot_id: _Optional[int] = ...) -> None: ...
 
 class DeleteBotRequest(_message.Message):
     __slots__ = ["bot_id", "from_user"]

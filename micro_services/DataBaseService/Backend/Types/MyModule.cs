@@ -36,8 +36,10 @@ namespace DataBaseService.Backend.Types
 
             _module.Id = module.Id;
             _module.Question = module.Question;
-            _module.AnswerType = module.QuestionType;
+            _module.AnswerType = module.AnswerType;
+            _module.QuestionType = module.QuestionType;
             _module.NextQuestionId = module.NextQuestionId;
+            _module.Title = module.Title;
 
             if (module.buttons != null && module.buttons.Count > 0)
                 _module.Buttons.AddRange(module.buttons.Select
