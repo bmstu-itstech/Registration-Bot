@@ -1,108 +1,68 @@
-from constructor.tree import Tree
-import aiosqlite
 import asyncio
-# aioconsole импортирован для консольных тестов
-import aioconsole
+
+from connection_router import connection
 
 
-# Эта функция будет заполнять данными дерево и связываться с микросервисом БД
-async def create_tree(data, bot_id):
-    print('create_start')
-    await asyncio.sleep(3)
-    print('created')
-    tree_ent = Tree(bot_id)
+# The function will create tables for bot
+async def create_tree(bot_id):
+    # Create database connection
+    conn = await connection.connect_or_create('postgres', f'id{bot_id}')
 
-    for key in data.keys():
-        tree_ent.add_module(key, data[key]["links"], data[key]["question"], data[key]["answers"])
+    # Create questions table
+    await conn.execute('''
+            CREATE TABLE IF NOT EXISTS questions (
+                id SERIAL PRIMARY KEY,
+                question_text TEXT NOT NULL,
+                question_type TEXT NOT NULL,
+                next_question_id INTEGER
+            );
+        ''')
 
-    # Написал максимально простой тест дерева на асинхронном SQLite
-    async with aiosqlite.connect('./test.db') as connection:
-        cursor = await connection.cursor()
+    # Create buttons table
+    await conn.execute('''
+            CREATE TABLE IF NOT EXISTS buttons (
+                id SERIAL PRIMARY KEY,
+                question_id INTEGER NOT NULL,
+                answer_text TEXT NOT NULL,
+                next_question_id INTEGER,
+                FOREIGN KEY (question_id) REFERENCES questions(id),
+                FOREIGN KEY (next_question_id) REFERENCES questions(id)
+            );
+        ''')
 
-        sql = (
-            f"DROP TABLE IF EXISTS id{bot_id}"
-        )
-        await cursor.execute(sql)
+    # Insert sample data
+    await conn.execute('''
+            INSERT INTO questions (question_text, question_type, next_question_id)
+            VALUES
+                ('Привет! Я тестовый бот-опросник!', 'buttons', 2),
+                ('Как тебя зовут? (ФИО)', 'text', 3),
+                ('Ты из МГТУ?', 'buttons', NULL),
+                ('Напиши номер своей группы', 'text', NULL),
+                ('Из какого ты ВУЗа?', 'text', NULL);
+        ''')
 
-        sql = (
-            f"CREATE TABLE id{bot_id} ("
-            f"module_id INTEGER PRIMARY KEY,"
-            f"next_ids text,"
-            f"question_text text NOT NULL,"
-            f"answers text)"
-        )
-        await cursor.execute(sql)
+    await conn.execute('''
+            INSERT INTO buttons (question_id, answer_text, next_question_id)
+            VALUES
+                (1, 'Начать', 2),
+                (3, 'Да', 4),
+                (3, 'Нет', 5);
+        ''')
 
-        for module in tree_ent.get_data():
-            sql = (
-                f"INSERT INTO id{bot_id} (module_id, next_ids, question_text, answers)"
-                f"VALUES (?, ?, ?, ?)"
-            )
-            await cursor.execute(sql, module)
+    await conn.execute('''
+            CREATE TABLE IF NOT EXISTS answers (
+                chat_id INT PRIMARY KEY
+            );
+        ''')
 
-        await cursor.execute("COMMIT;")
+    for i in range(2, 6):
+        await conn.execute(f'''
+                ALTER TABLE answers
+                ADD COLUMN answer{i} TEXT;
+            ''')
+
+    await conn.close()
 
 
-async def read_tree(bot_id):
-    print('read_start')
-    await asyncio.sleep(1)
-    print('read')
-
-    async with aiosqlite.connect('./test.db') as connection:
-        cursor = await connection.cursor()
-        module_id = 1
-        prev_array = []
-
-        while True:
-            sql = (
-                f'SELECT next_ids, question_text, answers '
-                f'FROM id{bot_id} WHERE module_id={module_id}'
-            )
-            await cursor.execute(sql)
-            data = (await cursor.fetchall())[0]
-
-            try:
-                next_ids = data[0].split("/")
-            except AttributeError:
-                next_ids = None
-            try:
-                answers = data[2].split("/")
-            except AttributeError:
-                answers = None
-
-            question_text = data[1]
-
-            if len(prev_array) > 0:
-                prev_id = prev_array[-1]
-            else:
-                prev_id = None
-
-            print(f"Question: {question_text}, ID: {module_id}\n"
-                  f"Previous question: {prev_id}")
-
-            if answers is None:
-                # Ожидание ввода ответа в консоли
-                input_answer = await aioconsole.ainput()
-                if input_answer.lower().strip() == "back" and prev_id is not None:
-                    module_id = prev_id
-                    prev_array.pop(-1)
-                elif input_answer.lower().strip() == "back":
-                    print(f"No previous questions!")
-                elif next_ids is not None:
-                    prev_array.append(module_id)
-                    module_id = next_ids[0]
-                else:
-                    break
-            else:
-                print(f"Answers: {answers}")
-                # Ожидание ввода ответа в консоли
-                input_answer = await aioconsole.ainput()
-                if input_answer.lower().strip() == "back" and prev_id is not None:
-                    module_id = prev_id
-                    prev_array.pop(-1)
-                elif input_answer.lower().strip() == "back":
-                    print(f"No previous questions!")
-                else:
-                    index = answers.index(input_answer.lower().strip())
-                    prev_array.append(module_id)
-                    module_id = next_ids[index]
+if __name__ == '__main__':
+    asyncio.run(create_tree(1))
