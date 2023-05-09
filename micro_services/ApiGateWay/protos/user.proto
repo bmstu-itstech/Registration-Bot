@@ -1,6 +1,5 @@
 syntax = "proto3";
 
-option csharp_namespace = "DataBaseService.Protos";
 
 import "base_types.proto";
 

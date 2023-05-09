@@ -11,7 +11,7 @@ from google.protobuf import symbol_database as _symbol_database
 _sym_db = _symbol_database.Default()
 
 
-import base_types_pb2 as base__types__pb2
+import my_types.base_types_pb2 as base__types__pb2
 
 
 DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\tbot.proto\x1a\x10\x62\x61se_types.proto\".\n\rGetBotRequest\x12\x0e\n\x06\x62ot_id\x18\x01 \x01(\x05\x12\r\n\x05owner\x18\x02 \x01(\x05\"G\n\x17UpdateBotTgTokenRequest\x12\x0e\n\x06\x62ot_id\x18\x01 \x01(\x05\x12\r\n\x05owner\x18\x02 \x01(\x05\x12\r\n\x05token\x18\x03 \x01(\t\"K\n\x1bUpdateBotGoogleTokenRequest\x12\x0e\n\x06\x62ot_id\x18\x01 \x01(\x05\x12\r\n\x05owner\x18\x02 \x01(\x05\x12\r\n\x05token\x18\x03 \x01(\t\"@\n\x10\x43reateBotRequest\x12\x11\n\tfrom_user\x18\x01 \x01(\x05\x12\x19\n\x07journal\x18\x02 \x01(\x0b\x32\x08.Journal\"5\n\x10\x44\x65leteBotRequest\x12\x11\n\tfrom_user\x18\x01 \x01(\x05\x12\x0e\n\x06\x62ot_id\x18\x02 \x01(\x05\"9\n\x12GetQuestionRequest\x12\x0e\n\x06\x62ot_id\x18\x01 \x01(\x05\x12\x13\n\x0bquestion_id\x18\x02 \x01(\x05\"Q\n\x11SetAnswersRequest\x12\x12\n\ntg_chat_id\x18\x01 \x01(\x03\x12\x0e\n\x06\x62ot_id\x18\x02 \x01(\x05\x12\x18\n\x07\x61nswers\x18\x03 \x03(\x0b\x32\x07.Answer2`\n\tBotGetter\x12&\n\x06GetBot\x12\x0e.GetBotRequest\x1a\x0c.BotResponse\x12+\n\x0bGetQuestion\x12\x13.GetQuestionRequest\x1a\x07.Module2\x9c\x02\n\tBotWorker\x12-\n\tCreateBot\x12\x11.CreateBotRequest\x1a\r.BaseResponse\x12-\n\tDeleteBot\x12\x11.DeleteBotRequest\x1a\r.BaseResponse\x12;\n\x10UpdateBotTgToken\x12\x18.UpdateBotTgTokenRequest\x1a\r.BaseResponse\x12\x43\n\x14UpdateBotGoogleToken\x12\x1c.UpdateBotGoogleTokenRequest\x1a\r.BaseResponse\x12/\n\nSetAnswers\x12\x12.SetAnswersRequest\x1a\r.BaseResponseb\x06proto3')

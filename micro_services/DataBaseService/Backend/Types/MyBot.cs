@@ -190,8 +190,8 @@ namespace DataBaseService.backend.Types
                     $"question_text TEXT NOT NULL," +
                     $"question_type CHARACTER VARYING(255) NOT NULL," +
                     $"next_question_id INTEGER," +
-                    $"answer_type CHARACTER VARYING(255) NOT NULL," +
-                    $"collum_title CHARACTER VARYING(255) NOT NULL" +
+                    $"answer_type CHARACTER VARYING(255)," +
+                    $"collum_title CHARACTER VARYING(255) " +
                     $")--";
 
                     using (var command = new NpgsqlCommand(create_table, conn))
@@ -354,21 +354,23 @@ namespace DataBaseService.backend.Types
 
                     if (module.NextQuestionId == 0)
                     {
-                        insert = $"INSERT INTO questions (id,question_text,question_type,answer_type) VALUES(" +
+                        insert = $"INSERT INTO questions (id,question_text,question_type,answer_type,collum_title) VALUES(" +
                           $"{module_id}," +
                           $"'{module.Question}'," +
                           $"'{module.QuestionType}'," +
-                          $"'{module.AnswerType}'" +
+                          $"'{module.AnswerType}'," +
+                          $"'{module.Title}'" +
                           $")--";
                     }
                     else
                     {
-                        insert = $"INSERT INTO questions (id,question_text,question_type,next_question_id,answer_type) VALUES(" +
+                        insert = $"INSERT INTO questions (id,question_text,question_type,next_question_id,answer_type,collum_title) VALUES(" +
                                  $"{module_id}," +
                                  $"'{module.Question}'," +
                                  $"'{module.QuestionType}'," +
                                  $"{module.NextQuestionId}," +
-                                 $"'{module.AnswerType}'" +
+                                 $"'{module.AnswerType}'," +
+                                 $"'{module.Title}'" +
                                  $")--";
                     }
 
