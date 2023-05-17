@@ -20,12 +20,23 @@ class BotGetterStub(object):
                 request_serializer=bot__pb2.GetBotRequest.SerializeToString,
                 response_deserializer=base__types__pb2.BotResponse.FromString,
                 )
+        self.GetQuestion = channel.unary_unary(
+                '/BotGetter/GetQuestion',
+                request_serializer=bot__pb2.GetQuestionRequest.SerializeToString,
+                response_deserializer=base__types__pb2.Module.FromString,
+                )
 
 
 class BotGetterServicer(object):
     """Missing associated documentation comment in .proto file."""
 
     def GetBot(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetQuestion(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -38,6 +49,11 @@ def add_BotGetterServicer_to_server(servicer, server):
                     servicer.GetBot,
                     request_deserializer=bot__pb2.GetBotRequest.FromString,
                     response_serializer=base__types__pb2.BotResponse.SerializeToString,
+            ),
+            'GetQuestion': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetQuestion,
+                    request_deserializer=bot__pb2.GetQuestionRequest.FromString,
+                    response_serializer=base__types__pb2.Module.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -66,6 +82,23 @@ class BotGetter(object):
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
+    @staticmethod
+    def GetQuestion(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/BotGetter/GetQuestion',
+            bot__pb2.GetQuestionRequest.SerializeToString,
+            base__types__pb2.Module.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
 
 class BotWorkerStub(object):
     """Missing associated documentation comment in .proto file."""
@@ -79,7 +112,7 @@ class BotWorkerStub(object):
         self.CreateBot = channel.unary_unary(
                 '/BotWorker/CreateBot',
                 request_serializer=bot__pb2.CreateBotRequest.SerializeToString,
-                response_deserializer=base__types__pb2.BaseResponse.FromString,
+                response_deserializer=bot__pb2.CreateBotResponse.FromString,
                 )
         self.DeleteBot = channel.unary_unary(
                 '/BotWorker/DeleteBot',
@@ -94,6 +127,11 @@ class BotWorkerStub(object):
         self.UpdateBotGoogleToken = channel.unary_unary(
                 '/BotWorker/UpdateBotGoogleToken',
                 request_serializer=bot__pb2.UpdateBotGoogleTokenRequest.SerializeToString,
+                response_deserializer=base__types__pb2.BaseResponse.FromString,
+                )
+        self.SetAnswers = channel.unary_unary(
+                '/BotWorker/SetAnswers',
+                request_serializer=bot__pb2.SetAnswersRequest.SerializeToString,
                 response_deserializer=base__types__pb2.BaseResponse.FromString,
                 )
 
@@ -125,13 +163,19 @@ class BotWorkerServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def SetAnswers(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_BotWorkerServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'CreateBot': grpc.unary_unary_rpc_method_handler(
                     servicer.CreateBot,
                     request_deserializer=bot__pb2.CreateBotRequest.FromString,
-                    response_serializer=base__types__pb2.BaseResponse.SerializeToString,
+                    response_serializer=bot__pb2.CreateBotResponse.SerializeToString,
             ),
             'DeleteBot': grpc.unary_unary_rpc_method_handler(
                     servicer.DeleteBot,
@@ -146,6 +190,11 @@ def add_BotWorkerServicer_to_server(servicer, server):
             'UpdateBotGoogleToken': grpc.unary_unary_rpc_method_handler(
                     servicer.UpdateBotGoogleToken,
                     request_deserializer=bot__pb2.UpdateBotGoogleTokenRequest.FromString,
+                    response_serializer=base__types__pb2.BaseResponse.SerializeToString,
+            ),
+            'SetAnswers': grpc.unary_unary_rpc_method_handler(
+                    servicer.SetAnswers,
+                    request_deserializer=bot__pb2.SetAnswersRequest.FromString,
                     response_serializer=base__types__pb2.BaseResponse.SerializeToString,
             ),
     }
@@ -171,7 +220,7 @@ class BotWorker(object):
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/BotWorker/CreateBot',
             bot__pb2.CreateBotRequest.SerializeToString,
-            base__types__pb2.BaseResponse.FromString,
+            bot__pb2.CreateBotResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -222,6 +271,23 @@ class BotWorker(object):
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/BotWorker/UpdateBotGoogleToken',
             bot__pb2.UpdateBotGoogleTokenRequest.SerializeToString,
+            base__types__pb2.BaseResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def SetAnswers(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/BotWorker/SetAnswers',
+            bot__pb2.SetAnswersRequest.SerializeToString,
             base__types__pb2.BaseResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

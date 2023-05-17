@@ -5,6 +5,7 @@ using Npgsql;
 using DataBaseService.Backend.Types;
 using DataBaseService.Backend.Exeptions;
 using DataBaseService.Protos;
+using System.Text;
 
 namespace DataBaseService.backend.Types
 {
@@ -17,7 +18,7 @@ namespace DataBaseService.backend.Types
         public int bot_survey_id { get; set; }
 
 
-        public static Task CreateNewBotSurvey(int user_id, MyJournal journal)
+        public static Task<int> CreateNewBotSurvey(int user_id, MyJournal journal)
         {
             return Task.Run(async () =>
             {
@@ -30,6 +31,7 @@ namespace DataBaseService.backend.Types
 
 
                 int next_bot_id = GenerateNewBotId().Result;
+
 
                 CreateBotSurveyDataBase(next_bot_id).Wait();
 
@@ -51,7 +53,7 @@ namespace DataBaseService.backend.Types
 
                 await AddNewBot(next_bot_id, user_id);
 
-
+                return next_bot_id;
             });
 
         }
@@ -127,25 +129,36 @@ namespace DataBaseService.backend.Types
 
         private static async Task<int> GenerateNewBotId()
         {
-            using (var conn = new NpgsqlConnection(new ConfigManager().GetConnetion()))
+            try
             {
-                await conn.OpenAsync();
-
-                string get_next_id = "SELECT nextval('bot_id_sequence');--";
-
-                using (var command = new NpgsqlCommand(get_next_id, conn))
+                using (var conn = new NpgsqlConnection(new ConfigManager().GetConnetion()))
                 {
-                    using (var reader = await command.ExecuteReaderAsync())
+                    await conn.OpenAsync();
+
+
+                    string get_next_id = "SELECT nextval('bot_id_sequence');--";
+
+                    using (var command = new NpgsqlCommand(get_next_id, conn))
                     {
+                        using (var reader = await command.ExecuteReaderAsync())
+                        {
 
-                        await reader.ReadAsync();
+                            await reader.ReadAsync();
 
-                        return (int)reader.GetInt64(0);
+                            return (int)reader.GetInt64(0);
+                        }
+
                     }
+
+
                 }
-
-
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                throw;
+            }
+
         }
 
         private static Task CreateBotSurveyDataBase(int data_base_id)
@@ -168,6 +181,7 @@ namespace DataBaseService.backend.Types
                     }
                     catch (Exception ex)
                     {
+                        Console.WriteLine(ex);
                         throw new DataBaseError($"Erorr while creating new bot Survey table\n {ex.Message}\n\n{ex.StackTrace}");
 
                     }
@@ -190,8 +204,8 @@ namespace DataBaseService.backend.Types
                     $"question_text TEXT NOT NULL," +
                     $"question_type CHARACTER VARYING(255) NOT NULL," +
                     $"next_question_id INTEGER," +
-                    $"answer_type CHARACTER VARYING(255) NOT NULL," +
-                    $"collum_title CHARACTER VARYING(255) NOT NULL" +
+                    $"answer_type CHARACTER VARYING(255)," +
+                    $"collum_title CHARACTER VARYING(255) " +
                     $")--";
 
                     using (var command = new NpgsqlCommand(create_table, conn))
@@ -215,7 +229,7 @@ namespace DataBaseService.backend.Types
                         string create_table = $"CREATE TABLE answers" +
                         "(" +
                         $"user_chat_id BIGINT PRIMARY KEY," +
-                        $"code INTEGER" +
+                        $"code SERIAL" +
                         ")--";
 
                         try
@@ -354,21 +368,23 @@ namespace DataBaseService.backend.Types
 
                     if (module.NextQuestionId == 0)
                     {
-                        insert = $"INSERT INTO questions (id,question_text,question_type,answer_type) VALUES(" +
+                        insert = $"INSERT INTO questions (id,question_text,question_type,answer_type,collum_title) VALUES(" +
                           $"{module_id}," +
                           $"'{module.Question}'," +
                           $"'{module.QuestionType}'," +
-                          $"'{module.AnswerType}'" +
+                          $"'{module.AnswerType}'," +
+                          $"'{module.Title}'" +
                           $")--";
                     }
                     else
                     {
-                        insert = $"INSERT INTO questions (id,question_text,question_type,next_question_id,answer_type) VALUES(" +
+                        insert = $"INSERT INTO questions (id,question_text,question_type,next_question_id,answer_type,collum_title) VALUES(" +
                                  $"{module_id}," +
                                  $"'{module.Question}'," +
                                  $"'{module.QuestionType}'," +
                                  $"{module.NextQuestionId}," +
-                                 $"'{module.AnswerType}'" +
+                                 $"'{module.AnswerType}'," +
+                                 $"'{module.Title}'" +
                                  $")--";
                     }
 
@@ -507,23 +523,43 @@ namespace DataBaseService.backend.Types
                             await command.ExecuteNonQueryAsync();
                         }
 
-                        foreach (var answer in answers)
+                        try
                         {
-                            var _module = MyModule.GetMoudleById(data_base_id, answer.Module_Id).Result;
-
-                            string collum_type = _module.AnswerType;
-                            string collum_title = _module.Title;
-
-                            string update = $"UPDATE answers SET {collum_title} = {answer} WHERE user_chat_id = {chatId}";
-
-                            if (collum_type == "TEXT")
-                                update = $"UPDATE answers SET {collum_title} = '{answer}'  WHERE user_chat_id = {chatId}";
 
 
-                            using (var command = new NpgsqlCommand(update, conn))
+                            foreach (var answer in answers)
                             {
-                                await command.ExecuteNonQueryAsync();
+                                var _module = MyModule.GetMoudleById(data_base_id, answer.Module_Id).Result;
+
+                                string collum_type = _module.AnswerType;
+                                string collum_title = _module.Title;
+
+                                object _answer = null;
+                                string update = string.Empty;
+
+
+                                if (collum_type == "BOOLEAN")
+                                    _answer = Convert.ToBoolean(answer.Answer);
+                                else if (collum_type == "INTEGER")
+                                    _answer = Convert.ToInt32(answer.Answer);
+
+                                if (collum_type == "TEXT")
+                                    update = $"UPDATE answers SET {collum_title} = '{answer.Answer}' WHERE user_chat_id = {chatId}--";
+                                else
+                                    update = $"UPDATE answers SET {collum_title} = {_answer} WHERE user_chat_id = {chatId}--";
+
+
+                                using (var command = new NpgsqlCommand(update, conn))
+                                {
+                                    await command.ExecuteNonQueryAsync();
+                                }
                             }
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine(ex);
+
+                            throw;
                         }
 
                     }

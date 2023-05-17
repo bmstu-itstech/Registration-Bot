@@ -51,8 +51,7 @@ namespace DataBaseService.Services.bot
             _logger.LogInformation($"Get Bot #{request.BotId}  Question #{request.QuestionId}");
 
             MyModule question = MyModule.GetMoudleById(request.BotId, request.QuestionId).Result;
-
-            _logger.LogInformation(question.Question);
+         
 
             return Task.FromResult(MyModule.ConvertToRPC(question));
         }
