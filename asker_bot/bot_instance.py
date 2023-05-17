@@ -23,10 +23,6 @@ logging.basicConfig(level=logging.INFO)
 
 # State class
 class Questionnaire(StatesGroup):
-    # Stores current question id
-    question_id = State()
-    # Stores user's answers
-    answers = State()
     # Shows that the questionnaire is in process
     in_process = State()
     # Shows that the questionnaire is on user's approve
