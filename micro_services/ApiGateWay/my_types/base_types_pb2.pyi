@@ -6,12 +6,12 @@ from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Map
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class Answer(_message.Message):
-    __slots__ = ["ansewer_text", "module_id"]
-    ANSEWER_TEXT_FIELD_NUMBER: _ClassVar[int]
+    __slots__ = ["answer_text", "module_id"]
+    ANSWER_TEXT_FIELD_NUMBER: _ClassVar[int]
     MODULE_ID_FIELD_NUMBER: _ClassVar[int]
-    ansewer_text: str
+    answer_text: str
     module_id: int
-    def __init__(self, module_id: _Optional[int] = ..., ansewer_text: _Optional[str] = ...) -> None: ...
+    def __init__(self, module_id: _Optional[int] = ..., answer_text: _Optional[str] = ...) -> None: ...
 
 class BaseResponse(_message.Message):
     __slots__ = ["code", "state"]

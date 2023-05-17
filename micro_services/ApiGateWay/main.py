@@ -8,10 +8,10 @@ from my_types.base_types_pb2 import Answer
 if __name__ == "__main__":
     answer = Answer()
     answer.module_id = 1
-    answer.ansewer_text = "122"
+    answer.answer_text = "122"
 
     answer1 = Answer()
     answer1.module_id = 2
-    answer1.ansewer_text = 'true'
+    answer1.answer_text = 'true'
 
     asyncio.get_event_loop().run_until_complete(set_answers(4747, 40, [answer,answer1]))
