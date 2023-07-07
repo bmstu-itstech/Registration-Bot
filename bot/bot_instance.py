@@ -15,7 +15,7 @@ from aiogram.enums import ParseMode
 from aiogram.fsm.storage.redis import RedisStorage
 from redis import asyncio as aioredis
 
-from connection_router import connection
+from bot import connection
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)

@@ -1,0 +1,24 @@
+services:
+  gateway:
+    build:
+      context: ./micro_services/ApiGateWay
+      dockerfile: Dockerfile
+    environment:
+      - DATABASE_CONNECTION=localhost:5292
+      - SHEETS_CONNECTION=localhost:8000
+    depends_on:
+      - db
+      - sheets
+  db:
+    build:
+      context: micro_services/DataBaseService
+      dockerfile: Dockerfile
+    ports:
+      - "127.0.0.1:5292:5292"
+  sheets:
+    build:
+      context: micro_services/GoogleSheetsService
+      dockerfile: Dockerfile
+    ports:
+      - "127.0.0.1:8000:8000"
+      - "127.0.0.1:8001:8001"

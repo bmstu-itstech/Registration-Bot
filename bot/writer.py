@@ -1,6 +1,6 @@
 import asyncio
 
-from connection_router import connection
+from bot import connection
 
 
 # The function will create tables for bot

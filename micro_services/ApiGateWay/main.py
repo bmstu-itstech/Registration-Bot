@@ -15,7 +15,4 @@ if __name__ == "__main__":
     answer1.module_id = 2
     answer1.answer_text = 'true'
 
-    os.environ['SHEETS_CONNECTION'] = 'localhost:8000'
-    os.environ['DATABASE_CONNECTION'] = 'localhost:5292'
-
     asyncio.get_event_loop().run_until_complete(set_answers(4747, 40, [answer,answer1]))
