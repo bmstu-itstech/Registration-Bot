@@ -60,44 +60,7 @@ namespace DataBaseService.Services.Bot
             {
                 State = state,
                 Code = code,
-                BotId = res
-            });
-        }
-
-        public override Task<BaseResponse> DeleteBot(DeleteBotRequest request, ServerCallContext context)
-        {
-
-            _logger.LogInformation("Delete new Bot Request");
-
-            string state = "OK";
-            int code = 200;
-
-            //main code 
-            try
-            {
-
-
-                var response = MyBot.DeleteBotSurvey(request.FromUser, request.BotId);
-
-                response.Wait();
-
-                if (response.IsFaulted)
-                {
-                    state = "Erorr while Deleting Bot Survey";
-                    code = 401;
-                }
-
-            }
-            catch (Exception ex)
-            {
-                state = $"Erorr while Deleting Bot Survey\n{ex.Message}";
-                code = 401;
-            }
-
-            return Task.FromResult(new BaseResponse()
-            {
-                State = state,
-                Code = code
+                BotId = bot_id
             });
         }
 

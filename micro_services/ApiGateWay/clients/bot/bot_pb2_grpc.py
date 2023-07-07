@@ -2,8 +2,8 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-import base_types_pb2 as base__types__pb2
-import bot_pb2 as bot__pb2
+import my_types.base_types_pb2 as base__types__pb2
+import clients.bot.bot_pb2 as bot__pb2
 
 
 class BotGetterStub(object):

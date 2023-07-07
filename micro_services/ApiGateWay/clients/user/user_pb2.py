@@ -11,7 +11,7 @@ from google.protobuf import symbol_database as _symbol_database
 _sym_db = _symbol_database.Default()
 
 
-from  my_types import  base_types_pb2 as base__types__pb2
+import my_types.base_types_pb2 as base__types__pb2
 
 
 DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\nuser.proto\x1a\x10\x62\x61se_types.proto\")\n\x16GetUserBotsListRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\x05\"!\n\x0eGetUserRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\x05\"R\n\x17GetUserBotsListResponse\x12\x0c\n\x04\x63ode\x18\x01 \x01(\x05\x12\r\n\x05state\x18\x02 \x01(\t\x12\x1a\n\x04\x62ots\x18\x03 \x03(\x0b\x32\x0c.BotResponse2\xa1\x01\n\nUserWorker\x12\"\n\nRegNewUser\x12\x05.User\x1a\r.BaseResponse\x12)\n\x07GetUser\x12\x0f.GetUserRequest\x1a\r.UserResponse\x12\x44\n\x0fGetUserBotsList\x12\x17.GetUserBotsListRequest\x1a\x18.GetUserBotsListResponseB\x19\xaa\x02\x16\x44\x61taBaseService.Protosb\x06proto3')

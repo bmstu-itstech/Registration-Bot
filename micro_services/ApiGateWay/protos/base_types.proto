@@ -28,7 +28,7 @@ message Module {
 
 message Answer{
 	int32 module_id = 1;
-	string ansewer_text = 2;
+	string answer_text = 2;
 }
 
 message Journal
