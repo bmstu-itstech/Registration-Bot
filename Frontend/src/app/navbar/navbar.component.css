@@ -1,0 +1,13 @@
+.networks-img {
+  height: 50px;
+  width: 50px;
+  display: flex;
+}
+.logo {
+  width: 30px;
+  height: 30px;
+}
+.logo-its {
+  width: 60px;
+  height: 60px;
+}
