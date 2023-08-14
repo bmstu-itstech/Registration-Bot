@@ -1,68 +1,68 @@
 import asyncio
+import json
 
 from bot import connection
 
 
-# The function will create tables for bot
-async def create_tree(bot_id):
-    # Create database connection
+# Функция для создания БД из JSON для нового бота
+async def write_data_from_file(filename: str, bot_id: int) -> None:
+    f = open(filename)
+    data = json.load(f)
+    modules = data['journal']['modules']
+    f.close()
+
+    # Подключимся к БД
     conn = await connection.connect_or_create('postgres', f'id{bot_id}')
+    # Удалим все существующие таблицы для возможности перезаписи данных бота
+    await conn.execute('''DROP TABLE IF EXISTS modules, buttons, answers''')
 
-    # Create questions table
+    # Создадим таблицу с вопросами
     await conn.execute('''
-            CREATE TABLE IF NOT EXISTS questions (
-                id SERIAL PRIMARY KEY,
-                question_text TEXT NOT NULL,
-                question_type TEXT NOT NULL,
-                next_question_id INTEGER
-            );
-        ''')
-
-    # Create buttons table
-    await conn.execute('''
-            CREATE TABLE IF NOT EXISTS buttons (
-                id SERIAL PRIMARY KEY,
-                question_id INTEGER NOT NULL,
-                answer_text TEXT NOT NULL,
-                next_question_id INTEGER,
-                FOREIGN KEY (question_id) REFERENCES questions(id),
-                FOREIGN KEY (next_question_id) REFERENCES questions(id)
-            );
-        ''')
-
-    # Insert sample data
-    await conn.execute('''
-            INSERT INTO questions (question_text, question_type, next_question_id)
-            VALUES
-                ('Привет! Я тестовый бот-опросник!', 'buttons', 2),
-                ('Как тебя зовут? (ФИО)', 'text', 3),
-                ('Ты из МГТУ?', 'buttons', NULL),
-                ('Напиши номер своей группы', 'text', NULL),
-                ('Из какого ты ВУЗа?', 'text', NULL);
-        ''')
-
-    await conn.execute('''
-            INSERT INTO buttons (question_id, answer_text, next_question_id)
-            VALUES
-                (1, 'Начать', 2),
-                (3, 'Да', 4),
-                (3, 'Нет', 5);
-        ''')
-
-    await conn.execute('''
-            CREATE TABLE IF NOT EXISTS answers (
-                chat_id INT PRIMARY KEY
-            );
-        ''')
-
-    for i in range(2, 6):
-        await conn.execute(f'''
-                ALTER TABLE answers
-                ADD COLUMN answer{i} TEXT;
+                CREATE TABLE modules (
+                    id INTEGER PRIMARY KEY,
+                    question TEXT NOT NULL,
+                    answer_type TEXT NOT NULL,
+                    next_id INTEGER
+                );
             ''')
 
-    await conn.close()
+    # Создадим таблицу с кнопками
+    await conn.execute('''
+                CREATE TABLE buttons (
+                    current_id INTEGER NOT NULL,
+                    answer TEXT NOT NULL,
+                    next_id INTEGER
+                );
+            ''')
+
+    await conn.execute('''
+                CREATE TABLE answers (
+                    chat_id INTEGER PRIMARY KEY
+                );
+            ''')
+
+    for module_id, module in modules.items():
+        await conn.execute(
+            '''
+                INSERT INTO modules (id, question, answer_type, next_id)
+                VALUES ($1, $2, $3, $4)
+            ''',
+            int(module_id), module['question'], module['answer_type'], module['next_id']
+        )
+        await conn.execute(f'''
+                ALTER TABLE answers
+                ADD COLUMN answer{module_id} TEXT;
+            ''')
+        buttons = module['buttons']
+        for button in buttons:
+            await conn.execute(
+                '''
+                    INSERT INTO buttons (current_id, answer, next_id)
+                    VALUES ($1, $2, $3)
+                ''',
+                int(module_id), button['answer'], button['next_id']
+            )
 
 
 if __name__ == '__main__':
-    asyncio.run(create_tree(1))
+    asyncio.run(write_data_from_file('test.json', 1))
