@@ -15,7 +15,7 @@ from aiogram.enums import ParseMode
 from aiogram.fsm.storage.redis import RedisStorage
 from redis import asyncio as aioredis
 
-from bot import connector
+from telegram_bot import connector
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -54,7 +54,7 @@ async def run_instance(token, bot_id):
     # Add Router
     router = Router()
 
-    # Initialize bot and dispatcher
+    # Initialize telegram_bot and dispatcher
     bot = Bot(token=token, parse_mode=ParseMode.HTML)
     dp = Dispatcher(storage=storage)
     dp.include_router(router)
@@ -218,7 +218,7 @@ async def run_instance(token, bot_id):
             if next_id is not None and \
                     (user_status != questionnaire.on_approval or
                      str(next_id) not in data['on_approval'].keys()):
-                # Showing that bot is typing its module
+                # Showing that telegram_bot is typing its module
                 await bot.send_chat_action(message.chat.id, 'typing')
                 # Send next module
                 await send_question(state, message.chat.id)
@@ -289,7 +289,7 @@ async def run_instance(token, bot_id):
                     (user_status != questionnaire.on_approval or
                      str(callback_data.next_id) not in data['on_approval'].keys()):
                 button_id = int(callback_data.next_id)
-                # Showing that bot is typing its module
+                # Showing that telegram_bot is typing its module
                 await bot.send_chat_action(callback_query.message.chat.id, 'typing')
                 # Send next module based on button ID
                 await state.update_data(question_id=button_id)

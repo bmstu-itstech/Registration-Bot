@@ -1,7 +1,7 @@
 import asyncio
 import json
 
-from bot import connection
+from telegram_bot import connector
 
 
 # Функция для создания БД из JSON для нового бота
@@ -12,7 +12,7 @@ async def write_data_from_file(filename: str, bot_id: int) -> None:
     f.close()
 
     # Подключимся к БД
-    conn = await connection.connect_or_create('postgres', f'id{bot_id}')
+    conn = await connector.connect_or_create('postgres', f'id{bot_id}')
     # Удалим все существующие таблицы для возможности перезаписи данных бота
     await conn.execute('''DROP TABLE IF EXISTS modules, buttons, answers''')
 
