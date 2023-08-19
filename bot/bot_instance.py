@@ -15,7 +15,7 @@ from aiogram.enums import ParseMode
 from aiogram.fsm.storage.redis import RedisStorage
 from redis import asyncio as aioredis
 
-from bot import connection
+from bot import connector
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -31,10 +31,9 @@ class Questionnaire(StatesGroup):
     completed = State()
 
 
-class AnswerButtonCallback(CallbackData, prefix="answer_button"):
-    question_id: int
-    next_question_id: int | None
-    answer_text: str
+class AnswerButtonCallback(CallbackData, prefix="answer_button", sep="#"):
+    next_id: int | None
+    answer: str
 
 
 class QuestionButtonCallback(CallbackData, prefix="question_button"):
@@ -47,7 +46,7 @@ async def run_instance(token, bot_id):
     logging.info(f'Starting bot id{bot_id}...')
 
     # Connect to redis
-    redis = aioredis.Redis.from_url(f'redis://localhost:6380/{bot_id}')
+    redis = aioredis.Redis.from_url(f'redis://localhost:6379/{bot_id}')
     storage = RedisStorage(redis)
 
     questionnaire = Questionnaire()
@@ -61,58 +60,62 @@ async def run_instance(token, bot_id):
     dp.include_router(router)
 
     async def get_question(question_id: int):
-        conn = await connection.connect_or_create('postgres', f'id{bot_id}')
-        # Get question text from database
-        question = await conn.fetchrow('SELECT * FROM questions WHERE id = $1',
-                                       question_id)
-        rows = await conn.fetch('SELECT (question_id, next_question_id, answer_text) FROM buttons '
-                                'WHERE question_id = $1',
+        conn = await connector.connect_or_create('postgres', f'id{bot_id}')
+        # Get module text from database
+        module = await conn.fetchrow('SELECT * FROM modules WHERE id = $1',
+                                     question_id)
+        rows = await conn.fetch('SELECT (answer, next_id) FROM buttons '
+                                'WHERE current_id = $1',
                                 question_id)
         buttons = [row[0] for row in rows]
         await conn.close()
-        return question, buttons
+        return module, buttons
 
-    async def send_question(state, chat_id: int, question_id: int) -> None:
+    async def send_question(state, chat_id: int) -> None:
+        # Сейчас за id текущего вопроса полностью отвечает стейт, в теории можно его
+        # передавать в аргументы функции send_question
+
         # Create database connection
-        conn = await connection.connect_or_create('postgres', f'id{bot_id}')
-        # Get question text and type from database
-        question, buttons = await get_question(question_id)
-        question_text = question['question_text']
-        question_type = question['question_type']
+        conn = await connector.connect_or_create('postgres', f'id{bot_id}')
+        # Получим данные стейта
+        data = await state.get_data()
+        # Get module text and type from database
+        module, buttons = await get_question(data['question_id'])
+        question = module['question']
+        keyboard = InlineKeyboardBuilder()
 
-        # Send question
-        if question_type == 'text':
-            await bot.send_message(chat_id, question_text)
-        elif question_type == 'buttons':
-            # Get question buttons from database (if applicable)
-            keyboard = InlineKeyboardBuilder()
+        if len(buttons) > 0:
+            # Get module buttons from database (if applicable)
             for element in buttons:
-                keyboard.button(callback_data=AnswerButtonCallback(question_id=element[0],
-                                                                   next_question_id=str(element[1]),
-                                                                   answer_text=element[2]).pack(),
-                                text=str(element[2]))
-            await bot.send_message(chat_id, question_text, reply_markup=keyboard.as_markup())
+                keyboard.button(callback_data=AnswerButtonCallback(answer=str(element[0]),
+                                                                   next_id=element[1]).pack(),
+                                text=str(element[0]))
 
-        await state.update_data(question_id=question_id)
+        # Если уже был пройден хотя бы один вопрос, добавим кнопку "Назад"
+        if len(data['previous']) > 0 and await state.get_state() != questionnaire.on_approval:
+            keyboard.button(callback_data='get_back', text=emoji.emojize(":reverse_button: Назад"))
+
+        keyboard.adjust(1)
+        await bot.send_message(chat_id, question, reply_markup=keyboard.as_markup())
+        await state.update_data(question_id=data['question_id'])
         await conn.close()
 
     async def push_answers(state, chat_id: int) -> None:
         # Create database connection
-        conn = await connection.connect_or_create('postgres', f'id{bot_id}')
+        conn = await connector.connect_or_create('postgres', f'id{bot_id}')
         # Check if user already exists
         try:
             await conn.execute(f'INSERT INTO answers (chat_id) '
                                f'VALUES ({chat_id});')
-        except asyncpg.exceptions.UniqueViolationError as e:
+        except asyncpg.exceptions.UniqueViolationError:
             logging.warning(f'User {chat_id} already exists. Rewriting answers.')
 
         # Write answers to DB
         answers = (await state.get_data())['answers']
         for answer_id in answers.keys():
-            if answer_id != '1':
-                await conn.execute(f'UPDATE answers SET answer{answer_id} = $1 '
-                                   f'WHERE chat_id = $2;',
-                                   answers[answer_id], chat_id)
+            await conn.execute(f'UPDATE answers SET answer{answer_id} = $1 '
+                               f'WHERE chat_id = $2;',
+                               answers[answer_id], chat_id)
 
         # Set state to "completed"
         await state.set_state(questionnaire.completed)
@@ -146,12 +149,12 @@ async def run_instance(token, bot_id):
             await state.update_data(answers=answers, on_approval=None)
 
         await state.set_state(questionnaire.on_approval)
-        conn = await connection.connect_or_create('postgres', f'id{bot_id}')
+        conn = await connector.connect_or_create('postgres', f'id{bot_id}')
 
         # Build a keyboard
         keyboard = InlineKeyboardBuilder()
         keyboard.button(callback_data='questionnaire_over',
-                        text=f'Отправить {emoji.emojize(":check_mark_button:")}')
+                        text=emoji.emojize('Отправить :check_mark_button:'))
 
         data = await state.get_data()
         # Get answers dict from the state data
@@ -159,17 +162,17 @@ async def run_instance(token, bot_id):
         message = 'Ваши ответы:\n\n'
 
         for answer_id in new_answers.keys():
-            if answer_id != '1':
-                message += emoji.emojize(':small_blue_diamond:')
-                question, _ = await get_question(int(answer_id))
-                question_text = question['question_text']
-                answer_text = new_answers[answer_id]
-                message += f' {question_text}: {answer_text}\n'
-                keyboard.button(callback_data=QuestionButtonCallback(question_id=answer_id).pack(),
-                                text=question_text)
+            message += emoji.emojize(':small_blue_diamond:')
+            # TODO: По сути здесь можно запросить сокращенное название для отображения на кнопке
+            question, _ = await get_question(int(answer_id))
+            question_text = question['question']
+            answer_text = new_answers[answer_id]
+            message += f' {question_text}: {answer_text}\n'
+            keyboard.button(callback_data=QuestionButtonCallback(question_id=answer_id).pack(),
+                            text=question_text)
         message += '\nЕсли вы хотите что-то исправить - нажмите кнопку с нужным вопросом.\n' \
                    'Если всё в порядке - нажмите кнопку "Отправить".'
-        keyboard.adjust(1, repeat=True)
+        keyboard.adjust(1)
         await bot.send_message(chat_id, message, reply_markup=keyboard.as_markup())
         await conn.close()
 
@@ -182,8 +185,8 @@ async def run_instance(token, bot_id):
                 user_status != questionnaire.in_process and \
                 user_status != questionnaire.on_approval:
             await state.set_state(questionnaire.in_process)
-            await state.update_data(answers=dict())
-            await send_question(state, message.chat.id, 1)
+            await state.update_data(answers=dict(), previous=list(), question_id=1)
+            await send_question(state, message.chat.id)
         else:
             await message.answer('Вы уже заполнили анкету!')
 
@@ -191,8 +194,8 @@ async def run_instance(token, bot_id):
     @router.message(Command('reset_my_questionnaire_please'))
     async def cmd_reset(message: Message, state: FSMContext) -> None:
         await state.set_state(questionnaire.in_process)
-        await state.update_data(answers=dict())
-        await send_question(state, message.chat.id, 1)
+        await state.update_data(answers=dict(), previous=list(), question_id=1)
+        await send_question(state, message.chat.id)
 
     @router.message()
     async def process_text(message: Message, state: FSMContext) -> None:
@@ -200,26 +203,27 @@ async def run_instance(token, bot_id):
         # If the user hasn't already passed the questionnaire
         if user_status != questionnaire.completed:
             data = await state.get_data()
-            # Get answers dict from the state
-            answers = data['answers']
-            # Get the question id
+            # Get next module id
             question_id = data['question_id']
-            # Write the answer to the state
-            answers[question_id] = message.text
-            await state.update_data(answers=answers)
-            # Get next question id
             question, _ = await get_question(question_id)
-            next_question_id = question['next_question_id']
+            next_id = question['next_id']
+            # Добавим ответ в стейт
+            answers = data['answers']
+            answers[question_id] = message.text
+            # Добавим id вопроса в стейт в качестве предыдущего вопроса
+            data['previous'].append(question_id)
+            # Загрузим изменения в стейт
+            await state.update_data(answers=answers, question_id=next_id, previous=data['previous'])
 
-            if next_question_id is not None and \
+            if next_id is not None and \
                     (user_status != questionnaire.on_approval or
-                     str(next_question_id) not in data['on_approval'].keys()):
-                # Showing that bot is typing its question
+                     str(next_id) not in data['on_approval'].keys()):
+                # Showing that bot is typing its module
                 await bot.send_chat_action(message.chat.id, 'typing')
-                # Send next question
-                await send_question(state, message.chat.id, next_question_id)
+                # Send next module
+                await send_question(state, message.chat.id)
             elif user_status == questionnaire.on_approval:
-                await finish_questionnaire(state, message.chat.id, next_question_id)
+                await finish_questionnaire(state, message.chat.id, next_id)
             else:
                 await finish_questionnaire(state, message.chat.id)
         # If the user has already passed the questionnaire
@@ -234,6 +238,17 @@ async def run_instance(token, bot_id):
         await callback_query.answer('Ответы записаны!')
         await push_answers(state, callback_query.message.chat.id)
 
+    @router.callback_query(Text('get_back'))
+    async def process_get_back(callback_query: CallbackQuery,
+                               state: FSMContext) -> None:
+        # Удалим сообщение сразу после нажатия пользователя на кнопку
+        await callback_query.message.delete()
+        data = await state.get_data()
+        previous_id = data['previous'].pop()
+        data['answers'].pop(data['question_id'], None)
+        await state.update_data(previous=data['previous'], answers=data['answers'], question_id=previous_id)
+        await send_question(state, callback_query.message.chat.id)
+
     # Question buttons handler, used at the end of the questionnaire
     @router.callback_query(QuestionButtonCallback.filter())
     async def process_question_callback(callback_query: CallbackQuery,
@@ -243,41 +258,45 @@ async def run_instance(token, bot_id):
         data = await state.get_data()
         answers = data['answers']
         # Write answers to temporary storage and reset main storage
-        await state.update_data(on_approval=answers, answers=dict())
-        # Send requested question
-        await send_question(state, callback_query.message.chat.id, callback_data.question_id)
+        await state.update_data(on_approval=answers, answers=dict(), question_id=callback_data.question_id)
+        # Send requested module
+        await send_question(state, callback_query.message.chat.id)
 
     # Answer buttons handler
     @router.callback_query(AnswerButtonCallback.filter())
     async def process_answer_callback(callback_query: CallbackQuery,
                                       callback_data: AnswerButtonCallback,
                                       state: FSMContext) -> None:
-        user_status = await state.get_state()
         # Deleting message with buttons after the answer
         await callback_query.message.delete()
+        # Getting user state
+        user_status = await state.get_state()
         # If the user hasn't already passed the questionnaire
         if user_status != questionnaire.completed:
             data = await state.get_data()
             # Get answers dict from the state
             answers = data['answers']
-            # Get the question id
+            # Get the module id
             question_id = data['question_id']
+            # Добавим id вопроса в стейт в качестве предыдущего вопроса
+            data['previous'].append(question_id)
             # Write the answer to the state
-            answers[question_id] = callback_data.answer_text
-            await state.update_data(answers=answers)
+            answers[question_id] = callback_data.answer
+            await state.update_data(answers=answers, previous=data['previous'])
 
-            # If there is next question
-            if callback_data.next_question_id is not None and \
+            # If there is next module
+            if callback_data.next_id is not None and \
                     (user_status != questionnaire.on_approval or
-                     str(callback_data.next_question_id) not in data['on_approval'].keys()):
-                button_id = int(callback_data.next_question_id)
-                # Showing that bot is typing its question
+                     str(callback_data.next_id) not in data['on_approval'].keys()):
+                button_id = int(callback_data.next_id)
+                # Showing that bot is typing its module
                 await bot.send_chat_action(callback_query.message.chat.id, 'typing')
-                # Send next question based on button ID
-                await send_question(state, callback_query.message.chat.id, button_id)
+                # Send next module based on button ID
+                await state.update_data(question_id=button_id)
+                await send_question(state, callback_query.message.chat.id)
                 await callback_query.answer(None)
             elif user_status == questionnaire.on_approval:
-                await finish_questionnaire(state, callback_query.message.chat.id, callback_data.next_question_id)
+                await finish_questionnaire(state, callback_query.message.chat.id, callback_data.next_id)
             # If the user passed all the questions
             else:
                 await finish_questionnaire(state, callback_query.message.chat.id)
