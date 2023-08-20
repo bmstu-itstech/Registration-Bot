@@ -1,0 +1,6 @@
+@import '../styles/colors.scss';
+@import '../styles/fonts.scss';
+
+.container {
+  background-color: #14104B;
+}
