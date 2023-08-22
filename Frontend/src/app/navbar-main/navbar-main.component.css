@@ -1,0 +1,17 @@
+.networks-img {
+  height: 47px;
+  width: 47px;
+  display: flex;
+}
+.logo {
+  width: 30px;
+  height: 30px;
+}
+.logo-its {
+  width: 83px;
+  height: 83px;
+}
+header {
+  background: #05032C;
+  border-bottom: 6px solid #FF4D71;
+}

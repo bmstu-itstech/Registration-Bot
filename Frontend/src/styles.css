@@ -1,9 +1,11 @@
-body {
-  background: #14104b;
-  color: #FFFFFF;
-}
 html {
+  height: 100%;
   width: 100%;
-  max-width: 100%;
   overflow-x: hidden;
+  background-color: #14104b;
+}
+
+body {
+  cursor: default;
+  background-color: #14104b;
 }
