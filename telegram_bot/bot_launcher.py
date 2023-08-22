@@ -17,19 +17,19 @@ from aiogram.enums import ParseMode
 from aiogram.fsm.storage.redis import RedisStorage
 from redis import asyncio as aioredis
 
-from telegram_bot import connector
+import connector
 
-# Set up logging
+# Настроим логирование
 logging.basicConfig(level=logging.INFO)
 
 
-# State class
+# Класс состояний
 class Questionnaire(StatesGroup):
-    # Shows that the questionnaire is in process
+    # Показывает, что опрос в процессе прохождения
     in_process = State()
-    # Shows that the questionnaire is on user's approve
+    # Показывает что опрос на стадии одобрения пользователем
     on_approval = State()
-    # Shows that the questionnaire is completed
+    # Показывает что опрос пройден
     completed = State()
 
 
@@ -207,7 +207,10 @@ async def run_instance(token, bot_id):
             data = await state.get_data()
             # Get next module id
             question_id = data['question_id']
-            question, _ = await get_question(question_id)
+            question, buttons = await get_question(question_id)
+            if len(buttons) > 0:
+                await message.answer('Чтобы ответить, нажмите на одну из кнопок')
+                return
             next_id = question['next_id']
             # Добавим ответ в стейт
             answers = data['answers']
@@ -312,9 +315,10 @@ async def run_instance(token, bot_id):
 
 async def test():
     from dotenv import load_dotenv
+    load_dotenv()
     tasks = [
-        run_instance(config.TEST_TOKEN1, 1),
-        run_instance(config.TEST_TOKEN2, 2)
+        run_instance(os.getenv("TEST_TOKEN1"), 1),
+        run_instance(os.getenv("TEST_TOKEN2"), 2)
     ]
     await asyncio.gather(*tasks)
 
