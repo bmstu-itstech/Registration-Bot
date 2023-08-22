@@ -3,6 +3,7 @@
 #  python -m grpc_tools.protoc -I./protos --python_out=my_types --pyi_out=my_types/ --grpc_python_out=my_types/ protos/base_types.proto
 import asyncio
 import os
+from dotenv import load_dotenv
 
 from clients.bot.bot_client import *
 from my_types.base_types_pb2 import Answer

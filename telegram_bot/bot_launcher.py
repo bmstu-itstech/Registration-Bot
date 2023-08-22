@@ -1,5 +1,7 @@
 import logging
 import asyncio
+import os
+
 import emoji
 
 import asyncpg.exceptions
@@ -308,14 +310,14 @@ async def run_instance(token, bot_id):
     await dp.start_polling(bot)
 
 
-async def main():
-    import config
+async def test():
+    from dotenv import load_dotenv
     tasks = [
-        run_instance(config.bot_token, 1),
-        run_instance(config.bot_token2, 2)
+        run_instance(config.TEST_TOKEN1, 1),
+        run_instance(config.TEST_TOKEN2, 2)
     ]
     await asyncio.gather(*tasks)
 
 
 if __name__ == '__main__':
-    asyncio.run(main())
+    asyncio.run(test())

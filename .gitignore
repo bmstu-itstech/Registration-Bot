@@ -18,7 +18,7 @@ venv/
 
 # Ignore configs
 config.py
-.env
+*.env
 
 # Ignore test files
 *.json
