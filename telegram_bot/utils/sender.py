@@ -4,7 +4,7 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.fsm.context import FSMContext
 from aiogram.client.bot import Bot
 
-from ..custom_types import Questionnaire, AnswerButton
+from telegram_bot.custom_types import Questionnaire, AnswerButton
 from micro_services.ApiGateWay import bot_client
 
 

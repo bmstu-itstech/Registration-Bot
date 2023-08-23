@@ -6,7 +6,7 @@ from aiogram.fsm.context import FSMContext
 
 from typing import Optional
 
-from ..custom_types import Questionnaire, QuestionButton
+from telegram_bot.custom_types import Questionnaire, QuestionButton
 from micro_services.ApiGateWay import bot_client
 
 
