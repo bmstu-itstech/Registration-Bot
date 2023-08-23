@@ -10,11 +10,11 @@ from custom_types import Questionnaire, AnswerButton
 
 async def send_question(state: FSMContext, chat_id: int, bot_id: int, bot: Bot) -> None:
     """
-        Функция отправляет следующий вопрос пользователю.
+    Функция отправляет следующий вопрос пользователю.
 
-        Сейчас за id текущего вопроса полностью отвечает стейт, в теории можно его
-        передавать в аргументы функции send_question.
-        """
+    Сейчас за id текущего вопроса полностью отвечает стейт, в теории можно его
+    передавать в аргументы функции send_question.
+    """
 
     # Create database connection
     conn = await database.connect_or_create('postgres', f'id{bot_id}')

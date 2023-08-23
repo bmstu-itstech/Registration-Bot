@@ -58,19 +58,24 @@ async def run_instance(token, bot_id):
 
     @router.message()
     async def process_text(message: Message, state: FSMContext) -> None:
+        """
+        Функция обрабатывает текстовые ответы пользователя
+        """
+
         await message.delete()
         user_status = await state.get_state()
         # If the user hasn't already passed the questionnaire
         if user_status != Questionnaire.completed:
             data = await state.get_data()
-            # Удалим предыдущее сообщение бота
-            await bot.delete_message(message.chat.id, data['prev_message_id'])
             # Get next module id
             question_id = data['question_id']
             question, buttons = await database.get_question(question_id, bot_id)
+            # Если кнопочный вопрос и прилетел текстовый ответ, выдадим просьбу нажать кнопку
             if len(buttons) > 0:
                 await message.answer('Чтобы ответить, нажмите на одну из кнопок')
                 return
+            # Удалим предыдущее сообщение бота
+            await bot.delete_message(message.chat.id, data['prev_message_id'])
             next_id = question['next_id']
             # Добавим ответ в стейт
             answers = data['answers']
