@@ -14,7 +14,7 @@ venv/
 *.db
 
 # Ignore cache
-*/__pycache__/
+*.pyc
 
 # Ignore configs
 config.py
