@@ -17,6 +17,7 @@ from aiogram.enums import ParseMode
 from aiogram.fsm.storage.redis import RedisStorage
 from redis import asyncio as aioredis
 
+import database_service
 from custom_types import AnswerButton, QuestionButton, Questionnaire
 
 
@@ -41,7 +42,7 @@ async def run_instance(token, bot_id):
     dp.include_router(router)
 
     async def get_question(question_id: int):
-        conn = await connector.connect_or_create('postgres', f'id{bot_id}')
+        conn = await database_service.connect_or_create('postgres', f'id{bot_id}')
         # Get module text from database
         module = await conn.fetchrow('SELECT * FROM modules WHERE id = $1',
                                      question_id)
@@ -57,7 +58,7 @@ async def run_instance(token, bot_id):
         # передавать в аргументы функции send_question
 
         # Create database connection
-        conn = await connector.connect_or_create('postgres', f'id{bot_id}')
+        conn = await database_service.connect_or_create('postgres', f'id{bot_id}')
         # Получим данные стейта
         data = await state.get_data()
         # Get module text and type from database
@@ -110,7 +111,7 @@ async def run_instance(token, bot_id):
             await state.update_data(answers=answers, on_approval=None)
 
         await state.set_state(Questionnaire.on_approval)
-        conn = await connector.connect_or_create('postgres', f'id{bot_id}')
+        conn = await database_service.connect_or_create('postgres', f'id{bot_id}')
 
         # Build a keyboard
         keyboard = InlineKeyboardBuilder()
@@ -203,7 +204,7 @@ async def run_instance(token, bot_id):
                                          state: FSMContext) -> None:
         await callback_query.message.edit_reply_markup()
         await callback_query.answer('Ответы записаны!')
-        await push_answers(state, callback_query.message.chat.id)
+        await database_service.push_answers(state, callback_query.message.chat.id)
 
     @router.callback_query(Text('get_back'))
     async def process_get_back(callback_query: CallbackQuery,
