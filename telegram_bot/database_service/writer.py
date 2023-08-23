@@ -1,11 +1,20 @@
+import logging
 import asyncio
 import json
+import asyncpg
 
-from telegram_bot import connector
+from aiogram.filters.state import State
+from aiogram.client.bot import Bot
+
+import connector
+from custom_types import Questionnaire
 
 
-# Функция для создания БД из JSON для нового бота
 async def write_data_from_file(filename: str, bot_id: int) -> None:
+    """
+    Функция для создания БД для нового бота из JSON.
+    """
+
     f = open(filename)
     data = json.load(f)
     modules = data['journal']['modules']
@@ -34,7 +43,8 @@ async def write_data_from_file(filename: str, bot_id: int) -> None:
                     next_id INTEGER
                 );
             ''')
-
+    
+    # Создадим таблицу с ответами
     await conn.execute('''
                 CREATE TABLE answers (
                     chat_id INTEGER PRIMARY KEY
@@ -62,6 +72,33 @@ async def write_data_from_file(filename: str, bot_id: int) -> None:
                 ''',
                 int(module_id), button['answer'], button['next_id']
             )
+
+async def push_answers(state: State, chat_id: int, bot_id: int | str, bot: Bot) -> None:
+    """
+    Функция для отправки ответов пользователя в таблицу соответствующего бота.
+    """
+
+    # Установим соединение с БД
+    conn = await connector.connect_or_create('postgres', f'id{bot_id}')
+
+    # Проверим, существует ли уже пользователь
+    try:
+        await conn.execute(f'INSERT INTO answers (chat_id) '
+                            f'VALUES ({chat_id});')
+    except asyncpg.exceptions.UniqueViolationError:
+        logging.warning(f'User {chat_id} already exists. Rewriting answers.')
+
+    # Запишем ответы в базу дынных
+    answers = (await state.get_data())['answers']
+    for answer_id in answers.keys():
+        await conn.execute(f'UPDATE answers SET answer{answer_id} = $1 '
+                            f'WHERE chat_id = $2;',
+                            answers[answer_id], chat_id)
+
+    # Поставим "завершенное" состояние анкете
+    await state.set_state(Questionnaire.completed)
+    await conn.close()
+    await bot.send_message(chat_id, 'Ответы записаны!')
 
 
 if __name__ == '__main__':

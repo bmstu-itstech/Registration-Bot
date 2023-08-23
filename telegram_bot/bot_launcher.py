@@ -17,8 +17,8 @@ from aiogram.enums import ParseMode
 from aiogram.fsm.storage.redis import RedisStorage
 from redis import asyncio as aioredis
 
-import connector
 from custom_types import AnswerButton, QuestionButton, Questionnaire
+
 
 # Настроим логирование
 logging.basicConfig(level=logging.INFO)
@@ -81,27 +81,7 @@ async def run_instance(token, bot_id):
         await state.update_data(question_id=data['question_id'], prev_message_id=message.message_id)
         await conn.close()
 
-    async def push_answers(state, chat_id: int) -> None:
-        # Create database connection
-        conn = await connector.connect_or_create('postgres', f'id{bot_id}')
-        # Check if user already exists
-        try:
-            await conn.execute(f'INSERT INTO answers (chat_id) '
-                               f'VALUES ({chat_id});')
-        except asyncpg.exceptions.UniqueViolationError:
-            logging.warning(f'User {chat_id} already exists. Rewriting answers.')
-
-        # Write answers to DB
-        answers = (await state.get_data())['answers']
-        for answer_id in answers.keys():
-            await conn.execute(f'UPDATE answers SET answer{answer_id} = $1 '
-                               f'WHERE chat_id = $2;',
-                               answers[answer_id], chat_id)
-
-        # Set state to "completed"
-        await state.set_state(Questionnaire.completed)
-        await conn.close()
-        await bot.send_message(chat_id, 'Ответы записаны!')
+    
 
     async def finish_questionnaire(state, chat_id, next_question_id: int | None = None) -> None:
         user_status = await state.get_state()
