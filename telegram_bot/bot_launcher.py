@@ -94,12 +94,12 @@ async def run_instance(token, bot_id):
                                 text=str(element[0]))
 
         # Если уже был пройден хотя бы один вопрос, добавим кнопку "Назад"
-        if len(data['previous']) > 0 and await state.get_state() != questionnaire.on_approval:
+        if len(data['prev_questions']) > 0 and await state.get_state() != questionnaire.on_approval:
             keyboard.button(callback_data='get_back', text=emoji.emojize(":reverse_button: Назад"))
 
         keyboard.adjust(1)
-        await bot.send_message(chat_id, question, reply_markup=keyboard.as_markup())
-        await state.update_data(question_id=data['question_id'])
+        message = await bot.send_message(chat_id, question, reply_markup=keyboard.as_markup())
+        await state.update_data(question_id=data['question_id'], prev_message_id=message.message_id)
         await conn.close()
 
     async def push_answers(state, chat_id: int) -> None:
@@ -187,7 +187,7 @@ async def run_instance(token, bot_id):
                 user_status != questionnaire.in_process and \
                 user_status != questionnaire.on_approval:
             await state.set_state(questionnaire.in_process)
-            await state.update_data(answers=dict(), previous=list(), question_id=1)
+            await state.update_data(answers=dict(), prev_questions=list(), question_id=1)
             await send_question(state, message.chat.id)
         else:
             await message.answer('Вы уже заполнили анкету!')
@@ -196,15 +196,18 @@ async def run_instance(token, bot_id):
     @router.message(Command('reset_my_questionnaire_please'))
     async def cmd_reset(message: Message, state: FSMContext) -> None:
         await state.set_state(questionnaire.in_process)
-        await state.update_data(answers=dict(), previous=list(), question_id=1)
+        await state.update_data(answers=dict(), prev_questions=list(), question_id=1)
         await send_question(state, message.chat.id)
 
     @router.message()
     async def process_text(message: Message, state: FSMContext) -> None:
+        await message.delete()
         user_status = await state.get_state()
         # If the user hasn't already passed the questionnaire
         if user_status != questionnaire.completed:
             data = await state.get_data()
+            # Удалим предыдущее сообщение бота
+            await bot.delete_message(message.chat.id, data['prev_message_id'])
             # Get next module id
             question_id = data['question_id']
             question, buttons = await get_question(question_id)
@@ -216,9 +219,9 @@ async def run_instance(token, bot_id):
             answers = data['answers']
             answers[question_id] = message.text
             # Добавим id вопроса в стейт в качестве предыдущего вопроса
-            data['previous'].append(question_id)
+            data['prev_questions'].append(question_id)
             # Загрузим изменения в стейт
-            await state.update_data(answers=answers, question_id=next_id, previous=data['previous'])
+            await state.update_data(answers=answers, question_id=next_id, prev_questions=data['prev_questions'])
 
             if next_id is not None and \
                     (user_status != questionnaire.on_approval or
@@ -239,7 +242,7 @@ async def run_instance(token, bot_id):
     @router.callback_query(Text('questionnaire_over'))
     async def process_questionnaire_over(callback_query: CallbackQuery,
                                          state: FSMContext) -> None:
-        await callback_query.message.delete()
+        await callback_query.message.edit_reply_markup()
         await callback_query.answer('Ответы записаны!')
         await push_answers(state, callback_query.message.chat.id)
 
@@ -249,9 +252,9 @@ async def run_instance(token, bot_id):
         # Удалим сообщение сразу после нажатия пользователя на кнопку
         await callback_query.message.delete()
         data = await state.get_data()
-        previous_id = data['previous'].pop()
+        previous_id = data['prev_questions'].pop()
         data['answers'].pop(data['question_id'], None)
-        await state.update_data(previous=data['previous'], answers=data['answers'], question_id=previous_id)
+        await state.update_data(prev_questions=data['prev_questions'], answers=data['answers'], question_id=previous_id)
         await send_question(state, callback_query.message.chat.id)
 
     # Question buttons handler, used at the end of the questionnaire
@@ -272,7 +275,7 @@ async def run_instance(token, bot_id):
     async def process_answer_callback(callback_query: CallbackQuery,
                                       callback_data: AnswerButtonCallback,
                                       state: FSMContext) -> None:
-        # Deleting message with buttons after the answer
+        # Удалим сообщение после ответа пользователя
         await callback_query.message.delete()
         # Getting user state
         user_status = await state.get_state()
@@ -284,10 +287,10 @@ async def run_instance(token, bot_id):
             # Get the module id
             question_id = data['question_id']
             # Добавим id вопроса в стейт в качестве предыдущего вопроса
-            data['previous'].append(question_id)
+            data['prev_questions'].append(question_id)
             # Write the answer to the state
             answers[question_id] = callback_data.answer
-            await state.update_data(answers=answers, previous=data['previous'])
+            await state.update_data(answers=answers, prev_questions=data['prev_questions'])
 
             # If there is next module
             if callback_data.next_id is not None and \
