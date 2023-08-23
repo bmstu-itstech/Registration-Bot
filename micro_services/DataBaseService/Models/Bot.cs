@@ -15,5 +15,7 @@ public partial class Bot
 
     public int BotId { get; set; }
 
+    public string? StartMessage { get; set; }
+
     public virtual User OwnerNavigation { get; set; } = null!;
 }

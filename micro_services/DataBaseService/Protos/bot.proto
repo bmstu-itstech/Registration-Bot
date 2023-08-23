@@ -39,7 +39,7 @@ message CreateBotRequest{
 	string tg_token = 2;
 	string sheets_token = 3;
 	Journal journal = 4;
-
+	string start_message = 5;
 }
 
 message DeleteBotRequest{

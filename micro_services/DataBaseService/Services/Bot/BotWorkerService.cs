@@ -41,7 +41,7 @@ namespace DataBaseService.Services.Bot
 
                 MyBot.UpdateBotGoogleToken(request.SheetsToken, bot_id, request.FromUser);
                 MyBot.UpdateBotTgToken(request.TgToken, bot_id, request.FromUser);
-
+                MyBot.UpdateStartMessage(request.StartMessage, bot_id, request.FromUser);
 
                 if (response.IsFaulted)
                 {

@@ -125,6 +125,24 @@ namespace DataBaseService.backend.Types
 
             });
         }
+        public static Task UpdateStartMessage(string start_mess, int bot_survey_id, int owner)
+        {
+            return Task.Run(async () =>
+            {
+                using (RegistrationBotContext db = new RegistrationBotContext())
+                {
+
+                    var bot = db.Bots.Where(bot => bot.Owner == owner).Where(bot => bot.BotId == bot_survey_id).First();
+
+                    bot.StartMessage = start_mess;
+
+                    await db.SaveChangesAsync();
+
+                }
+
+            });
+        }
+
         public static Task<MyBot> GetBot(int bot_survey_id, int owner)
         {
             return Task.Run(() =>
@@ -491,8 +509,9 @@ namespace DataBaseService.backend.Types
                         BotId = bot_survey_id,
                         Owner = owner,
                         TgToken = "",
-                        GoogleToken = ""
-
+                        GoogleToken = "",
+                        StartMessage = ""
+                        
                     };
 
                     await db.Bots.AddAsync(bot);
