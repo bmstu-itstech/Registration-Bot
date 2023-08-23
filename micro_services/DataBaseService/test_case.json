@@ -1,62 +1,60 @@
 {
   "from_user": 1,
-
   "journal": {
     "modules": {
       "1": {
         "question": "Скажи своё ФИО",
-        "question_type": "TEXT",
         "answer_type": "TEXT",
-        "title": "Fio",
-        "buttons": [
-
-        ],
-        "next_question_id": 2
+        "title": "fio",
+        "buttons": [],
+        "next_id": 2
       },
       "2": {
         "question": "Ты из МГТУ ",
-        "question_type": "INLINE",
         "answer_type": "BOOLEAN",
-        "title": "isBMSTU",
-
+        "title": "from_BMSTU",
         "buttons": [
           {
-            "question_id": 2,
-            "answer_text": "Да",
-            "next_question_id": 3
+            "answer": "Да",
+            "next_id": 3
           },
           {
-
-            "question_id": 2,
-            "answer_text": "Нет",
-            "next_question_id": 4
+            "answer": "Нет :)",
+            "next_id": 4
           }
         ],
-        "next_question_id": 0
+        "next_id": null
       },
       "3": {
         "question": "Учебная группа",
-        "question_type": "TEXT",
         "answer_type": "TEXT",
         "title": "university_group",
-
-        "buttons": [
-
-        ],
-        "next_question_id": 0
+        "buttons": [],
+        "next_id": 5
       },
       "4": {
         "question": "Название ВУЗа",
-        "question_type": "TEXT",
         "answer_type": "TEXT",
         "title": "university",
-
+        "buttons": [],
+        "next_id": 5
+      },
+      "5": {
+        "question": "Доволен опросом?",
+        "answer_type": "BOOLEAN",
+        "title": "is_happy",
         "buttons": [
-
+          {
+            "answer": "Да",
+            "next_id": null
+          },
+          {
+            "answer": "Нет...",
+            "next_id": null
+          }
         ],
-        "next_question_id": 0
+        "next_id": null
       }
     }
-
   }
 }

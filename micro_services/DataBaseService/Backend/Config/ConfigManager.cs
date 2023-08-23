@@ -42,5 +42,10 @@
             return conn;
 
         }
+
+        public string GetSheetApiConnetion()
+        {
+            return _config.GetConnectionString("SHEET_API");
+        }
     }
 }

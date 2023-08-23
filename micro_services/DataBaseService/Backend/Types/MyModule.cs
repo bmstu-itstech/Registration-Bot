@@ -8,25 +8,23 @@ namespace DataBaseService.Backend.Types
 {
     public class MyModule
     {
+
         public int Id { get; set; }
         public string Question { get; set; }
         public string AnswerType { get; set; }
         public string Title { get; set; }
-        public string QuestionType { get; set; }
         public List<MyButton> buttons { get; set; }
-        public int NextQuestionId { get; set; }
+        public int NextId { get; set; }
 
         public static MyModule ConvertFromRPC(Module _module)
         {
             return new MyModule
             {
-                Id = _module.Id,
                 Question = _module.Question,
                 Title = _module.Title,
                 AnswerType = _module.AnswerType,
-                QuestionType = _module.QuestionType,
                 buttons = _module.Buttons.Select(button => MyButton.ConvertFromRPC(button)).ToList(),
-                NextQuestionId = _module.NextQuestionId
+                NextId = _module.NextId
             };
 
         }
@@ -34,11 +32,9 @@ namespace DataBaseService.Backend.Types
         {
             Module _module = new Module();
 
-            _module.Id = module.Id;
             _module.Question = module.Question;
             _module.AnswerType = module.AnswerType;
-            _module.QuestionType = module.QuestionType;
-            _module.NextQuestionId = module.NextQuestionId;
+            _module.NextId = module.NextId;
             _module.Title = module.Title;
 
             if (module.buttons != null && module.buttons.Count > 0)
@@ -74,9 +70,8 @@ namespace DataBaseService.Backend.Types
                                     buttons.Add(new MyButton()
                                     {
                                         Id = reader.GetInt32(0),
-                                        QuestionId = reader.GetInt32(1),
-                                        NextQuestionId = reader.GetInt32(2),
-                                        Answer_text = reader.GetString(3)
+                                        NextId = reader.GetInt32(1),
+                                        Answer = reader.GetString(2)
                                     });
                                 }
                             }
@@ -91,7 +86,6 @@ namespace DataBaseService.Backend.Types
                                 {
                                     module.Id = reader.GetInt32(0);
                                     module.Question = reader.GetString(1);
-                                    module.QuestionType = reader.GetString(2);
                                     module.AnswerType = reader.GetString(4);
                                     module.Title = reader.GetString(5);
 
@@ -100,11 +94,11 @@ namespace DataBaseService.Backend.Types
 
                                     try
                                     {
-                                        module.NextQuestionId = reader.GetInt32(3);
+                                        module.NextId = reader.GetInt32(3);
                                     }
                                     catch (Exception)
                                     {
-                                        module.NextQuestionId = 0;
+                                        module.NextId = 0;
                                     }
                                 }
                             }

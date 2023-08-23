@@ -30,30 +30,43 @@ namespace DataBaseService.backend.Types
                 }
 
 
-                int next_bot_id = GenerateNewBotId().Result;
-
-
-                CreateBotSurveyDataBase(next_bot_id).Wait();
-
-                await CreateBotSurveyAnswerTable(next_bot_id, colums);
-                await CreateBotSurveyAdminTable(next_bot_id);
-                await CreateBotSurveyQuestionsTable(next_bot_id);
-
-                await CreateBotSurveyButtons(next_bot_id);
-
-
-
-                await FillBotSurveyQuestionTable(next_bot_id, journal);
-
-                foreach (var module in journal.Modules)
+                try
                 {
-                    await FillBotSurveyButtonsTable(next_bot_id, module.Value.buttons);
+
+
+                    int next_bot_id = GenerateNewBotId().Result;
+
+
+                    CreateBotSurveyDataBase(next_bot_id).Wait();
+
+
+                    await CreateBotSurveyAnswerTable(next_bot_id, colums);
+                    await CreateBotSurveyAdminTable(next_bot_id);
+                    await CreateBotSurveyQuestionsTable(next_bot_id);
+
+                    await CreateBotSurveyButtons(next_bot_id);
+
+
+                    await FillBotSurveyQuestionTable(next_bot_id, journal);
+
+                    foreach (var module in journal.Modules)
+                    {
+                        await FillBotSurveyButtonsTable(next_bot_id, module.Value.buttons);
+
+                    }
+
+                    await AddNewBot(next_bot_id, user_id);
+
+
+                    return next_bot_id;
 
                 }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
 
-                await AddNewBot(next_bot_id, user_id);
-
-                return next_bot_id;
+                    throw;
+                }
             });
 
         }
@@ -202,8 +215,7 @@ namespace DataBaseService.backend.Types
                     $"(" +
                     $"id INTEGER PRIMARY KEY," +
                     $"question_text TEXT NOT NULL," +
-                    $"question_type CHARACTER VARYING(255) NOT NULL," +
-                    $"next_question_id INTEGER," +
+                    $"next_id INTEGER," +
                     $"answer_type CHARACTER VARYING(255)," +
                     $"collum_title CHARACTER VARYING(255) " +
                     $")--";
@@ -241,6 +253,7 @@ namespace DataBaseService.backend.Types
 
                             foreach (var col in colums)
                             {
+                                // Title // Data_Type 
                                 string alter_table = $"ALTER TABLE answers ADD COLUMN {col.Key} {col.Value} --";
 
                                 using (var command = new NpgsqlCommand(alter_table, conn))
@@ -274,10 +287,8 @@ namespace DataBaseService.backend.Types
                     string create_table = $"CREATE TABLE buttons" +
                     "(" +
                     $"id SERIAL PRIMARY KEY," +
-                    $"question_id INTEGER," +
-                    $"next_question_id INTEGER," +
-                    $"answer_text TEXT," +
-                    $"FOREIGN KEY (question_id) REFERENCES questions(id)" +
+                    $"next_id INTEGER," +
+                    $"answer TEXT" +
                     ")--";
 
                     try
@@ -358,7 +369,7 @@ namespace DataBaseService.backend.Types
 
         }
 
-        private static Task<string> generate_insert_into_bot_survey(int data_base_id, int module_id, MyModule module)
+        private static Task<string> generate_insert_into_bot_survey(int module_id, MyModule module)
         {
             return Task.Run(() =>
             {
@@ -366,25 +377,23 @@ namespace DataBaseService.backend.Types
                 {
                     string insert = string.Empty;
 
-                    if (module.NextQuestionId == 0)
+                    if (module.NextId == 0)
                     {
-                        insert = $"INSERT INTO questions (id,question_text,question_type,answer_type,collum_title) VALUES(" +
+                        insert = $"INSERT INTO questions (id,question_text,answer_type,collum_title) VALUES(" +
                           $"{module_id}," +
                           $"'{module.Question}'," +
-                          $"'{module.QuestionType}'," +
                           $"'{module.AnswerType}'," +
                           $"'{module.Title}'" +
                           $")--";
                     }
                     else
                     {
-                        insert = $"INSERT INTO questions (id,question_text,question_type,next_question_id,answer_type,collum_title) VALUES(" +
+                        insert = $"INSERT INTO questions (id,question_text,answer_type,collum_title,next_id) VALUES(" +
                                  $"{module_id}," +
                                  $"'{module.Question}'," +
-                                 $"'{module.QuestionType}'," +
-                                 $"{module.NextQuestionId}," +
                                  $"'{module.AnswerType}'," +
-                                 $"'{module.Title}'" +
+                                 $"'{module.Title}'," +
+                                 $"{module.NextId}" +
                                  $")--";
                     }
 
@@ -396,10 +405,9 @@ namespace DataBaseService.backend.Types
         {
             return Task.Run(() =>
             {
-                string insert = $"INSERT  INTO buttons (question_id,next_question_id,answer_text) VALUES(" +
-                $"{button.QuestionId}," +
-                $"{button.NextQuestionId}," +
-                $"'{button.Answer_text}'" +
+                string insert = $"INSERT  INTO buttons (next_id,answer) VALUES(" +
+                $"{button.NextId}," +
+                $"'{button.Answer}'" +
                 $")--";
 
                 return insert;
@@ -419,7 +427,7 @@ namespace DataBaseService.backend.Types
 
                         try
                         {
-                            using (var command = new NpgsqlCommand(generate_insert_into_bot_survey(data_base_id, modul.Key, modul.Value).Result, conn))
+                            using (var command = new NpgsqlCommand(generate_insert_into_bot_survey(modul.Key, modul.Value).Result, conn))
                             {
                                 await command.ExecuteNonQueryAsync();
                             }

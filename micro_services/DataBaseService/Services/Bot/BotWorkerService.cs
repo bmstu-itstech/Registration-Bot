@@ -26,19 +26,25 @@ namespace DataBaseService.Services.Bot
             int bot_id = 0;
 
 
+            foreach(var el in request.Journal.Modules)
+            {
+                 Console.WriteLine(el.Value.Title + " " + el.Value.NextId.ToString());
+
+               
+            }
+
             MyJournal my_journal = MyJournal.ConvertFromRPC(request.Journal);
 
             //main code 
             try
             {
 
-
                 var response = MyBot.CreateNewBotSurvey(request.FromUser, my_journal);
 
                 response.Wait();
                 bot_id = response.Result;
 
-                MyBot.UpdateBotGoogleToken(request.SheetsToken, bot_id,request.FromUser);
+                MyBot.UpdateBotGoogleToken(request.SheetsToken, bot_id, request.FromUser);
                 MyBot.UpdateBotTgToken(request.TgToken, bot_id, request.FromUser);
 
 
@@ -60,7 +66,7 @@ namespace DataBaseService.Services.Bot
             {
                 State = state,
                 Code = code,
-                BotId = res
+                BotId = bot_id
             });
         }
 
