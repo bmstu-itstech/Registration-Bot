@@ -17,6 +17,9 @@ from micro_services.ApiGateWay import bot_client
 # Настроим логирование
 logging.basicConfig(level=logging.INFO)
 
+# Подключимся к редису
+redis = aioredis.Redis.from_url(f'redis://localhost:6379/bot')
+
 
 async def run_instance(token, bot_id):
     """
@@ -25,12 +28,9 @@ async def run_instance(token, bot_id):
 
     logging.info(f'Starting bot id{bot_id}...')
 
-    # Подключимся к редису
-    redis = aioredis.Redis.from_url(f'redis://localhost:6379/{bot_id}')
-    storage = RedisStorage(redis)
-
     # Инициализируем бота
     bot = Bot(token=token, parse_mode=ParseMode.HTML)
+    storage = RedisStorage(redis)
     dp = Dispatcher(storage=storage)
 
     # Инициализируем роутер

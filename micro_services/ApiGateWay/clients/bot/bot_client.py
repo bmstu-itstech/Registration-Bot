@@ -1,6 +1,6 @@
 import grpc
-import clients.bot.bot_pb2_grpc as pb2_grpc
-import clients.bot.bot_pb2 as pb2
+from . import bot_pb2_grpc as pb2_grpc
+from . import bot_pb2 as pb2
 
 import os
 

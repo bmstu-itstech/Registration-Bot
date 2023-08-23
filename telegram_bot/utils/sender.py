@@ -4,8 +4,7 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.fsm.context import FSMContext
 from aiogram.client.bot import Bot
 
-import database
-from custom_types import Questionnaire, AnswerButton
+from ..custom_types import Questionnaire, AnswerButton
 from micro_services.ApiGateWay import bot_client
 
 

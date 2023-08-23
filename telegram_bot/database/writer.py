@@ -7,7 +7,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.client.bot import Bot
 
 from .connector import connect_or_create
-from custom_types import Questionnaire
+from ..custom_types import Questionnaire
 
 
 async def write_data_from_file(filename: str, bot_id: int) -> None:
