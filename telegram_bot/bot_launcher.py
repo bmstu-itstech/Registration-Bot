@@ -18,29 +18,10 @@ from aiogram.fsm.storage.redis import RedisStorage
 from redis import asyncio as aioredis
 
 import connector
+from custom_types import AnswerButton, QuestionButton, Questionnaire
 
 # Настроим логирование
 logging.basicConfig(level=logging.INFO)
-
-
-# Класс состояний
-class Questionnaire(StatesGroup):
-    # Показывает, что опрос в процессе прохождения
-    in_process = State()
-    # Показывает что опрос на стадии одобрения пользователем
-    on_approval = State()
-    # Показывает что опрос пройден
-    completed = State()
-
-
-class AnswerButtonCallback(CallbackData, prefix="answer_button", sep="#"):
-    next_id: int | None
-    answer: str
-
-
-class QuestionButtonCallback(CallbackData, prefix="question_button"):
-    question_id: int
-
 
 # Set up startup handler
 async def run_instance(token, bot_id):
@@ -50,8 +31,6 @@ async def run_instance(token, bot_id):
     # Connect to redis
     redis = aioredis.Redis.from_url(f'redis://localhost:6379/{bot_id}')
     storage = RedisStorage(redis)
-
-    questionnaire = Questionnaire()
 
     # Add Router
     router = Router()
@@ -89,12 +68,12 @@ async def run_instance(token, bot_id):
         if len(buttons) > 0:
             # Get module buttons from database (if applicable)
             for element in buttons:
-                keyboard.button(callback_data=AnswerButtonCallback(answer=str(element[0]),
+                keyboard.button(callback_data=AnswerButton(answer=str(element[0]),
                                                                    next_id=element[1]).pack(),
                                 text=str(element[0]))
 
         # Если уже был пройден хотя бы один вопрос, добавим кнопку "Назад"
-        if len(data['prev_questions']) > 0 and await state.get_state() != questionnaire.on_approval:
+        if len(data['prev_questions']) > 0 and await state.get_state() != Questionnaire.on_approval:
             keyboard.button(callback_data='get_back', text=emoji.emojize(":reverse_button: Назад"))
 
         keyboard.adjust(1)
@@ -120,14 +99,14 @@ async def run_instance(token, bot_id):
                                answers[answer_id], chat_id)
 
         # Set state to "completed"
-        await state.set_state(questionnaire.completed)
+        await state.set_state(Questionnaire.completed)
         await conn.close()
         await bot.send_message(chat_id, 'Ответы записаны!')
 
     async def finish_questionnaire(state, chat_id, next_question_id: int | None = None) -> None:
         user_status = await state.get_state()
 
-        if user_status == questionnaire.on_approval:
+        if user_status == Questionnaire.on_approval:
             # Get state data
             data = await state.get_data()
             # Get temp and new answers
@@ -150,7 +129,7 @@ async def run_instance(token, bot_id):
 
             await state.update_data(answers=answers, on_approval=None)
 
-        await state.set_state(questionnaire.on_approval)
+        await state.set_state(Questionnaire.on_approval)
         conn = await connector.connect_or_create('postgres', f'id{bot_id}')
 
         # Build a keyboard
@@ -170,7 +149,7 @@ async def run_instance(token, bot_id):
             question_text = question['question']
             answer_text = new_answers[answer_id]
             message += f' {question_text}: {answer_text}\n'
-            keyboard.button(callback_data=QuestionButtonCallback(question_id=answer_id).pack(),
+            keyboard.button(callback_data=QuestionButton(question_id=answer_id).pack(),
                             text=question_text)
         message += '\nЕсли вы хотите что-то исправить - нажмите кнопку с нужным вопросом.\n' \
                    'Если всё в порядке - нажмите кнопку "Отправить".'
@@ -183,10 +162,10 @@ async def run_instance(token, bot_id):
     async def cmd_start(message: Message, state: FSMContext) -> None:
         user_status = await state.get_state()
         # If the user hasn't already passed the questionnaire
-        if user_status != questionnaire.completed and \
-                user_status != questionnaire.in_process and \
-                user_status != questionnaire.on_approval:
-            await state.set_state(questionnaire.in_process)
+        if user_status != Questionnaire.completed and \
+                user_status != Questionnaire.in_process and \
+                user_status != Questionnaire.on_approval:
+            await state.set_state(Questionnaire.in_process)
             await state.update_data(answers=dict(), prev_questions=list(), question_id=1)
             await send_question(state, message.chat.id)
         else:
@@ -195,7 +174,7 @@ async def run_instance(token, bot_id):
     # Reset command
     @router.message(Command('reset_my_questionnaire_please'))
     async def cmd_reset(message: Message, state: FSMContext) -> None:
-        await state.set_state(questionnaire.in_process)
+        await state.set_state(Questionnaire.in_process)
         await state.update_data(answers=dict(), prev_questions=list(), question_id=1)
         await send_question(state, message.chat.id)
 
@@ -204,7 +183,7 @@ async def run_instance(token, bot_id):
         await message.delete()
         user_status = await state.get_state()
         # If the user hasn't already passed the questionnaire
-        if user_status != questionnaire.completed:
+        if user_status != Questionnaire.completed:
             data = await state.get_data()
             # Удалим предыдущее сообщение бота
             await bot.delete_message(message.chat.id, data['prev_message_id'])
@@ -224,13 +203,13 @@ async def run_instance(token, bot_id):
             await state.update_data(answers=answers, question_id=next_id, prev_questions=data['prev_questions'])
 
             if next_id is not None and \
-                    (user_status != questionnaire.on_approval or
+                    (user_status != Questionnaire.on_approval or
                      str(next_id) not in data['on_approval'].keys()):
                 # Showing that telegram_bot is typing its module
                 await bot.send_chat_action(message.chat.id, 'typing')
                 # Send next module
                 await send_question(state, message.chat.id)
-            elif user_status == questionnaire.on_approval:
+            elif user_status == Questionnaire.on_approval:
                 await finish_questionnaire(state, message.chat.id, next_id)
             else:
                 await finish_questionnaire(state, message.chat.id)
@@ -258,9 +237,9 @@ async def run_instance(token, bot_id):
         await send_question(state, callback_query.message.chat.id)
 
     # Question buttons handler, used at the end of the questionnaire
-    @router.callback_query(QuestionButtonCallback.filter())
+    @router.callback_query(QuestionButton.filter())
     async def process_question_callback(callback_query: CallbackQuery,
-                                        callback_data: QuestionButtonCallback,
+                                        callback_data: QuestionButton,
                                         state: FSMContext) -> None:
         await callback_query.message.delete()
         data = await state.get_data()
@@ -271,16 +250,16 @@ async def run_instance(token, bot_id):
         await send_question(state, callback_query.message.chat.id)
 
     # Answer buttons handler
-    @router.callback_query(AnswerButtonCallback.filter())
+    @router.callback_query(AnswerButton.filter())
     async def process_answer_callback(callback_query: CallbackQuery,
-                                      callback_data: AnswerButtonCallback,
+                                      callback_data: AnswerButton,
                                       state: FSMContext) -> None:
         # Удалим сообщение после ответа пользователя
         await callback_query.message.delete()
         # Getting user state
         user_status = await state.get_state()
         # If the user hasn't already passed the questionnaire
-        if user_status != questionnaire.completed:
+        if user_status != Questionnaire.completed:
             data = await state.get_data()
             # Get answers dict from the state
             answers = data['answers']
@@ -294,7 +273,7 @@ async def run_instance(token, bot_id):
 
             # If there is next module
             if callback_data.next_id is not None and \
-                    (user_status != questionnaire.on_approval or
+                    (user_status != Questionnaire.on_approval or
                      str(callback_data.next_id) not in data['on_approval'].keys()):
                 button_id = int(callback_data.next_id)
                 # Showing that telegram_bot is typing its module
@@ -303,7 +282,7 @@ async def run_instance(token, bot_id):
                 await state.update_data(question_id=button_id)
                 await send_question(state, callback_query.message.chat.id)
                 await callback_query.answer(None)
-            elif user_status == questionnaire.on_approval:
+            elif user_status == Questionnaire.on_approval:
                 await finish_questionnaire(state, callback_query.message.chat.id, callback_data.next_id)
             # If the user passed all the questions
             else:
