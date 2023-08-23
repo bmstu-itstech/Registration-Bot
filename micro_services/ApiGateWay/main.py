@@ -5,8 +5,9 @@ import asyncio
 
 from clients.bot.bot_client import *
 from my_types.base_types_pb2 import Answer
-
+from dotenv import load_dotenv
 if __name__ == "__main__":
+    load_dotenv()
     #asyncio.get_event_loop().run_until_complete(get_bots())
     asyncio.get_event_loop().run_until_complete(get_bot(bot_id=64,user_id=2))
 

@@ -29,16 +29,17 @@ async def create_new_bot_asker(user_id: int, journal):
 
 
 async def get_bot(user_id: int, bot_id:int):
-    channel = grpc.aio.insecure_channel(conf.DATABASE_CONNECTION)
+    channel = grpc.aio.insecure_channel(os.getenv('DATABASE_CONNECTION'))
     stub = pb2_grpc.BotGetterStub(channel)
     response = await stub.GetBot(pb2.GetBotRequest(bot_id=bot_id,owner=user_id))
+
+    print(response)
 
     return response
 
 async def get_bots():
-    channel = grpc.aio.insecure_channel(conf.DATABASE_CONNECTION)
+    channel = grpc.aio.insecure_channel(os.getenv('DATABASE_CONNECTION'))
     stub = pb2_grpc.BotGetterStub(channel)
     response = await stub.GetAllBots(pb2.GetBotRequest())
 
-    print(response)
     return response
