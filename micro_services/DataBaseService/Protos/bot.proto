@@ -6,8 +6,8 @@ import "Protos/base_types.proto";
 
 service BotGetter{
     rpc GetBot (GetBotRequest) returns (BotResponse);
-	rpc GetQuestion(GetQuestionRequest) returns(Module);
-   
+	rpc GetQuestion(GetQuestionRequest) returns (Module);
+	rpc GetAllBots(EmptyRequest) returns  (BotsResponse);
 }
 service BotWorker {
 	rpc CreateBot(CreateBotRequest) returns (CreateBotResponse);
@@ -32,7 +32,6 @@ message UpdateBotGoogleTokenRequest{
   int32 owner = 2;
   string token = 3;
 }
-
 
 message CreateBotRequest{
 	int32 from_user = 1;
@@ -63,4 +62,8 @@ message CreateBotResponse{
   string  state = 1;
   int32  code = 2;
   int32 bot_id = 3;
+}
+
+message EmptyRequest{
+
 }

@@ -15,9 +15,9 @@ namespace DataBaseService.backend.Types
         public string tg_token { get; set; }
         public string google_token { get; set; }
         public int owner { get; set; }
+        public string start_msg { get; set; }
         public int bot_survey_id { get; set; }
-
-
+       
         public static Task<int> CreateNewBotSurvey(int user_id, MyJournal journal)
         {
             return Task.Run(async () =>
@@ -158,8 +158,37 @@ namespace DataBaseService.backend.Types
                         tg_token = bot.TgToken,
                         google_token = bot.GoogleToken,
                         owner = bot.Owner,
-                        bot_survey_id = bot.BotId
+                        bot_survey_id = bot.BotId,
+                        start_msg = bot.StartMessage
                     };
+
+                }
+            });
+        }
+        public static Task<List<MyBot>> GetBots()
+        {
+            return Task.Run(() =>
+            {
+                using (RegistrationBotContext db = new RegistrationBotContext())
+                {
+
+                    List<MyBot> bots = new List<MyBot>();
+
+                    foreach(var bot in db.Bots)
+                    {
+                        bots.Add(new MyBot
+                        {
+
+                            Id = bot.Id,
+                            tg_token = bot.TgToken,
+                            google_token = bot.GoogleToken,
+                            owner = bot.Owner,
+                            bot_survey_id = bot.BotId,
+                            start_msg = bot.StartMessage
+                        });
+                    }
+
+                    return bots;
 
                 }
             });

@@ -13,10 +13,16 @@ message BotResponse{
    string  google_token = 3;
    int32 owner =4;
    int32 bot_survey_id =5;
-   string state = 6;
-   int32 code =7;
+   string start_message = 6;
+   string state = 7;
+   int32 code =8;
+ 
 
 }
+message BotsResponse{
+	repeated BotResponse bots=1;
+}
+
 message Module {
 	string question = 1;
 	string answer_type = 2;
