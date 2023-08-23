@@ -6,8 +6,8 @@ from aiogram.fsm.context import FSMContext
 
 from typing import Optional
 
-import database
 from custom_types import Questionnaire, QuestionButton
+from micro_services.ApiGateWay import bot_client
 
 
 async def finish_questionnaire(state: FSMContext, chat_id: int, bot_id: int, bot: Bot,
@@ -38,7 +38,6 @@ async def finish_questionnaire(state: FSMContext, chat_id: int, bot_id: int, bot
         await state.update_data(answers=answers, on_approval=None)
 
     await state.set_state(Questionnaire.on_approval)
-    conn = await database.connect_or_create('postgres', f'id{bot_id}')
 
     # Build a keyboard
     keyboard = InlineKeyboardBuilder()
@@ -52,15 +51,12 @@ async def finish_questionnaire(state: FSMContext, chat_id: int, bot_id: int, bot
 
     for answer_id in new_answers.keys():
         message += emoji.emojize(':small_blue_diamond:')
-        # TODO: По сути здесь можно запросить сокращенное название для отображения на кнопке
-        question, _ = await database.get_question(int(answer_id), bot_id)
-        question_text = question['question']
+        module = await bot_client.get_question(bot_id, int(answer_id))
         answer_text = new_answers[answer_id]
-        message += f' {question_text}: {answer_text}\n'
+        message += f' {module.question}: {answer_text}\n'
         keyboard.button(callback_data=QuestionButton(question_id=answer_id).pack(),
-                        text=question_text)
+                        text=module.question)
     message += '\nЕсли вы хотите что-то исправить - нажмите кнопку с нужным вопросом.\n' \
                'Если всё в порядке - нажмите кнопку "Отправить".'
     keyboard.adjust(1)
     await bot.send_message(chat_id, message, reply_markup=keyboard.as_markup())
-    await conn.close()
