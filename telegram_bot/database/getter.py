@@ -1,5 +1,6 @@
 from .connector import connect_or_create
 
+
 async def get_question(question_id: int, bot_id: int):
         conn = await connect_or_create('postgres', f'id{bot_id}')
         # Get module text from database
