@@ -1,7 +1,8 @@
 launchSettings.json
 appsettings.json
+appsettings.Development.json
+
 .vs/
 obj/
 bin/
-appsettings.Development.json
-secrets.json
+.idea/
