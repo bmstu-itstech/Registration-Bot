@@ -7,6 +7,7 @@ namespace DataBaseService.Backend.Types
         public int Id { get; set; }
         public string Answer { get; set; }
         public int NextId { get; set; }
+        public int Question_id { get; set; }
 
         public static MyButton ConvertFromRPC(Button _button)
         {

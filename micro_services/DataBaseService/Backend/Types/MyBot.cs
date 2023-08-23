@@ -51,6 +51,13 @@ namespace DataBaseService.backend.Types
 
                     foreach (var module in journal.Modules)
                     {
+                        module.Value.buttons = module.Value.buttons.Select(bnt => new MyButton
+                        {
+                            Answer = bnt.Answer,
+                            NextId = bnt.NextId,
+                            Question_id = module.Key
+                        }).ToList();
+
                         await FillBotSurveyButtonsTable(next_bot_id, module.Value.buttons);
 
                     }
@@ -288,7 +295,9 @@ namespace DataBaseService.backend.Types
                     "(" +
                     $"id SERIAL PRIMARY KEY," +
                     $"next_id INTEGER," +
-                    $"answer TEXT" +
+                    $"answer TEXT," +
+                    $"question_id INTEGER," +
+                    $"FOREIGN KEY (question_id) REFERENCES questions(id)" +
                     ")--";
 
                     try
@@ -401,13 +410,14 @@ namespace DataBaseService.backend.Types
                 });
             });
         }
-        private static Task<string> generate_insert_into_bot_survey_buttons(int data_base_id, MyButton button)
+        private static Task<string> generate_insert_into_bot_survey_buttons(MyButton button)
         {
             return Task.Run(() =>
             {
-                string insert = $"INSERT  INTO buttons (next_id,answer) VALUES(" +
+                string insert = $"INSERT  INTO buttons (next_id,answer,question_id) VALUES(" +
                 $"{button.NextId}," +
-                $"'{button.Answer}'" +
+                $"'{button.Answer}'," +
+                $"{button.Question_id}" +
                 $")--";
 
                 return insert;
@@ -455,7 +465,7 @@ namespace DataBaseService.backend.Types
 
                         try
                         {
-                            using (var command = new NpgsqlCommand(generate_insert_into_bot_survey_buttons(data_base_id, button).Result, conn))
+                            using (var command = new NpgsqlCommand(generate_insert_into_bot_survey_buttons(button).Result, conn))
                             {
                                 await command.ExecuteNonQueryAsync();
                             }
@@ -521,19 +531,17 @@ namespace DataBaseService.backend.Types
                 using (var conn = new NpgsqlConnection(new ConfigManager().GetBotConnetion(data_base_id)))
                 {
                     await conn.OpenAsync();
-
+                    Console.WriteLine(1234);
                     try
                     {
-                        string create_new_answer = $"INSERT INTO answers (user_chat_id) VALUES({chatId})";
-
-                        using (var command = new NpgsqlCommand(create_new_answer, conn))
-                        {
-                            await command.ExecuteNonQueryAsync();
-                        }
-
                         try
                         {
+                            string create_new_answer = $"INSERT INTO answers (user_chat_id) VALUES({chatId})";
 
+                            using (var command = new NpgsqlCommand(create_new_answer, conn))
+                            {
+                                await command.ExecuteNonQueryAsync();
+                            }
 
                             foreach (var answer in answers)
                             {
@@ -557,6 +565,7 @@ namespace DataBaseService.backend.Types
                                     update = $"UPDATE answers SET {collum_title} = {_answer} WHERE user_chat_id = {chatId}--";
 
 
+                                Console.WriteLine(update);
                                 using (var command = new NpgsqlCommand(update, conn))
                                 {
                                     await command.ExecuteNonQueryAsync();

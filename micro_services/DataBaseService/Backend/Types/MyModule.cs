@@ -38,8 +38,11 @@ namespace DataBaseService.Backend.Types
             _module.Title = module.Title;
 
             if (module.buttons != null && module.buttons.Count > 0)
+            {
                 _module.Buttons.AddRange(module.buttons.Select
-                    (button => MyButton.ConvertToRPC(button)).ToList());
+                   (button => MyButton.ConvertToRPC(button)).ToList());
+            }
+               
 
             return _module;
         }
@@ -71,7 +74,8 @@ namespace DataBaseService.Backend.Types
                                     {
                                         Id = reader.GetInt32(0),
                                         NextId = reader.GetInt32(1),
-                                        Answer = reader.GetString(2)
+                                        Answer = reader.GetString(2),
+                                        Question_id = reader.GetInt32(3)    
                                     });
                                 }
                             }
@@ -86,15 +90,15 @@ namespace DataBaseService.Backend.Types
                                 {
                                     module.Id = reader.GetInt32(0);
                                     module.Question = reader.GetString(1);
-                                    module.AnswerType = reader.GetString(4);
-                                    module.Title = reader.GetString(5);
+
+                                    module.AnswerType = reader.GetString(3);
+                                    module.Title = reader.GetString(4);
 
                                     if (buttons.Count > 0)
                                         module.buttons = buttons;
-
                                     try
                                     {
-                                        module.NextId = reader.GetInt32(3);
+                                        module.NextId = reader.GetInt32(2);
                                     }
                                     catch (Exception)
                                     {

@@ -26,12 +26,7 @@ namespace DataBaseService.Services.Bot
             int bot_id = 0;
 
 
-            foreach(var el in request.Journal.Modules)
-            {
-                 Console.WriteLine(el.Value.Title + " " + el.Value.NextId.ToString());
 
-               
-            }
 
             MyJournal my_journal = MyJournal.ConvertFromRPC(request.Journal);
 
