@@ -6,6 +6,7 @@ from aiogram.client.bot import Bot
 
 import database
 from custom_types import Questionnaire, AnswerButton
+from micro_services.ApiGateWay import bot_client
 
 
 async def send_question(state: FSMContext, chat_id: int, bot_id: int, bot: Bot) -> None:
@@ -16,18 +17,15 @@ async def send_question(state: FSMContext, chat_id: int, bot_id: int, bot: Bot) 
     передавать в аргументы функции send_question.
     """
 
-    # Create database connection
-    conn = await database.connect_or_create('postgres', f'id{bot_id}')
     # Получим данные стейта
     data = await state.get_data()
     # Get module text and type from database
-    module, buttons = await database.get_question(data['question_id'], bot_id)
-    question = module['question']
+    module = await bot_client.get_question(bot_id, data['question_id'])
     keyboard = InlineKeyboardBuilder()
 
-    if len(buttons) > 0:
+    if len(module.buttons) > 0:
         # Get module buttons from database (if applicable)
-        for element in buttons:
+        for element in module.buttons:
             keyboard.button(callback_data=AnswerButton(answer=str(element[0]),
                                                        next_id=element[1]).pack(),
                             text=str(element[0]))
@@ -37,6 +35,5 @@ async def send_question(state: FSMContext, chat_id: int, bot_id: int, bot: Bot) 
         keyboard.button(callback_data='get_back', text=emoji.emojize(":reverse_button: Назад"))
 
     keyboard.adjust(1)
-    message = await bot.send_message(chat_id, question, reply_markup=keyboard.as_markup())
+    message = await bot.send_message(chat_id, module.question, reply_markup=keyboard.as_markup())
     await state.update_data(question_id=data['question_id'], prev_message_id=message.message_id)
-    await conn.close()

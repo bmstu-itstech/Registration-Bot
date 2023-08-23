@@ -10,9 +10,9 @@ from aiogram.fsm.storage.redis import RedisStorage
 from aiogram.types import Message, CallbackQuery
 from redis import asyncio as aioredis
 
-import database
 import utils
 from custom_types import Questionnaire, AnswerButton, QuestionButton
+from micro_services.ApiGateWay import bot_client
 
 # Настроим логирование
 logging.basicConfig(level=logging.INFO)
@@ -69,31 +69,30 @@ async def run_instance(token, bot_id):
             data = await state.get_data()
             # Get next module id
             question_id = data['question_id']
-            question, buttons = await database.get_question(question_id, bot_id)
+            module = await bot_client.get_question(bot_id, question_id)
             # Если кнопочный вопрос и прилетел текстовый ответ, выдадим просьбу нажать кнопку
-            if len(buttons) > 0:
+            if len(module.buttons) > 0:
                 await message.answer('Чтобы ответить, нажмите на одну из кнопок')
                 return
             # Удалим предыдущее сообщение бота
             await bot.delete_message(message.chat.id, data['prev_message_id'])
-            next_id = question['next_id']
             # Добавим ответ в стейт
             answers = data['answers']
             answers[question_id] = message.text
             # Добавим id вопроса в стейт в качестве предыдущего вопроса
             data['prev_questions'].append(question_id)
             # Загрузим изменения в стейт
-            await state.update_data(answers=answers, question_id=next_id, prev_questions=data['prev_questions'])
+            await state.update_data(answers=answers, question_id=module.next_id, prev_questions=data['prev_questions'])
 
-            if next_id is not None and \
+            if module.next_id is not None and \
                     (user_status != Questionnaire.on_approval or
-                     str(next_id) not in data['on_approval'].keys()):
+                     str(module.next_id) not in data['on_approval'].keys()):
                 # Showing that telegram_bot is typing its module
                 await bot.send_chat_action(message.chat.id, 'typing')
                 # Send next module
                 await utils.send_question(state, message.chat.id, bot_id, bot)
             elif user_status == Questionnaire.on_approval:
-                await utils.finish_questionnaire(state, message.chat.id, bot_id, bot, next_id)
+                await utils.finish_questionnaire(state, message.chat.id, bot_id, bot, module.next_id)
             else:
                 await utils.finish_questionnaire(state, message.chat.id, bot_id, bot)
         # If the user has already passed the questionnaire
@@ -104,8 +103,11 @@ async def run_instance(token, bot_id):
     async def process_questionnaire_over(callback_query: CallbackQuery,
                                          state: FSMContext) -> None:
         await callback_query.message.edit_reply_markup()
+        answers = (await state.get_data())['answers']
+        await bot_client.push_answers(callback_query.message.chat.id, bot_id, answers)
+        await state.set_state(Questionnaire.completed)
         await callback_query.answer('Ответы записаны!')
-        await database.push_answers(state, callback_query.message.chat.id, bot_id, bot)
+        await bot.send_message(callback_query.message.chat.id, 'Ответы записаны!')
 
     @router.callback_query(Text('get_back'))
     async def process_get_back(callback_query: CallbackQuery,
