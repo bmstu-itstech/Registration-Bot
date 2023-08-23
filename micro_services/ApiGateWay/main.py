@@ -7,7 +7,8 @@ from clients.bot.bot_client import *
 from my_types.base_types_pb2 import Answer
 
 if __name__ == "__main__":
-    asyncio.get_event_loop().run_until_complete(get_bots())
+    #asyncio.get_event_loop().run_until_complete(get_bots())
+    asyncio.get_event_loop().run_until_complete(get_bot(bot_id=64,user_id=2))
 
     # answer = Answer()
     # answer.module_id = 1
