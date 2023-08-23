@@ -49,6 +49,8 @@ namespace DataBaseService.Backend.Types
 
         public static Task<MyModule> GetMoudleById(int data_base_id, int module_id)
         {
+            Console.WriteLine(module_id);
+
             return Task.Run(async () =>
             {
 
@@ -70,13 +72,18 @@ namespace DataBaseService.Backend.Types
                             {
                                 while (await reader.ReadAsync())
                                 {
+                                    var btn = new MyButton();
                                     buttons.Add(new MyButton()
                                     {
                                         Id = reader.GetInt32(0),
                                         NextId = reader.GetInt32(1),
                                         Answer = reader.GetString(2),
-                                        Question_id = reader.GetInt32(3)    
-                                    });
+                                        Question_id = reader.GetInt32(3)
+
+
+                                         
+
+                                });
                                 }
                             }
                         }
