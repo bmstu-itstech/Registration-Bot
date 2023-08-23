@@ -3,10 +3,10 @@ import asyncio
 import json
 import asyncpg
 
-from aiogram.filters.state import State
+from aiogram.fsm.context import FSMContext
 from aiogram.client.bot import Bot
 
-import connector
+from .connector import connect_or_create
 from custom_types import Questionnaire
 
 
@@ -21,7 +21,7 @@ async def write_data_from_file(filename: str, bot_id: int) -> None:
     f.close()
 
     # Подключимся к БД
-    conn = await connector.connect_or_create('postgres', f'id{bot_id}')
+    conn = await connect_or_create('postgres', f'id{bot_id}')
     # Удалим все существующие таблицы для возможности перезаписи данных бота
     await conn.execute('''DROP TABLE IF EXISTS modules, buttons, answers''')
 
@@ -73,13 +73,14 @@ async def write_data_from_file(filename: str, bot_id: int) -> None:
                 int(module_id), button['answer'], button['next_id']
             )
 
-async def push_answers(state: State, chat_id: int, bot_id: int | str, bot: Bot) -> None:
+
+async def push_answers(state: FSMContext, chat_id: int, bot_id: int | str, bot: Bot) -> None:
     """
     Функция для отправки ответов пользователя в таблицу соответствующего бота.
     """
 
     # Установим соединение с БД
-    conn = await connector.connect_or_create('postgres', f'id{bot_id}')
+    conn = await connect_or_create('postgres', f'id{bot_id}')
 
     # Проверим, существует ли уже пользователь
     try:
