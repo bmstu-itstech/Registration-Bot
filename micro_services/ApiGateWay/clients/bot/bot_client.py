@@ -4,6 +4,7 @@ import clients.bot.bot_pb2 as pb2
 
 import os
 
+
 async def set_answers(chat_id: int, bot_id: int, answers_list):
     channel = grpc.aio.insecure_channel(os.getenv('DATABASE_CONNECTION'))
     stub = pb2_grpc.BotWorkerStub(channel)
@@ -28,14 +29,15 @@ async def create_new_bot_asker(user_id: int, journal):
     return response
 
 
-async def get_bot(user_id: int, bot_id:int):
+async def get_bot(user_id: int, bot_id: int):
     channel = grpc.aio.insecure_channel(os.getenv('DATABASE_CONNECTION'))
     stub = pb2_grpc.BotGetterStub(channel)
-    response = await stub.GetBot(pb2.GetBotRequest(bot_id=bot_id,owner=user_id))
+    response = await stub.GetBot(pb2.GetBotRequest(bot_id=bot_id, owner=user_id))
 
     print(response)
 
     return response
+
 
 async def get_bots():
     channel = grpc.aio.insecure_channel(os.getenv('DATABASE_CONNECTION'))

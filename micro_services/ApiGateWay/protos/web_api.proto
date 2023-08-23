@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+import "base_types.proto";
+import "bot.proto";
+
+service DataSender{
+  rpc Create_Bot(CreateBotRequest) returns (CreateBotResponse);
+}
