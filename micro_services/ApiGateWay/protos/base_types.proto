@@ -1,5 +1,6 @@
 syntax = "proto3";
 
+option csharp_namespace = "DataBaseService.Protos";
 
 message BaseResponse{
   string  state = 1;
@@ -12,23 +13,27 @@ message BotResponse{
    string  google_token = 3;
    int32 owner =4;
    int32 bot_survey_id =5;
-   string state = 6;
-   int32 code =7;
+   string start_message = 6;
+   string state = 7;
+   int32 code =8;
+
 
 }
+message BotsResponse{
+	repeated BotResponse bots=1;
+}
+
 message Module {
 	string question = 1;
-	string question_type = 2;
-	string answer_type = 3;
-	string title = 4;
-	repeated Button buttons = 5;
-	int32 next_question_id =6;
-	int32 id = 7;
+	string answer_type = 2;
+	string title = 3;
+	repeated Button buttons = 4;
+	int32 next_id = 5;
 }
 
 message Answer{
 	int32 module_id = 1;
-	string answer_text = 2;
+	string answer = 2;
 }
 
 message Journal
@@ -43,9 +48,8 @@ message User{
 }
 
 message Button{
-	int32 question_id = 1;
-	string answer_text = 2;
-	int32 next_question_id =3;
+	string answer = 1;
+	int32 next_id =2;
 }
 
 message UserResponse{

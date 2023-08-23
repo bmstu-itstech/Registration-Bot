@@ -25,6 +25,11 @@ class BotGetterStub(object):
                 request_serializer=bot__pb2.GetQuestionRequest.SerializeToString,
                 response_deserializer=base__types__pb2.Module.FromString,
                 )
+        self.GetAllBots = channel.unary_unary(
+                '/BotGetter/GetAllBots',
+                request_serializer=bot__pb2.EmptyRequest.SerializeToString,
+                response_deserializer=base__types__pb2.BotsResponse.FromString,
+                )
 
 
 class BotGetterServicer(object):
@@ -42,6 +47,12 @@ class BotGetterServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def GetAllBots(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_BotGetterServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -54,6 +65,11 @@ def add_BotGetterServicer_to_server(servicer, server):
                     servicer.GetQuestion,
                     request_deserializer=bot__pb2.GetQuestionRequest.FromString,
                     response_serializer=base__types__pb2.Module.SerializeToString,
+            ),
+            'GetAllBots': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetAllBots,
+                    request_deserializer=bot__pb2.EmptyRequest.FromString,
+                    response_serializer=base__types__pb2.BotsResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -96,6 +112,23 @@ class BotGetter(object):
         return grpc.experimental.unary_unary(request, target, '/BotGetter/GetQuestion',
             bot__pb2.GetQuestionRequest.SerializeToString,
             base__types__pb2.Module.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def GetAllBots(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/BotGetter/GetAllBots',
+            bot__pb2.EmptyRequest.SerializeToString,
+            base__types__pb2.BotsResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 

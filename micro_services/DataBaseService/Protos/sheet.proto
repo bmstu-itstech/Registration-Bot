@@ -1,0 +1,73 @@
+syntax = "proto3";
+
+option csharp_namespace = "GoogleSheetsService";
+
+package SheetWorkerService;
+
+
+service SheetAppenderService{
+	rpc AppendSheet (AppendSheetRequest) returns (AppendSheetResponse);
+	rpc AppendRecord (AppendRecordRequest) returns (AppendRecordResponse);
+	rpc UpdateRecord(UpdateRecordRequest) returns (UpdateRecordResponse);
+} 
+
+service SheetReaderService{
+	rpc ReadLine (ReadLineRequest) returns (ReadLineResponse);
+	rpc ReadRange(ReadRangeRequest) returns (ReadRangeResponse);
+}
+message AppendSheetRequest{
+	string title = 1;
+	int32 from_user = 2;
+	int32 bot_id = 3;
+	repeated string header = 4;
+}
+message AppendSheetResponse{
+	string state = 1;
+	int32 code = 2;
+}
+
+message AppendRecordRequest{
+	string sheet_title = 1;
+	int32 from_user =2;
+	int32 bot_id = 3;
+    repeated string data = 4;
+
+}
+message AppendRecordResponse{
+	string state = 1;
+	int32 code = 2;
+	string exel_id =3 ;
+}
+
+message UpdateRecordRequest{
+	string exel_id = 1;
+	int32 from_user = 2;
+	int32 bot_id = 3 ;
+	repeated string new_data = 4;
+}
+message UpdateRecordResponse{
+	string state = 1;
+	int32 code = 2;
+}
+
+message ReadLineRequest {
+	int32 bot_id = 1;
+	int32 from_user = 2;
+	string exel_id = 3;
+}
+message ReadLineResponse {
+	string state = 1;
+	int32 code= 2;
+	repeated string data = 3;
+}
+
+message ReadRangeRequest {
+	int32 bot_id = 1;
+	int32 from_user = 2;
+	string range = 3;
+}
+message ReadRangeResponse {
+	string state = 1;
+	int32 code = 2;
+	repeated ReadLineResponse data = 3;
+}

@@ -42,10 +42,40 @@ namespace DataBaseService.Services.bot
             bot_response.GoogleToken = bot.google_token;
             bot_response.TgToken = bot.tg_token;
             bot_response.Owner = bot.owner;
+            bot_response.StartMessage = bot.start_msg;
 
             return Task.FromResult(bot_response);
         }
 
+        public override Task<BotsResponse> GetAllBots(EmptyRequest request, ServerCallContext context)
+        {
+               _logger.LogInformation("Get Bot by id Request");
+
+            var bots = MyBot.GetBots().Result;
+            var response = new BotsResponse();
+
+            foreach(var bot in bots)
+            {
+                var bot_response = new BotResponse()
+                {
+                    State = "OK",
+                    Code = 200,
+                };
+
+                bot_response.BotSurveyId = bot.bot_survey_id;
+                bot_response.GoogleToken = bot.google_token;
+                bot_response.TgToken = bot.tg_token;
+                bot_response.Owner = bot.owner;
+                bot_response.StartMessage = bot.start_msg;
+
+                response.Bots.Add(bot_response);
+            }
+
+
+
+
+            return Task.FromResult(response);
+        }
         public override Task<Module> GetQuestion(GetQuestionRequest request, ServerCallContext context)
         {
             _logger.LogInformation($"Get Bot #{request.BotId}  Question #{request.QuestionId}");

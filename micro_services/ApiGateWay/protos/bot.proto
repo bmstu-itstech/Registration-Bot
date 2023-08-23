@@ -1,13 +1,13 @@
 syntax = "proto3";
 
-
+option csharp_namespace = "DataBaseService.Protos";
 
 import "base_types.proto";
 
 service BotGetter{
     rpc GetBot (GetBotRequest) returns (BotResponse);
-	rpc GetQuestion(GetQuestionRequest) returns(Module);
-
+	  rpc GetQuestion(GetQuestionRequest) returns (Module);
+	  rpc GetAllBots(EmptyRequest) returns  (BotsResponse);
 }
 service BotWorker {
 	rpc CreateBot(CreateBotRequest) returns (CreateBotResponse);
@@ -33,14 +33,14 @@ message UpdateBotGoogleTokenRequest{
   string token = 3;
 }
 
-
 message CreateBotRequest{
 	int32 from_user = 1;
 	string tg_token = 2;
 	string sheets_token = 3;
 	Journal journal = 4;
-
+	string start_message = 5;
 }
+
 message DeleteBotRequest{
 	int32 from_user = 1;
 	int32 bot_id = 2;
@@ -62,4 +62,8 @@ message CreateBotResponse{
   string  state = 1;
   int32  code = 2;
   int32 bot_id = 3;
+}
+
+message EmptyRequest{
+
 }

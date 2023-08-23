@@ -26,21 +26,22 @@ namespace DataBaseService.Services.Bot
             int bot_id = 0;
 
 
+
+
             MyJournal my_journal = MyJournal.ConvertFromRPC(request.Journal);
 
             //main code 
             try
             {
 
-
                 var response = MyBot.CreateNewBotSurvey(request.FromUser, my_journal);
 
                 response.Wait();
                 bot_id = response.Result;
 
-                MyBot.UpdateBotGoogleToken(request.SheetsToken, bot_id,request.FromUser);
+                MyBot.UpdateBotGoogleToken(request.SheetsToken, bot_id, request.FromUser);
                 MyBot.UpdateBotTgToken(request.TgToken, bot_id, request.FromUser);
-
+                MyBot.UpdateStartMessage(request.StartMessage, bot_id, request.FromUser);
 
                 if (response.IsFaulted)
                 {
@@ -61,6 +62,43 @@ namespace DataBaseService.Services.Bot
                 State = state,
                 Code = code,
                 BotId = bot_id
+            });
+        }
+
+        public override Task<BaseResponse> DeleteBot(DeleteBotRequest request, ServerCallContext context)
+        {
+
+            _logger.LogInformation("Delete new Bot Request");
+
+            string state = "OK";
+            int code = 200;
+
+            //main code 
+            try
+            {
+
+
+                var response = MyBot.DeleteBotSurvey(request.FromUser, request.BotId);
+
+                response.Wait();
+
+                if (response.IsFaulted)
+                {
+                    state = "Erorr while Deleting Bot Survey";
+                    code = 401;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                state = $"Erorr while Deleting Bot Survey\n{ex.Message}";
+                code = 401;
+            }
+
+            return Task.FromResult(new BaseResponse()
+            {
+                State = state,
+                Code = code
             });
         }
 
