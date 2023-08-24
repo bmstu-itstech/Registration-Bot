@@ -36,7 +36,7 @@ namespace DataBaseService.Services.Bot
                 response.Wait();
                 bot_id = response.Result;
 
-                Console.WriteLine(bot_id);
+              
              
 
 
