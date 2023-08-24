@@ -1,13 +1,20 @@
 import grpc
 from . import bot_pb2_grpc as pb2_grpc
 from . import bot_pb2 as pb2
+from . import encoder
 
 import os
+from dotenv import load_dotenv
 
-async def push_answers(chat_id: int, bot_id: int, answers_list):
+
+load_dotenv()
+
+
+async def push_answers(chat_id: int, bot_id: int, answers):
     channel = grpc.aio.insecure_channel(os.getenv('DATABASE_CONNECTION'))
     stub = pb2_grpc.BotWorkerStub(channel)
-    response = await stub.SetAnswers(pb2.SetAnswersRequest(bot_id=bot_id, tg_chat_id=chat_id, answers=answers_list))
+    encoded_answers = await encoder.encode_answers(answers)
+    response = await stub.SetAnswers(pb2.SetAnswersRequest(bot_id=bot_id, tg_chat_id=chat_id, answers=encoded_answers))
 
     return response
 
@@ -33,8 +40,8 @@ async def get_bot(user_id: int, bot_id: int):
     stub = pb2_grpc.BotGetterStub(channel)
     response = await stub.GetBot(pb2.GetBotRequest(bot_id=bot_id,owner=user_id))
 
-
     return response
+
 
 async def get_bots():
     channel = grpc.aio.insecure_channel(os.getenv('DATABASE_CONNECTION'))

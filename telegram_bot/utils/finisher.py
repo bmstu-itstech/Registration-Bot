@@ -49,11 +49,9 @@ async def finish_questionnaire(state: FSMContext, chat_id: int, bot_id: int, bot
     new_answers = data['answers']
     message = 'Ваши ответы:\n\n'
 
-    for answer_id in new_answers.keys():
-        message += emoji.emojize(':small_blue_diamond:')
+    for answer_id, answer_text in new_answers.items():
         module = await bot_client.get_question(bot_id, int(answer_id))
-        answer_text = new_answers[answer_id]
-        message += f' {module.question}: {answer_text}\n'
+        message += emoji.emojize(f':small_blue_diamond: {module.question}: {answer_text}\n')
         keyboard.button(callback_data=QuestionButton(question_id=answer_id).pack(),
                         text=module.question)
     message += '\nЕсли вы хотите что-то исправить - нажмите кнопку с нужным вопросом.\n' \

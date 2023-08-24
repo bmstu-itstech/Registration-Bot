@@ -16,8 +16,8 @@ from micro_services.ApiGateWay import bot_client
 
 # Настроим логирование
 logging.basicConfig(level=logging.INFO)
-
-redis = aioredis.Redis.from_url(f'redis://localhost:6379/bot')
+# Подключим редис
+redis = aioredis.Redis.from_url(f'redis://localhost:6379')
 
 
 async def run_instance(token, bot_id):
@@ -86,6 +86,7 @@ async def run_instance(token, bot_id):
             await state.update_data(answers=answers, question_id=module.next_id, prev_questions=data['prev_questions'])
 
             if module.next_id is not None and \
+                    module.next_id != 0 and \
                     (user_status != Questionnaire.on_approval or
                      str(module.next_id) not in data['on_approval'].keys()):
                 # Showing that telegram_bot is typing its module
@@ -104,8 +105,9 @@ async def run_instance(token, bot_id):
     async def process_questionnaire_over(callback_query: CallbackQuery,
                                          state: FSMContext) -> None:
         await callback_query.message.edit_reply_markup()
-        answers = (await state.get_data())['answers']
-        await bot_client.push_answers(callback_query.message.chat.id, bot_id, answers)
+        answers_dict = (await state.get_data())['answers']
+        answers_list = await utils.pack_answers(answers_dict)
+        await bot_client.push_answers(callback_query.message.chat.id, bot_id, answers_list)
         await state.set_state(Questionnaire.completed)
         await callback_query.answer('Ответы записаны!')
         await bot.send_message(callback_query.message.chat.id, 'Ответы записаны!')
@@ -156,6 +158,7 @@ async def run_instance(token, bot_id):
 
             # If there is next module
             if callback_data.next_id is not None and \
+                    callback_data.next_id != 0 and \
                     (user_status != Questionnaire.on_approval or
                      str(callback_data.next_id) not in data['on_approval'].keys()):
                 button_id = int(callback_data.next_id)
@@ -183,8 +186,8 @@ async def test():
     from dotenv import load_dotenv
     load_dotenv()
     tasks = [
-        run_instance(os.getenv("TEST_TOKEN1"),65),
-        run_instance(os.getenv("TEST_TOKEN2"),66)
+        run_instance(os.getenv("TEST_TOKEN1"), 65),
+        run_instance(os.getenv("TEST_TOKEN2"), 66)
     ]
     await asyncio.gather(*tasks)
 
