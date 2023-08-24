@@ -27,11 +27,13 @@ async def run_instance(bot_id):
 
     # Ищем токен бота в БД
     token = ""
-    response = await bot_client.get_bots()
-    for bot in response.bots:
-        if bot.bot_survey_id == bot_id:
-            token = bot.tg_token
-
+    response = await bot_client.get_bot(user_id=2, bot_id=bot_id)
+    # for bot in response.bots:
+    #     print(bot.bot_survey_id, bot.tg_token)
+    #     if bot.bot_survey_id == bot_id:
+    #         token = bot.tg_token
+    print(response.tg_token, response.owner)
+    token = response.tg_token
     # Если не найдено такого бота, прерываем функцию
     if token == "":
         logging.error(f'There is no bot with ID "{bot_id}"!')

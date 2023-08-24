@@ -9,7 +9,7 @@ from micro_services.ApiGateWay.clients.bot.bot_client import *
 
 def main():
     load_dotenv()
-    serve()
+    asyncio.run(serve())
 
 
 if __name__ == "__main__":

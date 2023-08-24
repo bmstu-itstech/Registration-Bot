@@ -74,7 +74,6 @@ namespace DataBaseService.Backend.Types
                                 {
                                     buttons.Add(new MyButton()
                                     {
-                                      
                                         NextId = reader.GetInt32(0),
                                         Answer = reader.GetString(1),
                                         Question_id = reader.GetInt32(2)
