@@ -5,6 +5,7 @@
 from micro_services.ApiGateWay.server import serve
 from dotenv import load_dotenv
 from micro_services.ApiGateWay.clients.bot.bot_client import *
+import asyncio
 
 
 def main():
