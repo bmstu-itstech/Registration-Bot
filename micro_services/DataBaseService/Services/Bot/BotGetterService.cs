@@ -23,7 +23,7 @@ namespace DataBaseService.Services.bot
 
 
             var bot =  MyBot.GetBot(request.BotId, request.Owner);
-            bot.Wait();
+            
 
             var bot_response = new BotResponse()
             {
@@ -40,11 +40,13 @@ namespace DataBaseService.Services.bot
                 return Task.FromResult(bot_response);
             }
 
-            bot_response.BotSurveyId = bot.Result.bot_survey_id;
-            bot_response.GoogleToken = bot.Result.google_token;
-            bot_response.TgToken = bot.Result.tg_token;
-            bot_response.Owner = bot.Result.owner;
-            bot_response.StartMessage = bot.Result.start_msg;
+            bot_response.BotSurveyId = bot.bot_survey_id;
+            bot_response.GoogleToken = bot.google_token;
+            bot_response.TgToken = bot.tg_token;
+            bot_response.Owner = bot.owner;
+            bot_response.StartMessage = bot.start_msg;
+
+            Console.WriteLine(bot_response.TgToken);
 
             return Task.FromResult(bot_response);
         }

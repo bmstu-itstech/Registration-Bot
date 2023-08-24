@@ -17,7 +17,7 @@ namespace DataBaseService.Services.Bot
         {
             _logger = logger;
         }
-        public override Task<CreateBotResponse> CreateBot(CreateBotRequest request, ServerCallContext context)
+        public override  Task<CreateBotResponse> CreateBot(CreateBotRequest request, ServerCallContext context)
         {
             _logger.LogInformation("Create new Bot Survey Request");
 
@@ -36,13 +36,13 @@ namespace DataBaseService.Services.Bot
                 response.Wait();
                 bot_id = response.Result;
 
-              
-             
 
 
-                MyBot.UpdateBotGoogleToken(request.SheetsToken, bot_id, request.FromUser);
-                MyBot.UpdateBotTgToken(request.TgToken, bot_id, request.FromUser);
-                MyBot.UpdateStartMessage(request.StartMessage, bot_id, request.FromUser);
+
+
+                 MyBot.UpdateBotGoogleToken(request.SheetsToken, bot_id, request.FromUser);
+                 MyBot.UpdateBotTgToken(request.TgToken, bot_id, request.FromUser);
+                MyBot.UpdateStartMessage(request.StartMessage, bot_id, request.FromUser).Wait();
 
                 if (response.IsFaulted)
                 {
