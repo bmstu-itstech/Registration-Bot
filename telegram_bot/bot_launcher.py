@@ -20,12 +20,24 @@ logging.basicConfig(level=logging.INFO)
 redis = aioredis.Redis.from_url(f'redis://localhost:6379')
 
 
-async def run_instance(token, bot_id):
+async def run_instance(bot_id):
     """
-    Функция запускает бота по его токену и ID.
+    Функция запускает бота по его ID.
     """
 
     logging.info(f'Starting bot id{bot_id}...')
+
+    # Ищем токен бота в БД
+    token = ""
+    response = await bot_client.get_bots()
+    for bot in response.bots:
+        if bot.bot_survey_id == bot_id:
+            token = bot.tg_token
+
+    # Если не найдено такого бота, прерываем функцию
+    if token == "":
+        logging.error(f'There is no bot with ID "{bot_id}"!')
+        return
 
     # Подключимся к редису
     storage = RedisStorage(redis)
@@ -41,7 +53,7 @@ async def run_instance(token, bot_id):
     @router.message(CommandStart())
     async def cmd_start(message: Message, state: FSMContext) -> None:
         user_status = await state.get_state()
-        # If the user hasn't already passed the questionnaire
+        # Если пользователь еще не заполнил анкету
         if user_status != Questionnaire.completed and \
                 user_status != Questionnaire.in_process and \
                 user_status != Questionnaire.on_approval:
@@ -65,10 +77,10 @@ async def run_instance(token, bot_id):
 
         await message.delete()
         user_status = await state.get_state()
-        # If the user hasn't already passed the questionnaire
+        # Если пользователь еще не заполнил анкету
         if user_status != Questionnaire.completed:
             data = await state.get_data()
-            # Get next module id
+            # Получим id следующего модуля
             question_id = data['question_id']
             module = await bot_client.get_question(bot_id, question_id)
             # Если кнопочный вопрос и прилетел текстовый ответ, выдадим просьбу нажать кнопку
@@ -89,15 +101,14 @@ async def run_instance(token, bot_id):
                     module.next_id != 0 and \
                     (user_status != Questionnaire.on_approval or
                      str(module.next_id) not in data['on_approval'].keys()):
-                # Showing that telegram_bot is typing its module
                 await bot.send_chat_action(message.chat.id, 'typing')
-                # Send next module
+                # Отправим следующий модуль
                 await utils.send_question(state, message.chat.id, bot_id, bot)
             elif user_status == Questionnaire.on_approval:
                 await utils.finish_questionnaire(state, message.chat.id, bot_id, bot, module.next_id)
             else:
                 await utils.finish_questionnaire(state, message.chat.id, bot_id, bot)
-        # If the user has already passed the questionnaire
+        # Если пользователь уже прошел анкету
         else:
             await message.answer('Вы уже заполнили анкету!')
 
@@ -141,41 +152,40 @@ async def run_instance(token, bot_id):
                                       state: FSMContext) -> None:
         # Удалим сообщение после ответа пользователя
         await callback_query.message.delete()
-        # Getting user state
+        # Получим состояние пользователя
         user_status = await state.get_state()
-        # If the user hasn't already passed the questionnaire
+        # Если пользователь еще не заполнил анкету
         if user_status != Questionnaire.completed:
             data = await state.get_data()
-            # Get answers dict from the state
+            # Получим ответы пользователя из стейта
             answers = data['answers']
-            # Get the module id
+            # Получим id модуля (вопроса)
             question_id = data['question_id']
             # Добавим id вопроса в стейт в качестве предыдущего вопроса
             data['prev_questions'].append(question_id)
-            # Write the answer to the state
+            # Запишем ответ в стейт
             answers[question_id] = callback_data.answer
             await state.update_data(answers=answers, prev_questions=data['prev_questions'])
 
-            # If there is next module
+            # Если есть следующий модуль
             if callback_data.next_id is not None and \
                     callback_data.next_id != 0 and \
                     (user_status != Questionnaire.on_approval or
                      str(callback_data.next_id) not in data['on_approval'].keys()):
                 button_id = int(callback_data.next_id)
-                # Showing that telegram_bot is typing its module
                 await bot.send_chat_action(callback_query.message.chat.id, 'typing')
-                # Send next module based on button ID
+                # Отправим следующий модуль по id, на который указывает кнопка
                 await state.update_data(question_id=button_id)
                 await utils.send_question(state, callback_query.message.chat.id, bot_id, bot)
                 await callback_query.answer(None)
             elif user_status == Questionnaire.on_approval:
                 await utils.finish_questionnaire(state, callback_query.message.chat.id, bot_id,
                                                  bot, callback_data.next_id)
-            # If the user passed all the questions
+            # Если пользователь ответил на все вопросы
             else:
                 await utils.finish_questionnaire(state, callback_query.message.chat.id, bot_id, bot)
 
-        # If the user has already passed the questionnaire
+        # Если пользователь уже заполнил анкету
         else:
             await bot.send_message(callback_query.message.chat.id, 'Вы уже заполнили анкету!')
 
@@ -186,8 +196,8 @@ async def test():
     from dotenv import load_dotenv
     load_dotenv()
     tasks = [
-        run_instance(os.getenv("TEST_TOKEN1"), 65),
-        run_instance(os.getenv("TEST_TOKEN2"), 66)
+        run_instance(66),
+        run_instance(67)
     ]
     await asyncio.gather(*tasks)
 
