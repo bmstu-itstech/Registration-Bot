@@ -6,10 +6,10 @@ import asyncio
 from server import serve
 from dotenv import load_dotenv
 from clients.bot.bot_client import *
-
+import asyncio
 if __name__ == "__main__":
     load_dotenv()
-    serve()
+    asyncio.run(serve())
 
     # answer = Answer()
     # answer.module_id = 1

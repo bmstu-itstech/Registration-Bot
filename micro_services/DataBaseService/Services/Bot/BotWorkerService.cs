@@ -25,19 +25,20 @@ namespace DataBaseService.Services.Bot
             int code = 200;
             int bot_id = 0;
 
-
-
-
             MyJournal my_journal = MyJournal.ConvertFromRPC(request.Journal);
 
             //main code 
             try
             {
-
+                
                 var response = MyBot.CreateNewBotSurvey(request.FromUser, my_journal);
 
                 response.Wait();
                 bot_id = response.Result;
+
+                Console.WriteLine(bot_id);
+             
+
 
                 MyBot.UpdateBotGoogleToken(request.SheetsToken, bot_id, request.FromUser);
                 MyBot.UpdateBotTgToken(request.TgToken, bot_id, request.FromUser);

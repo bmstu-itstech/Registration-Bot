@@ -8,7 +8,6 @@ from telegram_bot.bot_launcher import run_instance
 
 class DataSenderService(p2b_grpc.DataSenderServicer):
     async def Create_Bot(self, request, context):
-        print("Create bot request")
         resp = await bot.create_new_bot_asker(user_id=request.from_user, journal=request.journal)
         await run_instance(resp.bot_id)
         return resp

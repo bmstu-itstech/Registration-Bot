@@ -29,6 +29,7 @@ async def run_instance(bot_id):
     token = ""
     response = await bot_client.get_bots()
     for bot in response.bots:
+        print(bot.bot_survey_id)
         if bot.bot_survey_id == bot_id:
             token = bot.tg_token
 

@@ -10,9 +10,8 @@ from google.protobuf.internal import builder as _builder
 
 _sym_db = _symbol_database.Default()
 
-
-import my_types.base_types_pb2 as base__types__pb2
-import clients.bot.bot_pb2 as bot__pb2
+from micro_services.ApiGateWay.my_types import base_types_pb2 as base__types__pb2
+from micro_services.ApiGateWay.clients.bot import bot_pb2 as bot__pb2
 
 
 DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\rweb_api.proto\x1a\x10\x62\x61se_types.proto\x1a\tbot.proto2A\n\nDataSender\x12\x33\n\nCreate_Bot\x12\x11.CreateBotRequest\x1a\x12.CreateBotResponseb\x06proto3')
