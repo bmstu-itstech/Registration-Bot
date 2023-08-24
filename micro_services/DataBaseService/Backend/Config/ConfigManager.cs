@@ -39,6 +39,8 @@
 
             conn = conn.Replace(_config.GetValue<string>("DATA_BASE_NAME"), $"bot_{data_base_id}");
 
+            Console.WriteLine(conn);
+
             return conn;
 
         }

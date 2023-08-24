@@ -23,7 +23,7 @@ public partial class RegistrationBotContext : DbContext
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         var _config = new ConfigManager();
-
+      
         optionsBuilder.UseNpgsql(_config.GetConnetion());
     }
 
