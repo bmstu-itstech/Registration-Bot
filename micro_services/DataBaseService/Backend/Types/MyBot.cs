@@ -142,10 +142,8 @@ namespace DataBaseService.backend.Types
             });
         }
 
-        public static Task<MyBot> GetBot(int bot_survey_id, int owner)
+        public static MyBot GetBot(int bot_survey_id, int owner)
         {
-            return Task.Run(() =>
-            {
                 using (RegistrationBotContext db = new RegistrationBotContext())
                 {
 
@@ -160,9 +158,8 @@ namespace DataBaseService.backend.Types
                         bot_survey_id = bot.BotId,
                         start_msg = bot.StartMessage
                     };
-
                 }
-            });
+     
         }
         public static Task<List<MyBot>> GetBots()
         {
