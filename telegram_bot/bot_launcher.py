@@ -10,14 +10,12 @@ from aiogram.fsm.storage.redis import RedisStorage
 from aiogram.types import Message, CallbackQuery
 from redis import asyncio as aioredis
 
-import utils
-from custom_types import Questionnaire, AnswerButton, QuestionButton
+from telegram_bot import utils
+from telegram_bot.custom_types import Questionnaire, AnswerButton, QuestionButton
 from micro_services.ApiGateWay import bot_client
 
 # Настроим логирование
 logging.basicConfig(level=logging.INFO)
-# Подключим редис
-redis = aioredis.Redis.from_url(f'redis://localhost:6379')
 
 
 async def run_instance(bot_id):
@@ -40,6 +38,7 @@ async def run_instance(bot_id):
         return
 
     # Подключимся к редису
+    redis = aioredis.Redis.from_url(f'redis://localhost:6379/{bot_id}')
     storage = RedisStorage(redis)
 
     # Инициализируем бота
