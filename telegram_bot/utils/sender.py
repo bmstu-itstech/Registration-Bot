@@ -27,9 +27,9 @@ async def send_question(state: FSMContext, chat_id: int, bot_id: int, bot: Bot) 
     if len(module.buttons) > 0:
         # Get module buttons from database (if applicable)
         for element in module.buttons:
-            keyboard.button(callback_data=AnswerButton(answer=str(element[0]),
-                                                       next_id=element[1]).pack(),
-                            text=str(element[0]))
+            keyboard.button(callback_data=AnswerButton(answer=str(element.answer),
+                                                       next_id=element.next_id).pack(),
+                            text=str(element.answer))
 
     # Если уже был пройден хотя бы один вопрос, добавим кнопку "Назад"
     if len(data['prev_questions']) > 0 and await state.get_state() != Questionnaire.on_approval:

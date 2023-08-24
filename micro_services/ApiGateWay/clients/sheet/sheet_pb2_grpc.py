@@ -2,7 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-import clients.sheet.sheet_pb2 as sheet__pb2
+import micro_services.ApiGateWay.clients.sheet.sheet_pb2 as sheet__pb2
 
 
 class SheetAppenderServiceStub(object):
