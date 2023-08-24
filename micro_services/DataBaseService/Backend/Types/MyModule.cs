@@ -72,18 +72,13 @@ namespace DataBaseService.Backend.Types
                             {
                                 while (await reader.ReadAsync())
                                 {
-                                    var btn = new MyButton();
                                     buttons.Add(new MyButton()
                                     {
-                                        Id = reader.GetInt32(0),
-                                        NextId = reader.GetInt32(1),
-                                        Answer = reader.GetString(2),
-                                        Question_id = reader.GetInt32(3)
-
-
-                                         
-
-                                });
+                                      
+                                        NextId = reader.GetInt32(0),
+                                        Answer = reader.GetString(1),
+                                        Question_id = reader.GetInt32(2)
+                                    });
                                 }
                             }
                         }
@@ -119,7 +114,7 @@ namespace DataBaseService.Backend.Types
                     }
                     catch (Exception ex)
                     {
-                        throw new DataBaseError("Error in GetMoudleById ()\n" + ex.Message);
+                        throw new DataBaseError("Error in GetMoudleById ()\n" + ex);
                     }
                     finally
                     {

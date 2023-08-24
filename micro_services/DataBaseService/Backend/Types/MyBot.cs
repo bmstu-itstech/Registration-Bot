@@ -429,25 +429,15 @@ namespace DataBaseService.backend.Types
                 {
                     string insert = string.Empty;
 
-                    if (module.NextId == 0)
-                    {
-                        insert = $"INSERT INTO questions (id,question_text,answer_type,collum_title) VALUES(" +
-                          $"{module_id}," +
-                          $"'{module.Question}'," +
-                          $"'{module.AnswerType}'," +
-                          $"'{module.Title}'" +
-                          $")--";
-                    }
-                    else
-                    {
-                        insert = $"INSERT INTO questions (id,question_text,answer_type,collum_title,next_id) VALUES(" +
-                                 $"{module_id}," +
-                                 $"'{module.Question}'," +
-                                 $"'{module.AnswerType}'," +
-                                 $"'{module.Title}'," +
-                                 $"{module.NextId}" +
-                                 $")--";
-                    }
+
+                    insert = $"INSERT INTO questions (id,question_text,answer_type,collum_title,next_id) VALUES(" +
+                             $"{module_id}," +
+                             $"'{module.Question}'," +
+                             $"'{module.AnswerType}'," +
+                             $"'{module.Title}'," +
+                             $"{module.NextId}" +
+                             $")--";
+
 
                     return insert;
                 });
@@ -579,7 +569,7 @@ namespace DataBaseService.backend.Types
                 using (var conn = new NpgsqlConnection(new ConfigManager().GetBotConnetion(data_base_id)))
                 {
                     await conn.OpenAsync();
-                    Console.WriteLine(1234);
+             
                     try
                     {
                         try

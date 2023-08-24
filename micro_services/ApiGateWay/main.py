@@ -9,6 +9,7 @@ from clients.bot.bot_client import *
 
 if __name__ == "__main__":
 
+
     load_dotenv()
     asyncio.get_event_loop().run_until_complete(get_question(bot_id=65, question_id=1))
 
