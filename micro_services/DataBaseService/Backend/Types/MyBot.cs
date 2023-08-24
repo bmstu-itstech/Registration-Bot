@@ -17,7 +17,7 @@ namespace DataBaseService.backend.Types
         public int owner { get; set; }
         public string start_msg { get; set; }
         public int bot_survey_id { get; set; }
-       
+
         public static Task<int> CreateNewBotSurvey(int user_id, MyJournal journal)
         {
             return Task.Run(async () =>
@@ -75,7 +75,6 @@ namespace DataBaseService.backend.Types
                     throw;
                 }
             });
-
         }
         public static Task DeleteBotSurvey(int user_id, int bot_id)
         {
@@ -174,7 +173,7 @@ namespace DataBaseService.backend.Types
 
                     List<MyBot> bots = new List<MyBot>();
 
-                    foreach(var bot in db.Bots)
+                    foreach (var bot in db.Bots)
                     {
                         bots.Add(new MyBot
                         {
@@ -340,7 +339,6 @@ namespace DataBaseService.backend.Types
 
                     string create_table = $"CREATE TABLE buttons" +
                     "(" +
-                    $"id SERIAL PRIMARY KEY," +
                     $"next_id INTEGER," +
                     $"answer TEXT," +
                     $"question_id INTEGER," +
@@ -353,8 +351,6 @@ namespace DataBaseService.backend.Types
                         {
                             await command.ExecuteNonQueryAsync();
                         }
-
-
                     }
                     catch (Exception ex)
                     {
@@ -433,25 +429,15 @@ namespace DataBaseService.backend.Types
                 {
                     string insert = string.Empty;
 
-                    if (module.NextId == 0)
-                    {
-                        insert = $"INSERT INTO questions (id,question_text,answer_type,collum_title) VALUES(" +
-                          $"{module_id}," +
-                          $"'{module.Question}'," +
-                          $"'{module.AnswerType}'," +
-                          $"'{module.Title}'" +
-                          $")--";
-                    }
-                    else
-                    {
-                        insert = $"INSERT INTO questions (id,question_text,answer_type,collum_title,next_id) VALUES(" +
-                                 $"{module_id}," +
-                                 $"'{module.Question}'," +
-                                 $"'{module.AnswerType}'," +
-                                 $"'{module.Title}'," +
-                                 $"{module.NextId}" +
-                                 $")--";
-                    }
+
+                    insert = $"INSERT INTO questions (id,question_text,answer_type,collum_title,next_id) VALUES(" +
+                             $"{module_id}," +
+                             $"'{module.Question}'," +
+                             $"'{module.AnswerType}'," +
+                             $"'{module.Title}'," +
+                             $"{module.NextId}" +
+                             $")--";
+
 
                     return insert;
                 });
@@ -461,11 +447,15 @@ namespace DataBaseService.backend.Types
         {
             return Task.Run(() =>
             {
-                string insert = $"INSERT  INTO buttons (next_id,answer,question_id) VALUES(" +
+                string insert = null;
+
+                insert = $"INSERT  INTO buttons (next_id,answer,question_id) VALUES(" +
                 $"{button.NextId}," +
                 $"'{button.Answer}'," +
                 $"{button.Question_id}" +
                 $")--";
+
+
 
                 return insert;
             });
@@ -540,7 +530,7 @@ namespace DataBaseService.backend.Types
                         TgToken = "",
                         GoogleToken = "",
                         StartMessage = ""
-                        
+
                     };
 
                     await db.Bots.AddAsync(bot);
@@ -579,7 +569,7 @@ namespace DataBaseService.backend.Types
                 using (var conn = new NpgsqlConnection(new ConfigManager().GetBotConnetion(data_base_id)))
                 {
                     await conn.OpenAsync();
-                    Console.WriteLine(1234);
+             
                     try
                     {
                         try

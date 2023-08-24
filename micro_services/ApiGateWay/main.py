@@ -5,9 +5,15 @@ import asyncio
 
 from server import serve
 from dotenv import load_dotenv
+from clients.bot.bot_client import *
 
 if __name__ == "__main__":
+
+
     load_dotenv()
+    asyncio.get_event_loop().run_until_complete(get_question(bot_id=65, question_id=1))
+
+
     serve()
 
     # answer = Answer()
@@ -18,4 +24,4 @@ if __name__ == "__main__":
     # answer1.module_id = 2
     # answer1.ansewer_text = 'true'
     #
-    # asyncio.get_event_loop().run_until_complete(set_answers(4747, 64, [answer, answer1]))
+    #

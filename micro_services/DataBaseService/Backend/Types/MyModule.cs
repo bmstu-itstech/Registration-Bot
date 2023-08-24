@@ -49,6 +49,8 @@ namespace DataBaseService.Backend.Types
 
         public static Task<MyModule> GetMoudleById(int data_base_id, int module_id)
         {
+            Console.WriteLine(module_id);
+
             return Task.Run(async () =>
             {
 
@@ -72,10 +74,10 @@ namespace DataBaseService.Backend.Types
                                 {
                                     buttons.Add(new MyButton()
                                     {
-                                        Id = reader.GetInt32(0),
-                                        NextId = reader.GetInt32(1),
-                                        Answer = reader.GetString(2),
-                                        Question_id = reader.GetInt32(3)    
+                                      
+                                        NextId = reader.GetInt32(0),
+                                        Answer = reader.GetString(1),
+                                        Question_id = reader.GetInt32(2)
                                     });
                                 }
                             }
@@ -112,7 +114,7 @@ namespace DataBaseService.Backend.Types
                     }
                     catch (Exception ex)
                     {
-                        throw new DataBaseError("Error in GetMoudleById ()\n" + ex.Message);
+                        throw new DataBaseError("Error in GetMoudleById ()\n" + ex);
                     }
                     finally
                     {

@@ -7,6 +7,8 @@ from aiogram.client.bot import Bot
 from telegram_bot.custom_types import Questionnaire, AnswerButton
 from micro_services.ApiGateWay import bot_client
 
+import asyncio
+
 
 async def send_question(state: FSMContext, chat_id: int, bot_id: int, bot: Bot) -> None:
     """
