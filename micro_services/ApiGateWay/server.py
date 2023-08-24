@@ -1,9 +1,9 @@
 import os
 
-from web_api_rpc.data_sender import DataSenderService
+from micro_services.ApiGateWay.web_api_rpc.data_sender import DataSenderService
 import grpc
-from web_api_rpc import web_api_pb2_grpc
-from web_api_rpc import web_api_pb2
+from micro_services.ApiGateWay.web_api_rpc import web_api_pb2_grpc
+from micro_services.ApiGateWay.web_api_rpc import web_api_pb2
 from concurrent import futures
 
 
