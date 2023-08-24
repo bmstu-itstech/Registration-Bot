@@ -40,8 +40,8 @@ namespace DataBaseService.Services.Bot
 
 
 
-                 MyBot.UpdateBotGoogleToken(request.SheetsToken, bot_id, request.FromUser);
-                 MyBot.UpdateBotTgToken(request.TgToken, bot_id, request.FromUser);
+                 MyBot.UpdateBotGoogleToken(request.SheetsToken, bot_id, request.FromUser).Wait();
+                 MyBot.UpdateBotTgToken(request.TgToken, bot_id, request.FromUser).Wait();
                 MyBot.UpdateStartMessage(request.StartMessage, bot_id, request.FromUser).Wait();
 
                 if (response.IsFaulted)
