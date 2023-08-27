@@ -1,22 +1,17 @@
 # python -m grpc_tools.protoc -I./protos --python_out=clients/bot --pyi_out=clients/bot --grpc_python_out=clients/bot protos/bot.proto
 # python -m grpc_tools.protoc -I./protos --python_out=services/authorizer --grpc_python_out=services/authorizer protos/authorization.proto
 #  python -m grpc_tools.protoc -I./protos --python_out=my_types --pyi_out=my_types/ --grpc_python_out=my_types/ protos/base_types.proto
+
+from micro_services.ApiGateWay.server import serve
+from dotenv import load_dotenv
+from micro_services.ApiGateWay.clients.bot.bot_client import *
 import asyncio
 
-from server import serve
-from dotenv import load_dotenv
-from clients.bot.bot_client import *
-import asyncio
-if __name__ == "__main__":
+
+def main():
     load_dotenv()
     asyncio.run(serve())
 
-    # answer = Answer()
-    # answer.module_id = 1
-    # answer.ansewer_text = "Митрошкин Алексей Антонович"
-    #
-    # answer1 = Answer()
-    # answer1.module_id = 2
-    # answer1.ansewer_text = 'true'
-    #
-    #
+
+if __name__ == "__main__":
+    main()
