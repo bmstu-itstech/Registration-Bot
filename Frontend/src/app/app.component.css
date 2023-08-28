@@ -1,6 +1,48 @@
 @import '../styles/colors.scss';
 @import '../styles/fonts.scss';
 
-.container {
+section {
+  display: block;
+}
+
+.page-section {
+  padding: 8rem 0;
+  position: relative;
+}
+
+.container-fluid {
+  padding: 50px 0;
+}
+
+.navbar {
+  display: block;
+  position: relative;
+  background-color: #05032C;
+  padding: 0;
+}
+
+.line {
+  height: 6px;
+  background-color: #FF4D71;
+  position: relative;
+}
+
+.bots-list {
   background-color: #14104B;
+}
+
+.bot-item {
+  position: relative;
+  width: 286px;
+  height: 395px;
+  background-color: #FFFFFF4D;
+  border-radius: 30px;
+}
+
+.create-btn {
+  width: 850px;
+  height: 65px;
+  border-radius: 20px;
+  box-shadow: 0 0 1.5vw rgba(255, 255, 255, 0.8);
+  margin-top: 150px;
 }
