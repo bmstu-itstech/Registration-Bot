@@ -6,7 +6,7 @@ section {
 }
 
 .page-section {
-  padding: 8rem 0;
+  padding: 150px 0;
   position: relative;
 }
 
@@ -27,7 +27,7 @@ section {
   position: relative;
 }
 
-.bots-list {
+.bot-list, .bot-creation {
   background-color: #14104B;
 }
 
@@ -39,10 +39,38 @@ section {
   border-radius: 30px;
 }
 
-.create-btn {
+.w-850 {
   width: 850px;
+}
+
+.w-500 {
+  width: 500px;
+}
+
+.create-btn {
   height: 65px;
   border-radius: 20px;
   box-shadow: 0 0 1.5vw rgba(255, 255, 255, 0.8);
   margin-top: 150px;
+}
+
+.add-btn {
+  position: relative;
+  height: 100px;
+  width: 500px;
+  background-color: #FFFFFF4D;
+  border-radius: 30px;
+}
+
+.details {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+}
+
+.board {
+  width: 750px;
+  height: 550px;
+  background-color: #FFFFFFCC;
+  border-radius: 30px;
 }
