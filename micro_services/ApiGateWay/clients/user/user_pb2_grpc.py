@@ -2,8 +2,8 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-import base_types_pb2 as base__types__pb2
-import user_pb2 as user__pb2
+import my_types.base_types_pb2 as base__types__pb2
+import clients.user.user_pb2 as user__pb2
 
 
 class UserWorkerStub(object):
