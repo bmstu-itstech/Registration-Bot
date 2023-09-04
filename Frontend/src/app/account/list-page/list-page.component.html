@@ -1,0 +1,29 @@
+<section class="page-section bot-list">
+  <div class="d-flex justify-content-center">
+    <carousel class="hide-navigation" [itemsPerSlide]="3" [interval]="0" [showIndicators]="false" [singleSlideOffset]="true" [noWrap]="true">
+      <img class="mx-5" (click)="navigateCarousel('prev')" src="../../../assets/icons/arrow-left.svg" alt="Previous">
+      <div>
+        <slide *ngFor="let card of cards; let index = index">
+          <div class="col-12 col-md-6 col-lg-4">
+            <div class="bot-item mx-3 text-white">
+              <p class="text-center h2 pt-5 m-0">{{ card.title }}</p>
+              <p class="text-center pt-4 m-0">Дата создания:</p>
+              <p class="text-center h2 m-0">{{ card.creationDate }}</p>
+              <p class="text-center pt-4 m-0">Количество участников:</p>
+              <p class="text-center h2 m-0">{{ card.numMembers }}</p>
+              <div class="pt-4 d-flex justify-content-center">
+                <img src="../../../assets/icons/telegram.svg" class="mx-3" alt="...">
+                <img src="../../../assets/icons/excel.svg" class="mx-3" alt="...">
+              </div>
+            </div>
+          </div>
+        </slide>
+      </div>
+      <img class="mx-5" (click)="navigateCarousel('next')" src="../../../assets/icons/arrow-right.svg" alt="Next">
+    </carousel>
+  </div>
+  <div class="row d-flex justify-content-center">
+    <button type="button" class="btn w-850 text-white create-btn"><p class="h4 m-0" routerLink="/creation">Создать нового</p></button>
+  </div>
+  <img src="../../../assets/images/dots-left.svg" class="position-absolute bottom-0 ms-4" alt="...">
+</section>
