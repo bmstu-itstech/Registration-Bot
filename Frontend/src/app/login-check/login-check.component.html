@@ -1,0 +1,12 @@
+<div class="container">
+  <h2>Вход</h2>
+  <form (submit)="login()">
+    <label for="username">Логин:</label>
+    <input type="text" id="username" [(ngModel)]="username" name="username" required>
+    <br>
+    <label for="password">Пароль:</label>
+    <input type="password" id="password" [(ngModel)]="password" name="password" required>
+    <br>
+    <button type="submit">Войти</button>
+  </form>
+</div>
