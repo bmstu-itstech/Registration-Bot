@@ -1,0 +1,36 @@
+@import '../../styles/colors.scss';
+@import '../../styles/fonts.scss';
+
+.networks-img {
+  height: 47px;
+  width: 47px;
+  display: flex;
+}
+.logo {
+  width: 30px;
+  height: 30px;
+}
+.logo-its {
+  width: 83px;
+  height: 83px;
+}
+header {
+  background: #05032C;
+  border-bottom: 6px solid #FF4D71;
+}
+.container-fluid {
+  padding: 50px 0;
+}
+
+.navbar {
+  display: block;
+  position: relative;
+  background-color: #05032C;
+  padding: 0;
+}
+
+.line {
+  height: 6px;
+  background-color: #FF4D71;
+  position: relative;
+}
