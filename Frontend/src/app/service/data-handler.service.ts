@@ -12,6 +12,12 @@ export class DataHandlerService {
     }
     return null;
   }
+  setCookie(name: string, value: string, days: number): void {
+    const expirationDate = new Date();
+    expirationDate.setDate(expirationDate.getDate() + days);
+    const cookieValue = encodeURIComponent(value) + (days ? `; expires=${expirationDate.toUTCString()}` : '');
+    document.cookie = `${name}=${cookieValue}; path=/`;
+  }
   deleteCookie(name: string): void {
     document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
   }

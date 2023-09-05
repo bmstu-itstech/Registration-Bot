@@ -17,7 +17,7 @@ export class MainPageComponent implements OnInit{
   onTryClick(): void {
     const isAuthenticated = this.cookieService.getCookie('authToken');
     if (isAuthenticated) {
-      this.router.navigate(['/personal-page']);
+      this.router.navigate(['/creation']);
     } else {
       this.router.navigate(['/its-id']);
     }

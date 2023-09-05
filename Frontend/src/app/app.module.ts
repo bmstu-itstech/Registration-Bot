@@ -1,15 +1,18 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
+import {CarouselModule} from "ngx-bootstrap/carousel";
 
 import { AppComponent } from './app.component';
 import { CreationPageComponent } from './account/creation-page/creation-page.component';
 import { ListPageComponent } from './account/list-page/list-page.component';
-import { HeaderComponent } from './account/header/header.component';
+import { HeaderComponent } from "./header/header.component";
+// import { HeaderComponent } from './account/header/header.component';
 import { NavbarComponent } from './navbar-main/navbar-main.component';
 import { MainPageComponent } from './pages/main-page/main-page.component';
 import { AppRoutingModule } from './app-routing.module';
-import { PersonalPageComponent } from './pages/personal-page/personal-page.component';
-import { NavbarPersonalComponent } from './navbar-personal/navbar-personal.component';
+import { LoginCheckComponent } from './login-check/login-check.component';
+import { FormsModule } from "@angular/forms";
 
 @NgModule({
   declarations: [
@@ -19,14 +22,16 @@ import { NavbarPersonalComponent } from './navbar-personal/navbar-personal.compo
     HeaderComponent
     NavbarComponent,
     MainPageComponent,
-    PersonalPageComponent,
-    NavbarPersonalComponent
+    LoginCheckComponent
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule
+    AppRoutingModule,
+    FormsModule,
+    BrowserAnimationsModule,
+    CarouselModule.forRoot()
   ],
   providers: [],
-  bootstrap: [AppComponent, NavbarComponent, MainPageComponent, PersonalPageComponent]
+  bootstrap: [AppComponent, MainPageComponent, HeaderComponent, ListPageComponent, CreationPageComponent]
 })
 export class AppModule { }

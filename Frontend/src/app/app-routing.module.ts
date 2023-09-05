@@ -1,8 +1,10 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Routes, RouterModule } from "@angular/router";
-import { PersonalPageComponent } from "./pages/personal-page/personal-page.component";
 import {MainPageComponent} from "./pages/main-page/main-page.component";
+import {CreationPageComponent} from "./account/creation-page/creation-page.component";
+import {ListPageComponent} from "./account/list-page/list-page.component";
+import {LoginCheckComponent} from "./login-check/login-check.component";
 
 const routes: Routes = [
   {
@@ -10,8 +12,16 @@ const routes: Routes = [
     component: MainPageComponent
   },
   {
-    path: 'personal-page',
-    component: PersonalPageComponent
+    path: 'creation',
+    component: CreationPageComponent
+  },
+  {
+    path: 'list',
+    component: ListPageComponent
+  },
+  {
+    path: 'login',
+    component: LoginCheckComponent
   }
 ]
 
