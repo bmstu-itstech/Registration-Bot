@@ -8,8 +8,10 @@
           <img src="../../../assets/icons/details.svg" class="details">
         </button>
         <button type="button" class="btn text-white my-3 add-btn">
-          <img src="../../../assets/icons/details.svg" class="details">
-          <p class="fs-2 m-0">Добавить блок с кнопкой</p>
+          <ng-container (click)="$event.stopPropagation()">
+            <img [popover]="'help'" class="details" src="../../../assets/icons/details.svg">
+            <p class="fs-2 m-0">Добавить блок с кнопкой</p>
+          </ng-container>
         </button>
         <button type="button" class="btn w-500 text-white create-btn">
           <p class="h4 m-0">Создать бота</p>
