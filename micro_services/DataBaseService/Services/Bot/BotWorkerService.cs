@@ -17,7 +17,7 @@ namespace DataBaseService.Services.Bot
         {
             _logger = logger;
         }
-        public override Task<CreateBotResponse> CreateBot(CreateBotRequest request, ServerCallContext context)
+        public override  Task<CreateBotResponse> CreateBot(CreateBotRequest request, ServerCallContext context)
         {
             _logger.LogInformation("Create new Bot Survey Request");
 
@@ -25,22 +25,24 @@ namespace DataBaseService.Services.Bot
             int code = 200;
             int bot_id = 0;
 
-
             MyJournal my_journal = MyJournal.ConvertFromRPC(request.Journal);
 
             //main code 
             try
             {
-
-
+                
                 var response = MyBot.CreateNewBotSurvey(request.FromUser, my_journal);
 
                 response.Wait();
                 bot_id = response.Result;
 
-                MyBot.UpdateBotGoogleToken(request.SheetsToken, bot_id,request.FromUser);
-                MyBot.UpdateBotTgToken(request.TgToken, bot_id, request.FromUser);
 
+
+
+
+                 MyBot.UpdateBotGoogleToken(request.SheetsToken, bot_id, request.FromUser).Wait();
+                 MyBot.UpdateBotTgToken(request.TgToken, bot_id, request.FromUser).Wait();
+                MyBot.UpdateStartMessage(request.StartMessage, bot_id, request.FromUser).Wait();
 
                 if (response.IsFaulted)
                 {
@@ -60,7 +62,7 @@ namespace DataBaseService.Services.Bot
             {
                 State = state,
                 Code = code,
-                BotId = res
+                BotId = bot_id
             });
         }
 

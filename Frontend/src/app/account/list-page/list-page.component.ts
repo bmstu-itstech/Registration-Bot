@@ -1,5 +1,7 @@
+
 import {Component, ViewChild, AfterViewInit, Renderer2} from '@angular/core';
 import {CarouselComponent} from "ngx-bootstrap/carousel";
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-list-page',

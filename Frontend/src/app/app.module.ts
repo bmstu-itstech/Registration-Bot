@@ -7,6 +7,8 @@ import { AppComponent } from './app.component';
 import { CreationPageComponent } from './account/creation-page/creation-page.component';
 import { ListPageComponent } from './account/list-page/list-page.component';
 import { HeaderComponent } from "./header/header.component";
+// import { HeaderComponent } from './account/header/header.component';
+import { NavbarComponent } from './navbar-main/navbar-main.component';
 import { MainPageComponent } from './pages/main-page/main-page.component';
 import { AppRoutingModule } from './app-routing.module';
 import { LoginCheckComponent } from './login-check/login-check.component';
@@ -17,7 +19,8 @@ import { FormsModule } from "@angular/forms";
     AppComponent,
     CreationPageComponent,
     ListPageComponent,
-    HeaderComponent,
+    HeaderComponent
+    NavbarComponent,
     MainPageComponent,
     LoginCheckComponent
   ],

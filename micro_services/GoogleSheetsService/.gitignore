@@ -1,0 +1,8 @@
+launchSettings.json
+appsettings.json
+appsettings.Development.json
+
+.vs/
+obj/
+bin/
+.idea/

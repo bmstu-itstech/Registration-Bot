@@ -15,8 +15,8 @@ namespace DataBaseService.backend.Types
         public string tg_token { get; set; }
         public string google_token { get; set; }
         public int owner { get; set; }
+        public string start_msg { get; set; }
         public int bot_survey_id { get; set; }
-
 
         public static Task<int> CreateNewBotSurvey(int user_id, MyJournal journal)
         {
@@ -30,32 +30,51 @@ namespace DataBaseService.backend.Types
                 }
 
 
-                int next_bot_id = GenerateNewBotId().Result;
-
-
-                CreateBotSurveyDataBase(next_bot_id).Wait();
-
-                await CreateBotSurveyAnswerTable(next_bot_id, colums);
-                await CreateBotSurveyAdminTable(next_bot_id);
-                await CreateBotSurveyQuestionsTable(next_bot_id);
-
-                await CreateBotSurveyButtons(next_bot_id);
-
-
-
-                await FillBotSurveyQuestionTable(next_bot_id, journal);
-
-                foreach (var module in journal.Modules)
+                try
                 {
-                    await FillBotSurveyButtonsTable(next_bot_id, module.Value.buttons);
+
+
+                    int next_bot_id = GenerateNewBotId().Result;
+
+
+                    CreateBotSurveyDataBase(next_bot_id).Wait();
+
+
+                    await CreateBotSurveyAnswerTable(next_bot_id, colums);
+                    await CreateBotSurveyAdminTable(next_bot_id);
+                    await CreateBotSurveyQuestionsTable(next_bot_id);
+
+                    await CreateBotSurveyButtons(next_bot_id);
+
+
+                    await FillBotSurveyQuestionTable(next_bot_id, journal);
+
+                    foreach (var module in journal.Modules)
+                    {
+                        module.Value.buttons = module.Value.buttons.Select(bnt => new MyButton
+                        {
+                            Answer = bnt.Answer,
+                            NextId = bnt.NextId,
+                            Question_id = module.Key
+                        }).ToList();
+
+                        await FillBotSurveyButtonsTable(next_bot_id, module.Value.buttons);
+
+                    }
+
+                    await AddNewBot(next_bot_id, user_id);
+
+
+                    return next_bot_id;
 
                 }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
 
-                await AddNewBot(next_bot_id, user_id);
-
-                return next_bot_id;
+                    throw;
+                }
             });
-
         }
         public static Task DeleteBotSurvey(int user_id, int bot_id)
         {
@@ -105,10 +124,26 @@ namespace DataBaseService.backend.Types
 
             });
         }
-        public static Task<MyBot> GetBot(int bot_survey_id, int owner)
+        public static Task UpdateStartMessage(string start_mess, int bot_survey_id, int owner)
         {
-            return Task.Run(() =>
+            return Task.Run(async () =>
             {
+                using (RegistrationBotContext db = new RegistrationBotContext())
+                {
+
+                    var bot = db.Bots.Where(bot => bot.Owner == owner).Where(bot => bot.BotId == bot_survey_id).First();
+
+                    bot.StartMessage = start_mess;
+
+                    await db.SaveChangesAsync();
+
+                }
+
+            });
+        }
+
+        public static MyBot GetBot(int bot_survey_id, int owner)
+        {
                 using (RegistrationBotContext db = new RegistrationBotContext())
                 {
 
@@ -120,8 +155,36 @@ namespace DataBaseService.backend.Types
                         tg_token = bot.TgToken,
                         google_token = bot.GoogleToken,
                         owner = bot.Owner,
-                        bot_survey_id = bot.BotId
+                        bot_survey_id = bot.BotId,
+                        start_msg = bot.StartMessage
                     };
+                }
+     
+        }
+        public static Task<List<MyBot>> GetBots()
+        {
+            return Task.Run(() =>
+            {
+                using (RegistrationBotContext db = new RegistrationBotContext())
+                {
+
+                    List<MyBot> bots = new List<MyBot>();
+
+                    foreach (var bot in db.Bots)
+                    {
+                        bots.Add(new MyBot
+                        {
+
+                            Id = bot.Id,
+                            tg_token = bot.TgToken,
+                            google_token = bot.GoogleToken,
+                            owner = bot.Owner,
+                            bot_survey_id = bot.BotId,
+                            start_msg = bot.StartMessage
+                        });
+                    }
+
+                    return bots;
 
                 }
             });
@@ -202,8 +265,7 @@ namespace DataBaseService.backend.Types
                     $"(" +
                     $"id INTEGER PRIMARY KEY," +
                     $"question_text TEXT NOT NULL," +
-                    $"question_type CHARACTER VARYING(255) NOT NULL," +
-                    $"next_question_id INTEGER," +
+                    $"next_id INTEGER," +
                     $"answer_type CHARACTER VARYING(255)," +
                     $"collum_title CHARACTER VARYING(255) " +
                     $")--";
@@ -241,6 +303,7 @@ namespace DataBaseService.backend.Types
 
                             foreach (var col in colums)
                             {
+                                // Title // Data_Type 
                                 string alter_table = $"ALTER TABLE answers ADD COLUMN {col.Key} {col.Value} --";
 
                                 using (var command = new NpgsqlCommand(alter_table, conn))
@@ -273,10 +336,9 @@ namespace DataBaseService.backend.Types
 
                     string create_table = $"CREATE TABLE buttons" +
                     "(" +
-                    $"id SERIAL PRIMARY KEY," +
+                    $"next_id INTEGER," +
+                    $"answer TEXT," +
                     $"question_id INTEGER," +
-                    $"next_question_id INTEGER," +
-                    $"answer_text TEXT," +
                     $"FOREIGN KEY (question_id) REFERENCES questions(id)" +
                     ")--";
 
@@ -286,8 +348,6 @@ namespace DataBaseService.backend.Types
                         {
                             await command.ExecuteNonQueryAsync();
                         }
-
-
                     }
                     catch (Exception ex)
                     {
@@ -358,7 +418,7 @@ namespace DataBaseService.backend.Types
 
         }
 
-        private static Task<string> generate_insert_into_bot_survey(int data_base_id, int module_id, MyModule module)
+        private static Task<string> generate_insert_into_bot_survey(int module_id, MyModule module)
         {
             return Task.Run(() =>
             {
@@ -366,41 +426,33 @@ namespace DataBaseService.backend.Types
                 {
                     string insert = string.Empty;
 
-                    if (module.NextQuestionId == 0)
-                    {
-                        insert = $"INSERT INTO questions (id,question_text,question_type,answer_type,collum_title) VALUES(" +
-                          $"{module_id}," +
-                          $"'{module.Question}'," +
-                          $"'{module.QuestionType}'," +
-                          $"'{module.AnswerType}'," +
-                          $"'{module.Title}'" +
-                          $")--";
-                    }
-                    else
-                    {
-                        insert = $"INSERT INTO questions (id,question_text,question_type,next_question_id,answer_type,collum_title) VALUES(" +
-                                 $"{module_id}," +
-                                 $"'{module.Question}'," +
-                                 $"'{module.QuestionType}'," +
-                                 $"{module.NextQuestionId}," +
-                                 $"'{module.AnswerType}'," +
-                                 $"'{module.Title}'" +
-                                 $")--";
-                    }
+
+                    insert = $"INSERT INTO questions (id,question_text,answer_type,collum_title,next_id) VALUES(" +
+                             $"{module_id}," +
+                             $"'{module.Question}'," +
+                             $"'{module.AnswerType}'," +
+                             $"'{module.Title}'," +
+                             $"{module.NextId}" +
+                             $")--";
+
 
                     return insert;
                 });
             });
         }
-        private static Task<string> generate_insert_into_bot_survey_buttons(int data_base_id, MyButton button)
+        private static Task<string> generate_insert_into_bot_survey_buttons(MyButton button)
         {
             return Task.Run(() =>
             {
-                string insert = $"INSERT  INTO buttons (question_id,next_question_id,answer_text) VALUES(" +
-                $"{button.QuestionId}," +
-                $"{button.NextQuestionId}," +
-                $"'{button.Answer_text}'" +
+                string insert = null;
+
+                insert = $"INSERT  INTO buttons (next_id,answer,question_id) VALUES(" +
+                $"{button.NextId}," +
+                $"'{button.Answer}'," +
+                $"{button.Question_id}" +
                 $")--";
+
+
 
                 return insert;
             });
@@ -419,7 +471,7 @@ namespace DataBaseService.backend.Types
 
                         try
                         {
-                            using (var command = new NpgsqlCommand(generate_insert_into_bot_survey(data_base_id, modul.Key, modul.Value).Result, conn))
+                            using (var command = new NpgsqlCommand(generate_insert_into_bot_survey(modul.Key, modul.Value).Result, conn))
                             {
                                 await command.ExecuteNonQueryAsync();
                             }
@@ -447,7 +499,7 @@ namespace DataBaseService.backend.Types
 
                         try
                         {
-                            using (var command = new NpgsqlCommand(generate_insert_into_bot_survey_buttons(data_base_id, button).Result, conn))
+                            using (var command = new NpgsqlCommand(generate_insert_into_bot_survey_buttons(button).Result, conn))
                             {
                                 await command.ExecuteNonQueryAsync();
                             }
@@ -473,7 +525,8 @@ namespace DataBaseService.backend.Types
                         BotId = bot_survey_id,
                         Owner = owner,
                         TgToken = "",
-                        GoogleToken = ""
+                        GoogleToken = "",
+                        StartMessage = ""
 
                     };
 
@@ -513,19 +566,17 @@ namespace DataBaseService.backend.Types
                 using (var conn = new NpgsqlConnection(new ConfigManager().GetBotConnetion(data_base_id)))
                 {
                     await conn.OpenAsync();
-
+             
                     try
                     {
-                        string create_new_answer = $"INSERT INTO answers (user_chat_id) VALUES({chatId})";
-
-                        using (var command = new NpgsqlCommand(create_new_answer, conn))
-                        {
-                            await command.ExecuteNonQueryAsync();
-                        }
-
                         try
                         {
+                            string create_new_answer = $"INSERT INTO answers (user_chat_id) VALUES({chatId})";
 
+                            using (var command = new NpgsqlCommand(create_new_answer, conn))
+                            {
+                                await command.ExecuteNonQueryAsync();
+                            }
 
                             foreach (var answer in answers)
                             {
@@ -549,6 +600,7 @@ namespace DataBaseService.backend.Types
                                     update = $"UPDATE answers SET {collum_title} = {_answer} WHERE user_chat_id = {chatId}--";
 
 
+                                Console.WriteLine(update);
                                 using (var command = new NpgsqlCommand(update, conn))
                                 {
                                     await command.ExecuteNonQueryAsync();

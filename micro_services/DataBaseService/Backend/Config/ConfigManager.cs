@@ -39,8 +39,15 @@
 
             conn = conn.Replace(_config.GetValue<string>("DATA_BASE_NAME"), $"bot_{data_base_id}");
 
+            Console.WriteLine(conn);
+
             return conn;
 
+        }
+
+        public string GetSheetApiConnetion()
+        {
+            return _config.GetConnectionString("SHEET_API");
         }
     }
 }

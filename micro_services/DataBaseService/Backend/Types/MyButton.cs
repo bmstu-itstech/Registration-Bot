@@ -5,27 +5,24 @@ namespace DataBaseService.Backend.Types
     public class MyButton
     {
         public int Id { get; set; }
-
-        public string Answer_text { get; set; }
-        public int QuestionId { get; set; }
-        public int NextQuestionId { get; set; }
+        public string Answer { get; set; }
+        public int NextId { get; set; }
+        public int Question_id { get; set; }
 
         public static MyButton ConvertFromRPC(Button _button)
         {
             return new MyButton
             {
-                Answer_text = _button.AnswerText,
-                QuestionId = _button.QuestionId,
-                NextQuestionId = _button.NextQuestionId
+                Answer = _button.Answer,
+                NextId = _button.NextId
             };
         }
         public static Button ConvertToRPC(MyButton button)
         {
             return new Button
             {
-                AnswerText = button.Answer_text,
-                QuestionId = button.QuestionId,
-                NextQuestionId = button.NextQuestionId
+                Answer = button.Answer,
+                NextId = button.NextId
             };
         }
 

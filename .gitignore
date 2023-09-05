@@ -15,6 +15,11 @@ venv/
 
 # Ignore cache
 */__pycache__/
+*.pyc
 
 # Ignore configs
 config.py
+*.env
+
+# Ignore test files
+*.json

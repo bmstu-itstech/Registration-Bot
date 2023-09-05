@@ -29,7 +29,7 @@ namespace DataBaseService.Backend.Types
         {
             return new MyAnswer()
             {
-                Answer = _answer.AnsewerText,
+                Answer = _answer.Answer_,
                 Module_Id = _answer.ModuleId,
 
             };
