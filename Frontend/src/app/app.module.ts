@@ -16,7 +16,7 @@ import { NavbarPersonalComponent } from './navbar-personal/navbar-personal.compo
     AppComponent,
     CreationPageComponent,
     ListPageComponent,
-    HeaderComponent
+    HeaderComponent,
     NavbarComponent,
     MainPageComponent,
     PersonalPageComponent,
