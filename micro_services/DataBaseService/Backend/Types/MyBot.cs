@@ -6,6 +6,7 @@ using DataBaseService.Backend.Types;
 using DataBaseService.Backend.Exeptions;
 using DataBaseService.Protos;
 using System.Text;
+using DataBaseService.Clients;
 
 namespace DataBaseService.backend.Types
 {
@@ -35,7 +36,7 @@ namespace DataBaseService.backend.Types
 
 
                     int next_bot_id = GenerateNewBotId().Result;
-
+                    --next_bot_id;
 
                     CreateBotSurveyDataBase(next_bot_id).Wait();
 
@@ -46,6 +47,8 @@ namespace DataBaseService.backend.Types
 
                     await CreateBotSurveyButtons(next_bot_id);
 
+
+      
 
                     await FillBotSurveyQuestionTable(next_bot_id, journal);
 
@@ -62,7 +65,7 @@ namespace DataBaseService.backend.Types
 
                     }
 
-                    await AddNewBot(next_bot_id, user_id);
+                    await AddNewBot(next_bot_id , user_id);
 
 
                     return next_bot_id;
@@ -144,22 +147,24 @@ namespace DataBaseService.backend.Types
 
         public static MyBot GetBot(int bot_survey_id, int owner)
         {
-                using (RegistrationBotContext db = new RegistrationBotContext())
+            using (RegistrationBotContext db = new RegistrationBotContext())
+            {
+
+                var bot = db.Bots.Where(bot => bot.BotId == bot_survey_id).First();
+
+                return new MyBot
                 {
+                    Id = bot.Id,
+                    tg_token = bot.TgToken,
+                    google_token = bot.GoogleToken,
+                    owner = bot.Owner,
+                    bot_survey_id = bot.BotId,
+                    start_msg = bot.StartMessage,
 
-                    var bot = db.Bots.Where(bot => bot.Owner == owner).Where(bot => bot.BotId == bot_survey_id).First();
 
-                    return new MyBot
-                    {
-                        Id = bot.Id,
-                        tg_token = bot.TgToken,
-                        google_token = bot.GoogleToken,
-                        owner = bot.Owner,
-                        bot_survey_id = bot.BotId,
-                        start_msg = bot.StartMessage
-                    };
-                }
-     
+                };
+            }
+
         }
         public static Task<List<MyBot>> GetBots()
         {
@@ -566,7 +571,7 @@ namespace DataBaseService.backend.Types
                 using (var conn = new NpgsqlConnection(new ConfigManager().GetBotConnetion(data_base_id)))
                 {
                     await conn.OpenAsync();
-             
+
                     try
                     {
                         try

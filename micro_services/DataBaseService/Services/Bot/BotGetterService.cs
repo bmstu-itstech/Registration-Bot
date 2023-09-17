@@ -22,8 +22,8 @@ namespace DataBaseService.Services.bot
 
 
 
-            var bot =  MyBot.GetBot(request.BotId, request.Owner);
-            
+            var bot = MyBot.GetBot(request.BotId, request.Owner);
+
 
             var bot_response = new BotResponse()
             {
@@ -51,15 +51,15 @@ namespace DataBaseService.Services.bot
             return Task.FromResult(bot_response);
         }
 
-        public override  Task<BotsResponse> GetAllBots(EmptyRequest request, ServerCallContext context)
+        public override Task<BotsResponse> GetAllBots(EmptyRequest request, ServerCallContext context)
         {
-               _logger.LogInformation("Get Bot by id Request");
+            _logger.LogInformation("Get Bot by id Request");
 
-            var bots =  MyBot.GetBots();
+            var bots = MyBot.GetBots();
             bots.Wait();
             var response = new BotsResponse();
 
-            foreach(var bot in bots.Result)
+            foreach (var bot in bots.Result)
             {
                 var bot_response = new BotResponse()
                 {
@@ -86,7 +86,7 @@ namespace DataBaseService.Services.bot
             _logger.LogInformation($"Get Bot #{request.BotId}  Question #{request.QuestionId}");
 
             MyModule question = MyModule.GetMoudleById(request.BotId, request.QuestionId).Result;
-         
+
 
             return Task.FromResult(MyModule.ConvertToRPC(question));
         }

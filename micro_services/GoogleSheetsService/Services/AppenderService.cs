@@ -73,7 +73,7 @@ namespace GoogleSheetsService.Services
 
             string current_bot_sheet_id = TokenGetter.GetGoogleApiSheetsToken(request.BotId, request.FromUser).Result;
 
-            Console.WriteLine(current_bot_sheet_id);
+          
 
 
             var googleHelper = new GoogleHelper(current_bot_sheet_id);

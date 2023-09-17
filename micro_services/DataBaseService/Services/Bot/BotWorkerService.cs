@@ -5,6 +5,7 @@ using DataBaseService.Backend.Types;
 using MyJournal = DataBaseService.Backend.Types.MyJournal;
 using System.Linq;
 using DataBaseService.backend.Types;
+using DataBaseService.Clients;
 
 namespace DataBaseService.Services.Bot
 {
@@ -30,19 +31,31 @@ namespace DataBaseService.Services.Bot
             //main code 
             try
             {
-                
+
                 var response = MyBot.CreateNewBotSurvey(request.FromUser, my_journal);
 
                 response.Wait();
                 bot_id = response.Result;
 
+                Dictionary<string, string> colums = new Dictionary<string, string>();
+
+                foreach (var module in my_journal.Modules)
+                {
+                    colums.Add(key: module.Value.Title, value: module.Value.AnswerType);
+                }
+           
 
 
-
-
-                 MyBot.UpdateBotGoogleToken(request.SheetsToken, bot_id, request.FromUser).Wait();
-                 MyBot.UpdateBotTgToken(request.TgToken, bot_id, request.FromUser).Wait();
+                MyBot.UpdateBotGoogleToken(request.SheetsToken, bot_id, request.FromUser).Wait();
+                MyBot.UpdateBotTgToken(request.TgToken, bot_id, request.FromUser).Wait();
                 MyBot.UpdateStartMessage(request.StartMessage, bot_id, request.FromUser).Wait();
+           
+
+
+                //Вызвать создание листа экселя 
+
+
+                SheetsClient.AddBaseSheet(bot_id, request.FromUser, colums.Keys.ToList()).Wait();
 
                 if (response.IsFaulted)
                 {
@@ -116,6 +129,11 @@ namespace DataBaseService.Services.Bot
                 List<MyAnswer> answers = request.Answers.Select(answer => MyAnswer.ConvertFromRPC(answer)).ToList();
 
                 MyBot.SetAnswers(request.BotId, request.TgChatId, answers);
+
+
+
+                // Вызвать метод таблц
+                SheetsClient.InputUser(request.BotId,answers);
             }
             catch (Exception ex)
             {
