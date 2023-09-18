@@ -57,6 +57,7 @@ message SetAnswersRequest{
 	int64 tg_chat_id = 1;
 	int32 bot_id =2;
 	repeated Answer answers = 3;
+	string telegram_link = 4;
 }
 
 message CreateBotResponse{

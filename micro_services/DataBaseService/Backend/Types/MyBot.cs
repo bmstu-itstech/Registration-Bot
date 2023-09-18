@@ -12,6 +12,8 @@ namespace DataBaseService.backend.Types
 {
     public class MyBot
     {
+
+
         public int Id { get; set; }
         public string tg_token { get; set; }
         public string google_token { get; set; }
@@ -48,7 +50,7 @@ namespace DataBaseService.backend.Types
                     await CreateBotSurveyButtons(next_bot_id);
 
 
-      
+
 
                     await FillBotSurveyQuestionTable(next_bot_id, journal);
 
@@ -65,7 +67,7 @@ namespace DataBaseService.backend.Types
 
                     }
 
-                    await AddNewBot(next_bot_id , user_id);
+                    await AddNewBot(next_bot_id, user_id);
 
 
                     return next_bot_id;
@@ -317,6 +319,12 @@ namespace DataBaseService.backend.Types
                                 }
 
                             }
+
+                            string alter = $"ALTER TABLE answers ADD COLUMN {"telegram_link"} TEXT --";
+                            using (var command = new NpgsqlCommand(alter, conn))
+                            {
+                                await command.ExecuteNonQueryAsync();
+                            }
                         }
                         catch (Exception ex)
                         {
@@ -562,75 +570,93 @@ namespace DataBaseService.backend.Types
         }
 
 
-        public static Task SetAnswers(int data_base_id, long chatId, List<MyAnswer> answers)
+        public static async Task<int> SetAnswers(int data_base_id, long chatId,string link, List<MyAnswer> answers)
         {
-            return Task.Run(async () =>
+
+            using (var conn = new NpgsqlConnection(new ConfigManager().GetBotConnetion(data_base_id)))
             {
+                await conn.OpenAsync();
 
-
-                using (var conn = new NpgsqlConnection(new ConfigManager().GetBotConnetion(data_base_id)))
+                try
                 {
-                    await conn.OpenAsync();
-
                     try
                     {
-                        try
-                        {
-                            string create_new_answer = $"INSERT INTO answers (user_chat_id) VALUES({chatId})";
+                        string create_new_answer = $"INSERT INTO answers (user_chat_id) VALUES({chatId})";
 
-                            using (var command = new NpgsqlCommand(create_new_answer, conn))
+                        using (var command = new NpgsqlCommand(create_new_answer, conn))
+                        {
+                            await command.ExecuteNonQueryAsync();
+                        }
+
+                        string updatelink = $"UPDATE answers SET telegram_link = '{link}' WHERE user_chat_id = {chatId}--";
+                        using (var command = new NpgsqlCommand(updatelink, conn))
+                        {
+                            await command.ExecuteNonQueryAsync();
+                        }
+
+
+                        foreach (var answer in answers)
+                        {
+                            var _module = MyModule.GetMoudleById(data_base_id, answer.Module_Id).Result;
+
+                            string collum_type = _module.AnswerType;
+                            string collum_title = _module.Title;
+
+                            object _answer = null;
+                            string update = string.Empty;
+
+
+                            if (collum_type == "BOOLEAN")
+                                _answer = Convert.ToBoolean(answer.Answer);
+                            else if (collum_type == "INTEGER")
+                                _answer = Convert.ToInt32(answer.Answer);
+
+                            if (collum_type == "TEXT")
+                                update = $"UPDATE answers SET {collum_title} = '{answer.Answer}' WHERE user_chat_id = {chatId}--";
+                            else
+                                update = $"UPDATE answers SET {collum_title} = {_answer} WHERE user_chat_id = {chatId}--";
+
+                            Console.WriteLine(update);
+
+                            using (var command = new NpgsqlCommand(update, conn))
                             {
                                 await command.ExecuteNonQueryAsync();
                             }
+                        }
 
-                            foreach (var answer in answers)
+                        string select = $"SELECT code FROM answers WHERE user_chat_id = {chatId}--";
+
+                        using (var command = new NpgsqlCommand(select, conn))
+                        {
+                            using (var reader = await command.ExecuteReaderAsync())
                             {
-                                var _module = MyModule.GetMoudleById(data_base_id, answer.Module_Id).Result;
 
-                                string collum_type = _module.AnswerType;
-                                string collum_title = _module.Title;
+                                await reader.ReadAsync();
 
-                                object _answer = null;
-                                string update = string.Empty;
-
-
-                                if (collum_type == "BOOLEAN")
-                                    _answer = Convert.ToBoolean(answer.Answer);
-                                else if (collum_type == "INTEGER")
-                                    _answer = Convert.ToInt32(answer.Answer);
-
-                                if (collum_type == "TEXT")
-                                    update = $"UPDATE answers SET {collum_title} = '{answer.Answer}' WHERE user_chat_id = {chatId}--";
-                                else
-                                    update = $"UPDATE answers SET {collum_title} = {_answer} WHERE user_chat_id = {chatId}--";
-
-
-                                Console.WriteLine(update);
-                                using (var command = new NpgsqlCommand(update, conn))
-                                {
-                                    await command.ExecuteNonQueryAsync();
-                                }
+                                return (int)reader.GetInt32(0);
                             }
                         }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine(ex);
-
-                            throw;
-                        }
-
                     }
                     catch (Exception ex)
                     {
-                        throw new DataBaseError("Erorr in SetAnswers\n" + ex);
-                    }
-                    finally
-                    {
-                        await conn.CloseAsync();
-                    }
-                }
+                        Console.WriteLine(ex);
 
-            });
+                        throw;
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    throw new DataBaseError("Erorr in SetAnswers\n" + ex);
+                }
+                finally
+                {
+
+                    await conn.CloseAsync();
+
+                }
+            }
+            return 0;
         }
 
     }

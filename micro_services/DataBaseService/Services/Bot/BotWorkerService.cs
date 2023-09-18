@@ -49,13 +49,21 @@ namespace DataBaseService.Services.Bot
                 MyBot.UpdateBotGoogleToken(request.SheetsToken, bot_id, request.FromUser).Wait();
                 MyBot.UpdateBotTgToken(request.TgToken, bot_id, request.FromUser).Wait();
                 MyBot.UpdateStartMessage(request.StartMessage, bot_id, request.FromUser).Wait();
-           
+
 
 
                 //Вызвать создание листа экселя 
 
+                var header = new List<string>()
+                {
+                    "Код"
+                };
+                header.AddRange(colums.Keys.ToList());
+                header.Add("Линк телеграм");
+                header.Add("Дата регистрации");
 
-                SheetsClient.AddBaseSheet(bot_id, request.FromUser, colums.Keys.ToList()).Wait();
+
+                SheetsClient.AddBaseSheet(bot_id, request.FromUser, header).Wait();
 
                 if (response.IsFaulted)
                 {
@@ -128,17 +136,20 @@ namespace DataBaseService.Services.Bot
 
                 List<MyAnswer> answers = request.Answers.Select(answer => MyAnswer.ConvertFromRPC(answer)).ToList();
 
-                MyBot.SetAnswers(request.BotId, request.TgChatId, answers);
+                Console.WriteLine(answers.Count);
 
+                int user_code =  MyBot.SetAnswers(request.BotId, request.TgChatId,request.TelegramLink, answers).Result;
 
+                code = user_code;
 
                 // Вызвать метод таблц
-                SheetsClient.InputUser(request.BotId,answers);
+                SheetsClient.InputUser(request.BotId, user_code, request.TelegramLink, answers);
             }
             catch (Exception ex)
             {
+                
                 state = ex.Message;
-                code = 401;
+                code = 0;
             }
 
             return Task.FromResult(new BaseResponse
