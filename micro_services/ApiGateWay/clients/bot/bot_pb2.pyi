@@ -35,18 +35,20 @@ class UpdateBotGoogleTokenRequest(_message.Message):
     def __init__(self, bot_id: _Optional[int] = ..., owner: _Optional[int] = ..., token: _Optional[str] = ...) -> None: ...
 
 class CreateBotRequest(_message.Message):
-    __slots__ = ["from_user", "tg_token", "sheets_token", "journal", "start_message"]
+    __slots__ = ["from_user", "tg_token", "sheets_token", "journal", "start_message", "end_message"]
     FROM_USER_FIELD_NUMBER: _ClassVar[int]
     TG_TOKEN_FIELD_NUMBER: _ClassVar[int]
     SHEETS_TOKEN_FIELD_NUMBER: _ClassVar[int]
     JOURNAL_FIELD_NUMBER: _ClassVar[int]
     START_MESSAGE_FIELD_NUMBER: _ClassVar[int]
+    END_MESSAGE_FIELD_NUMBER: _ClassVar[int]
     from_user: int
     tg_token: str
     sheets_token: str
     journal: _base_types_pb2.Journal
     start_message: str
-    def __init__(self, from_user: _Optional[int] = ..., tg_token: _Optional[str] = ..., sheets_token: _Optional[str] = ..., journal: _Optional[_Union[_base_types_pb2.Journal, _Mapping]] = ..., start_message: _Optional[str] = ...) -> None: ...
+    end_message: str
+    def __init__(self, from_user: _Optional[int] = ..., tg_token: _Optional[str] = ..., sheets_token: _Optional[str] = ..., journal: _Optional[_Union[_base_types_pb2.Journal, _Mapping]] = ..., start_message: _Optional[str] = ..., end_message: _Optional[str] = ...) -> None: ...
 
 class DeleteBotRequest(_message.Message):
     __slots__ = ["from_user", "bot_id"]
