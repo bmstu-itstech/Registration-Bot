@@ -9,11 +9,12 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-async def push_answers(chat_id: int, bot_id: int, answers):
+async def push_answers(chat_id: int, bot_id: int, answers, link: str):
     channel = grpc.aio.insecure_channel(os.getenv('DATABASE_CONNECTION'))
     stub = pb2_grpc.BotWorkerStub(channel)
     encoded_answers = await encoder.encode_answers(answers)
-    response = await stub.SetAnswers(pb2.SetAnswersRequest(bot_id=bot_id, tg_chat_id=chat_id, answers=encoded_answers))
+    response = await stub.SetAnswers(
+        pb2.SetAnswersRequest(bot_id=bot_id, tg_chat_id=chat_id, answers=encoded_answers, telegram_link=link))
 
     return response
 
