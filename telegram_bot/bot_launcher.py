@@ -26,14 +26,13 @@ async def run_instance(bot_id):
     logging.info(f'Starting bot id{bot_id}...')
 
     # Ищем токен бота в БД
-    token = ""
-    response = await bot_client.get_bot(user_id=2, bot_id=bot_id)
-    # for bot in response.bots:
+    # for bot in bot_status.bots:
     #     print(bot.bot_survey_id, bot.tg_token)
     #     if bot.bot_survey_id == bot_id:
     #         token = bot.tg_token
-    print(response.tg_token, response.owner)
-    token = response.tg_token
+    bot_status = await bot_client.get_bot(user_id=2, bot_id=bot_id)
+    logging.info(f'{bot_status.tg_token}, {bot_status.owner}')
+    token = bot_status.tg_token
     # Если не найдено такого бота, прерываем функцию
     if token == "":
         logging.error(f'There is no bot with ID "{bot_id}"!')
@@ -60,6 +59,8 @@ async def run_instance(bot_id):
                 user_status != Questionnaire.on_approval:
             await state.set_state(Questionnaire.in_process)
             await state.update_data(answers=dict(), prev_questions=list(), question_id=1)
+            response = await bot_client.get_bot(message.from_user.id, bot_id)
+            await message.answer(response.start_message)
             await utils.send_question(state, message.chat.id, bot_id, bot)
         else:
             await message.answer('Вы уже заполнили анкету!')
