@@ -27,11 +27,15 @@ async def get_question(bot_id: int, question_id: int):
     return response
 
 
-async def create_new_bot_asker(user_id: int, journal, tg_token: str, sheets_token: str, start_msg: str):
+async def create_new_bot_asker(user_id: int, journal, tg_token: str, sheets_token: str, start_msg: str,end_msg: str):
     channel = grpc.aio.insecure_channel(os.getenv('DATABASE_CONNECTION'))
+
+    start = "Здравствуй путник! Вижу я, что заплутал ты средь джунглей каменных. Устал, должно быть, ты с дороги, проходи да выпей чаю со мной.Если же ко мне пожаловал ты с дружиною более 4-х голов и хочешь оказаться с ней в одной колонне, то нужно сообщить их кода и ФИО нашей ведунье @katet_rin.А если меньше 4-х вас, то нужно будет в день мероприятия на переписи подойти всей командой к летописцу."
+    end = "Спасибо путник за регистрацию."
+
     stub = pb2_grpc.BotWorkerStub(channel)
-    response = await stub.CreateBot(pb2.CreateBotRequest(from_user=user_id, journal=journal, start_message=start_msg,
-                                                         tg_token=tg_token, sheets_token=sheets_token))
+    response = await stub.CreateBot(pb2.CreateBotRequest(from_user=user_id, journal=journal, start_message=start,
+                                                         tg_token=tg_token, sheets_token=sheets_token,end_message=end))
 
     return response
 
