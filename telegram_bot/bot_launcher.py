@@ -59,8 +59,7 @@ async def run_instance(bot_id):
                 user_status != Questionnaire.on_approval:
             await state.set_state(Questionnaire.in_process)
             await state.update_data(answers=dict(), prev_questions=list(), question_id=1)
-            response = await bot_client.get_bot(message.from_user.id, bot_id)
-            await message.answer(response.start_message)
+            await message.answer(bot_status.start_message)
             await utils.send_question(state, message.chat.id, bot_id, bot)
         else:
             await message.answer('Вы уже заполнили анкету!')
@@ -120,9 +119,10 @@ async def run_instance(bot_id):
         await callback_query.message.edit_reply_markup()
         answers_dict = (await state.get_data())['answers']
         answers_list = await utils.pack_answers(answers_dict)
-        await bot_client.push_answers(callback_query.message.chat.id, bot_id, answers_list)
+        response = await bot_client.push_answers(callback_query.message.chat.id, bot_id, answers_list,
+                                                 callback_query.from_user.username)
         await state.set_state(Questionnaire.completed)
-        await callback_query.answer('Ответы записаны!')
+        await callback_query.answer(f'{bot_status.end_message}\nВаш уникальный код: {response.code}')
         await bot.send_message(callback_query.message.chat.id, 'Ответы записаны!')
 
     @router.callback_query(Text('get_back'))
