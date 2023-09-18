@@ -2,8 +2,8 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-import micro_services.ApiGateWay.my_types.base_types_pb2 as base__types__pb2
-from . import bot_pb2 as bot__pb2
+import clients.bot.base_types_pb2 as base__types__pb2
+import clients.bot.bot_pb2 as bot__pb2
 
 
 class BotGetterStub(object):

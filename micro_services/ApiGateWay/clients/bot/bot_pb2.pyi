@@ -1,4 +1,4 @@
-import micro_services.ApiGateWay.my_types.base_types_pb2 as _base_types_pb2
+import base_types_pb2 as _base_types_pb2
 from google.protobuf.internal import containers as _containers
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
@@ -65,14 +65,16 @@ class GetQuestionRequest(_message.Message):
     def __init__(self, bot_id: _Optional[int] = ..., question_id: _Optional[int] = ...) -> None: ...
 
 class SetAnswersRequest(_message.Message):
-    __slots__ = ["tg_chat_id", "bot_id", "answers"]
+    __slots__ = ["tg_chat_id", "bot_id", "answers", "telegram_link"]
     TG_CHAT_ID_FIELD_NUMBER: _ClassVar[int]
     BOT_ID_FIELD_NUMBER: _ClassVar[int]
     ANSWERS_FIELD_NUMBER: _ClassVar[int]
+    TELEGRAM_LINK_FIELD_NUMBER: _ClassVar[int]
     tg_chat_id: int
     bot_id: int
     answers: _containers.RepeatedCompositeFieldContainer[_base_types_pb2.Answer]
-    def __init__(self, tg_chat_id: _Optional[int] = ..., bot_id: _Optional[int] = ..., answers: _Optional[_Iterable[_Union[_base_types_pb2.Answer, _Mapping]]] = ...) -> None: ...
+    telegram_link: str
+    def __init__(self, tg_chat_id: _Optional[int] = ..., bot_id: _Optional[int] = ..., answers: _Optional[_Iterable[_Union[_base_types_pb2.Answer, _Mapping]]] = ..., telegram_link: _Optional[str] = ...) -> None: ...
 
 class CreateBotResponse(_message.Message):
     __slots__ = ["state", "code", "bot_id"]

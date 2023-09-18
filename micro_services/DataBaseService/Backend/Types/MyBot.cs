@@ -616,7 +616,6 @@ namespace DataBaseService.backend.Types
                             else
                                 update = $"UPDATE answers SET {collum_title} = {_answer} WHERE user_chat_id = {chatId}--";
 
-                            Console.WriteLine(update);
 
                             using (var command = new NpgsqlCommand(update, conn))
                             {
