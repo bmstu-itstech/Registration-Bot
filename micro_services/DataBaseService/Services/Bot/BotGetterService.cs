@@ -45,8 +45,8 @@ namespace DataBaseService.Services.bot
             bot_response.TgToken = bot.tg_token;
             bot_response.Owner = bot.owner;
             bot_response.StartMessage = bot.start_msg;
+            bot_response.EndMessage = bot.end_msg;
 
-            Console.WriteLine(bot_response.TgToken);
 
             return Task.FromResult(bot_response);
         }

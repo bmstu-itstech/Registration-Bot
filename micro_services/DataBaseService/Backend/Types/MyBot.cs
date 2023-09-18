@@ -19,6 +19,7 @@ namespace DataBaseService.backend.Types
         public string google_token { get; set; }
         public int owner { get; set; }
         public string start_msg { get; set; }
+        public string end_msg { get; set; }
         public int bot_survey_id { get; set; }
 
         public static Task<int> CreateNewBotSurvey(int user_id, MyJournal journal)
@@ -146,7 +147,23 @@ namespace DataBaseService.backend.Types
 
             });
         }
+        public static Task UpdateEndMessage(string end_mess, int bot_survey_id, int owner)
+        {
+            return Task.Run(async () =>
+            {
+                using (RegistrationBotContext db = new RegistrationBotContext())
+                {
 
+                    var bot = db.Bots.Where(bot => bot.Owner == owner).Where(bot => bot.BotId == bot_survey_id).First();
+
+                    bot.EndMessage = end_mess;
+
+                    await db.SaveChangesAsync();
+
+                }
+
+            });
+        }
         public static MyBot GetBot(int bot_survey_id, int owner)
         {
             using (RegistrationBotContext db = new RegistrationBotContext())
@@ -162,7 +179,7 @@ namespace DataBaseService.backend.Types
                     owner = bot.Owner,
                     bot_survey_id = bot.BotId,
                     start_msg = bot.StartMessage,
-
+                    end_msg = bot.EndMessage
 
                 };
             }
@@ -412,7 +429,7 @@ namespace DataBaseService.backend.Types
                 {
                     await conn.OpenAsync();
 
-                    string drop_table = $"DROP DATABASE BOT_{data_base_id}--";
+                    string drop_table = $"DROP DATABASE BOT_{data_base_id} WITH(FORCE)--";
 
                     try
                     {

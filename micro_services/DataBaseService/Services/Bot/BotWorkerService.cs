@@ -49,7 +49,7 @@ namespace DataBaseService.Services.Bot
                 MyBot.UpdateBotGoogleToken(request.SheetsToken, bot_id, request.FromUser).Wait();
                 MyBot.UpdateBotTgToken(request.TgToken, bot_id, request.FromUser).Wait();
                 MyBot.UpdateStartMessage(request.StartMessage, bot_id, request.FromUser).Wait();
-
+                MyBot.UpdateEndMessage(request.EndMessage, bot_id, request.FromUser).Wait();
 
 
                 //Вызвать создание листа экселя 
