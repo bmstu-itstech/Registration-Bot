@@ -38,7 +38,8 @@ async def create_new_bot_asker(user_id: int, journal, tg_token: str, sheets_toke
             "всей командой к летописцу.\n\nА коли в дом ты мой вошёл, расскажи о себе. А я за это " \
             "код тебе волшебный дам. Пригодится тебе он на очной переписи. Сказав его " \
             "летописцу, быстро сможешь узнать, в какую дружину попал."
-    end = "Спасибо, путник, за регистрацию."
+    end = "Спасибо, путник, за регистрацию. Не забудь на канал наш подписаться: " \
+          "https://t.me/xiivzbmstu \nКоль еще вопросы будут, пиши ведунье нашей @katet_rin"
 
     stub = pb2_grpc.BotWorkerStub(channel)
     response = await stub.CreateBot(pb2.CreateBotRequest(from_user=user_id, journal=journal, start_message=start,
