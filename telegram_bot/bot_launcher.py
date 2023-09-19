@@ -61,14 +61,18 @@ async def run_instance(bot_id):
             await state.update_data(answers=dict(), prev_questions=list(), question_id=1)
             await message.answer(bot_status.start_message)
             await utils.send_question(state, message.chat.id, bot_id, bot)
+        elif user_status == Questionnaire.in_process:
+            await message.answer('Вы уже в процессе регистрации!')
+        elif user_status == Questionnaire.on_approval:
+            await message.answer('Вы уже в процессе подтверждения регистрации!')
         else:
-            await message.answer('Вы уже заполнили анкету!')
+            await message.answer('Вы уже прошли регистрацию!')
 
     @router.message(Command('reset_my_questionnaire_please'))
     async def cmd_reset(message: Message, state: FSMContext) -> None:
-        await state.set_state(Questionnaire.in_process)
-        await state.update_data(answers=dict(), prev_questions=list(), question_id=1)
-        await utils.send_question(state, message.chat.id, bot_id, bot)
+        await state.set_state()
+        await state.update_data(answers=dict(), prev_questions=list(), question_id=0)
+        await message.answer("Состояние сброшено!")
 
     @router.message()
     async def process_text(message: Message, state: FSMContext) -> None:
@@ -81,7 +85,7 @@ async def run_instance(bot_id):
         # Если пользователь еще не заполнил анкету
         if user_status != Questionnaire.completed:
             data = await state.get_data()
-            # Получим id следующего модуля
+            # Получим id модуля
             question_id = data['question_id']
             module = await bot_client.get_question(bot_id, question_id)
             # Если кнопочный вопрос и прилетел текстовый ответ, выдадим просьбу нажать кнопку
@@ -111,7 +115,7 @@ async def run_instance(bot_id):
                 await utils.finish_questionnaire(state, message.chat.id, bot_id, bot)
         # Если пользователь уже прошел анкету
         else:
-            await message.answer('Вы уже заполнили анкету!')
+            await message.answer('Вы уже прошли регистрацию!')
 
     @router.callback_query(Text('questionnaire_over'))
     async def process_questionnaire_over(callback_query: CallbackQuery,
@@ -134,7 +138,8 @@ async def run_instance(bot_id):
         data = await state.get_data()
         previous_id = data['prev_questions'].pop()
         data['answers'].pop(data['question_id'], None)
-        await state.update_data(prev_questions=data['prev_questions'], answers=data['answers'], question_id=previous_id)
+        await state.update_data(prev_questions=data['prev_questions'], answers=data['answers'],
+                                question_id=previous_id)
         await utils.send_question(state, callback_query.message.chat.id, bot_id, bot)
 
     @router.callback_query(QuestionButton.filter())
@@ -144,9 +149,9 @@ async def run_instance(bot_id):
         await callback_query.message.delete()
         data = await state.get_data()
         answers = data['answers']
-        # Write answers to temporary storage and reset main storage
+        # Запишем ответы во временный словарь on_approval и сбросим answers
         await state.update_data(on_approval=answers, answers=dict(), question_id=callback_data.question_id)
-        # Send requested module
+        # Отправим запрошенный модуль
         await utils.send_question(state, callback_query.message.chat.id, bot_id, bot)
 
     @router.callback_query(AnswerButton.filter())
@@ -190,7 +195,7 @@ async def run_instance(bot_id):
 
         # Если пользователь уже заполнил анкету
         else:
-            await bot.send_message(callback_query.message.chat.id, 'Вы уже заполнили анкету!')
+            await bot.send_message(callback_query.message.chat.id, 'Вы уже прошли регистрацию!')
 
     await dp.start_polling(bot)
 
