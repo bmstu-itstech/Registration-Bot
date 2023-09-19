@@ -122,8 +122,9 @@ async def run_instance(bot_id):
         response = await bot_client.push_answers(callback_query.message.chat.id, bot_id, answers_list,
                                                  callback_query.from_user.username)
         await state.set_state(Questionnaire.completed)
-        await callback_query.answer(f'Спасибо, путник, за регистрацию.\nВаш уникальный код: {response.code}')
-        await bot.send_message(callback_query.message.chat.id, 'Ответы записаны!')
+        await callback_query.answer('Ответы записаны!')
+        await bot.send_message(callback_query.message.chat.id, f'Спасибо, путник, за регистрацию.\n'
+                                                               f'Ваш уникальный код: {response.code}')
 
     @router.callback_query(Text('get_back'))
     async def process_get_back(callback_query: CallbackQuery,
