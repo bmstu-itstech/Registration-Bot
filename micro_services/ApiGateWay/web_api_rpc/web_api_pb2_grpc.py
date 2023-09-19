@@ -2,7 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-import clients.bot.bot_pb2 as bot__pb2
+import micro_services.ApiGateWay.clients.bot.bot_pb2 as bot__pb2
 
 
 class DataSenderStub(object):
