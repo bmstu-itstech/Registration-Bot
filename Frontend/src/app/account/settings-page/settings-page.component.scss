@@ -1,0 +1,62 @@
+@import '../../../styles/colors.scss';
+@import '../../../styles/fonts.scss';
+
+section {
+  display: block;
+}
+
+.page-section {
+  padding: 150px 0;
+  position: relative;
+}
+
+.container-fluid {
+  padding: 50px 0;
+}
+
+.bot-creation {
+  background-color: #14104B;
+}
+
+.w-850 {
+  width: 850px;
+}
+
+.w-500 {
+  width: 500px;
+}
+
+.add-btn {
+  position: relative;
+  height: 100px;
+  width: 500px;
+  background-color: #FFFFFF4D;
+  border-radius: 30px;
+}
+
+.details {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+}
+
+.board {
+  width: 750px;
+  height: 550px;
+  background-color: #FFFFFFCC;
+  border-radius: 30px;
+}
+
+.play-img {
+  width: 120px;
+}
+
+.play-btn {
+  padding: 0;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: none;
+  background-color: transparent;
+  margin-top: 50px;
+}
