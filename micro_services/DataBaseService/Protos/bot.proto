@@ -39,6 +39,7 @@ message CreateBotRequest{
 	string sheets_token = 3;
 	Journal journal = 4;
 	string start_message = 5;
+	string end_message = 6;
 }
 
 message DeleteBotRequest{
@@ -56,6 +57,7 @@ message SetAnswersRequest{
 	int64 tg_chat_id = 1;
 	int32 bot_id =2;
 	repeated Answer answers = 3;
+	string telegram_link = 4;
 }
 
 message CreateBotResponse{

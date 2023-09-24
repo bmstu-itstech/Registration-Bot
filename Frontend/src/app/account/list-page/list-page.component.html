@@ -1,46 +1,29 @@
-<!-- Bot list-->
-<section class="page-section bot-list d-flex justify-content-center">
-  <div class="align-self-center">
-    <div class="d-flex justify-content-center">
-      <img src="../../../assets/icons/arrow-left.svg" class="mx-5" alt="...">
-      <div class="bot-item mx-3 text-white">
-        <p class="text-center h2 pt-5 m-0">Бот 1</p>
-        <p class="text-center pt-4 m-0">Дата создания:</p>
-        <p class="text-center h2 m-0">00.00.0000</p>
-        <p class="text-center pt-4 m-0">Количество участников:</p>
-        <p class="text-center h2 m-0">N человек</p>
-        <div class="pt-4 d-flex justify-content-center">
-          <img src="../../../assets/icons/telegram.svg" class="mx-3" alt="...">
-          <img src="../../../assets/icons/excel.svg" class="mx-3" alt="...">
-        </div>
+<section class="page-section bot-list">
+  <div class="d-flex justify-content-center">
+    <carousel class="hide-navigation" [itemsPerSlide]="3" [interval]="0" [showIndicators]="false" [singleSlideOffset]="true" [noWrap]="true">
+      <img class="mx-5 prev" (click)="navigateCarousel('prev')" src="../../../assets/icons/arrow-left.svg" alt="Previous">
+      <div class="slide">
+        <slide *ngFor="let card of cards; let index = index">
+          <div class="col-12 col-md-6 col-lg-4">
+            <div class="bot-item mx-3 text-white">
+              <p class="text-center h2 pt-5 m-0">{{ card.title }}</p>
+              <p class="text-center pt-4 m-0">Дата создания:</p>
+              <p class="text-center h2 m-0">{{ card.creationDate }}</p>
+              <p class="text-center pt-4 m-0">Количество участников:</p>
+              <p class="text-center h2 m-0">{{ card.numMembers }}</p>
+              <div class="pt-4 d-flex justify-content-center">
+                <img src="../../../assets/icons/telegram.svg" class="mx-3" alt="...">
+                <img src="../../../assets/icons/excel.svg" class="mx-3" alt="...">
+              </div>
+            </div>
+          </div>
+        </slide>
       </div>
-      <div class="bot-item mx-3 text-white">
-        <p class="text-center h2 pt-5 m-0">Бот 2</p>
-        <p class="text-center pt-4 m-0">Дата создания:</p>
-        <p class="text-center h2 m-0">00.00.0000</p>
-        <p class="text-center pt-4 m-0">Количество участников:</p>
-        <p class="text-center h2 m-0">N человек</p>
-        <div class="pt-4 d-flex justify-content-center">
-          <img src="../../../assets/icons/telegram.svg" class="mx-3" alt="...">
-          <img src="../../../assets/icons/excel.svg" class="mx-3" alt="...">
-        </div>
-      </div>
-      <div class="bot-item mx-3 text-white">
-        <p class="text-center h2 pt-5 m-0">Бот 3</p>
-        <p class="text-center pt-4 m-0">Дата создания:</p>
-        <p class="text-center h2 m-0">00.00.0000</p>
-        <p class="text-center pt-4 m-0">Количество участников:</p>
-        <p class="text-center h2 m-0">N человек</p>
-        <div class="pt-4 d-flex justify-content-center">
-          <img src="../../../assets/icons/telegram.svg" class="mx-3" alt="...">
-          <img src="../../../assets/icons/excel.svg" class="mx-3" alt="...">
-        </div>
-      </div>
-      <img src="../../../assets/icons/arrow-right.svg" class="mx-5" alt="...">
-    </div>
-    <div class="row d-flex justify-content-center">
-      <button type="button" class="btn w-850 text-white create-btn"><p class="h4 m-0">Создать нового</p></button>
-    </div>
+      <img class="mx-5 next" (click)="navigateCarousel('next')" src="../../../assets/icons/arrow-right.svg" alt="Next">
+    </carousel>
+  </div>
+  <div class="row d-flex justify-content-center">
+    <button type="button" class="btn w-850 text-white create-btn"><p class="h4 m-0" routerLink="/creation">Создать нового</p></button>
   </div>
   <img src="../../../assets/images/dots-left.svg" class="position-absolute bottom-0 start-0 ms-4" alt="...">
 </section>

@@ -3,11 +3,15 @@
     "DataBaseService": {
       "commandName": "Project",
       "dotnetRunMessages": true,
-      "launchBrowser": false,
-      "applicationUrl": "http://localhost:8000;https://localhost:8001",
+      "applicationUrl": "http://localhost:8000;https://localhost:8001"
+    },
+    "WSL": {
+      "commandName": "WSL2",
+      "launchUrl": "https://localhost:8001",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      }
+        "ASPNETCORE_URLS": "http://localhost:8000;https://localhost:8001"
+      },
+      "distributionName": ""
     }
   }
 }

@@ -35,18 +35,20 @@ class UpdateBotGoogleTokenRequest(_message.Message):
     def __init__(self, bot_id: _Optional[int] = ..., owner: _Optional[int] = ..., token: _Optional[str] = ...) -> None: ...
 
 class CreateBotRequest(_message.Message):
-    __slots__ = ["from_user", "tg_token", "sheets_token", "journal", "start_message"]
+    __slots__ = ["from_user", "tg_token", "sheets_token", "journal", "start_message", "end_message"]
     FROM_USER_FIELD_NUMBER: _ClassVar[int]
     TG_TOKEN_FIELD_NUMBER: _ClassVar[int]
     SHEETS_TOKEN_FIELD_NUMBER: _ClassVar[int]
     JOURNAL_FIELD_NUMBER: _ClassVar[int]
     START_MESSAGE_FIELD_NUMBER: _ClassVar[int]
+    END_MESSAGE_FIELD_NUMBER: _ClassVar[int]
     from_user: int
     tg_token: str
     sheets_token: str
     journal: _base_types_pb2.Journal
     start_message: str
-    def __init__(self, from_user: _Optional[int] = ..., tg_token: _Optional[str] = ..., sheets_token: _Optional[str] = ..., journal: _Optional[_Union[_base_types_pb2.Journal, _Mapping]] = ..., start_message: _Optional[str] = ...) -> None: ...
+    end_message: str
+    def __init__(self, from_user: _Optional[int] = ..., tg_token: _Optional[str] = ..., sheets_token: _Optional[str] = ..., journal: _Optional[_Union[_base_types_pb2.Journal, _Mapping]] = ..., start_message: _Optional[str] = ..., end_message: _Optional[str] = ...) -> None: ...
 
 class DeleteBotRequest(_message.Message):
     __slots__ = ["from_user", "bot_id"]
@@ -65,14 +67,16 @@ class GetQuestionRequest(_message.Message):
     def __init__(self, bot_id: _Optional[int] = ..., question_id: _Optional[int] = ...) -> None: ...
 
 class SetAnswersRequest(_message.Message):
-    __slots__ = ["tg_chat_id", "bot_id", "answers"]
+    __slots__ = ["tg_chat_id", "bot_id", "answers", "telegram_link"]
     TG_CHAT_ID_FIELD_NUMBER: _ClassVar[int]
     BOT_ID_FIELD_NUMBER: _ClassVar[int]
     ANSWERS_FIELD_NUMBER: _ClassVar[int]
+    TELEGRAM_LINK_FIELD_NUMBER: _ClassVar[int]
     tg_chat_id: int
     bot_id: int
     answers: _containers.RepeatedCompositeFieldContainer[_base_types_pb2.Answer]
-    def __init__(self, tg_chat_id: _Optional[int] = ..., bot_id: _Optional[int] = ..., answers: _Optional[_Iterable[_Union[_base_types_pb2.Answer, _Mapping]]] = ...) -> None: ...
+    telegram_link: str
+    def __init__(self, tg_chat_id: _Optional[int] = ..., bot_id: _Optional[int] = ..., answers: _Optional[_Iterable[_Union[_base_types_pb2.Answer, _Mapping]]] = ..., telegram_link: _Optional[str] = ...) -> None: ...
 
 class CreateBotResponse(_message.Message):
     __slots__ = ["state", "code", "bot_id"]

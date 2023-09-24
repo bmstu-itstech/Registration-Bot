@@ -36,3 +36,10 @@ section {
   box-shadow: 0 0 1.5vw rgba(255, 255, 255, 0.8);
   margin-top: 150px;
 }
+// <<<<<<< Frontend-matpradkhan
+:host ::ng-deep .hide-navigation .carousel-control-prev,
+:host ::ng-deep .hide-navigation .carousel-control-next {
+  display: none !important;
+}
+// =======
+// >>>>>>> main

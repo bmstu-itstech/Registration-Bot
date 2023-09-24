@@ -29,7 +29,7 @@ message AppendRecordRequest{
 	string sheet_title = 1;
 	int32 from_user =2;
 	int32 bot_id = 3;
-    repeated string data = 4;
+	repeated string data = 4;
 
 }
 message AppendRecordResponse{

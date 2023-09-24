@@ -3,7 +3,7 @@
 import grpc
 
 import micro_services.ApiGateWay.my_types.base_types_pb2 as base__types__pb2
-from . import bot_pb2 as bot__pb2
+import micro_services.ApiGateWay.clients.bot.bot_pb2 as bot__pb2
 
 
 class BotGetterStub(object):

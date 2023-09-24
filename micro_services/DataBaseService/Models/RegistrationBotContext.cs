@@ -23,7 +23,7 @@ public partial class RegistrationBotContext : DbContext
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         var _config = new ConfigManager();
-      
+
         optionsBuilder.UseNpgsql(_config.GetConnetion());
     }
 
@@ -36,6 +36,7 @@ public partial class RegistrationBotContext : DbContext
             entity.HasKey(e => e.Id).HasName("Bots_pkey");
 
             entity.Property(e => e.BotId).HasColumnName("bot_id");
+            entity.Property(e => e.EndMessage).HasColumnName("end_message");
             entity.Property(e => e.GoogleToken)
                 .HasMaxLength(255)
                 .HasColumnName("google_token");

@@ -20,7 +20,6 @@ main {
   border-radius: 30px;
 }
 .texts {
-  font-family: Montserrat, serif;
   font-size: 20px;
   font-weight: 400;
   line-height: 24px;
@@ -35,15 +34,21 @@ main {
   font-size: 22px;
 }
 .try {
-  box-shadow: 0 0 35px rgba(255, 255, 255, 0.6);
+  box-shadow: 0 0 35px #ffffff99;
   background: #14104b;
   width: 298px;
   height: 65px;
-  font-family: Montserrat, serif;
   font-weight: 400;
   line-height: 27px;
   letter-spacing: 0;
   font-size: 22px;
+}
+
+p {
+  text-align: justify;
+}
+h1 {
+  color: #FFFFFFCC
 }
 
 @media (max-width: 1800px) {
