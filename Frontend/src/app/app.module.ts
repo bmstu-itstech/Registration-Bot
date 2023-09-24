@@ -10,6 +10,7 @@ import { MainPageComponent } from './pages/main-page/main-page.component';
 import { AppRoutingModule } from './app-routing.module';
 import { PersonalPageComponent } from './pages/personal-page/personal-page.component';
 import { NavbarPersonalComponent } from './navbar-personal/navbar-personal.component';
+import { SettingsPageComponent } from './account/settings-page/settings-page.component';
 
 @NgModule({
   declarations: [
@@ -20,7 +21,8 @@ import { NavbarPersonalComponent } from './navbar-personal/navbar-personal.compo
     NavbarComponent,
     MainPageComponent,
     PersonalPageComponent,
-    NavbarPersonalComponent
+    NavbarPersonalComponent,
+    SettingsPageComponent
   ],
   imports: [
     BrowserModule,
