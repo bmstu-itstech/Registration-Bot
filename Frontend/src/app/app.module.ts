@@ -10,8 +10,14 @@ import { ListPageComponent } from './account/list-page/list-page.component';
 import { HeaderComponent } from "./header/header.component";
 import { MainPageComponent } from './pages/main-page/main-page.component';
 import { AppRoutingModule } from './app-routing.module';
+
+import { PersonalPageComponent } from './pages/personal-page/personal-page.component';
+import { NavbarPersonalComponent } from './navbar-personal/navbar-personal.component';
+import { SettingsPageComponent } from './account/settings-page/settings-page.component';
+
 import { LoginCheckComponent } from './login-check/login-check.component';
 import { FormsModule } from "@angular/forms";
+
 
 @NgModule({
   declarations: [
@@ -19,7 +25,11 @@ import { FormsModule } from "@angular/forms";
     CreationPageComponent,
     ListPageComponent,
     HeaderComponent,
+    NavbarComponent,
     MainPageComponent,
+    PersonalPageComponent,
+    NavbarPersonalComponent,
+    SettingsPageComponent,
     LoginCheckComponent
   ],
   imports: [
