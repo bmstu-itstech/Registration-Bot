@@ -587,7 +587,7 @@ namespace DataBaseService.backend.Types
         }
 
 
-        public static async Task<int> SetAnswers(int data_base_id, long chatId,string link, List<MyAnswer> answers)
+        public static async Task<int> SetAnswers(int data_base_id, long chatId, string link, List<MyAnswer> answers)
         {
 
             using (var conn = new NpgsqlConnection(new ConfigManager().GetBotConnetion(data_base_id)))
@@ -675,5 +675,38 @@ namespace DataBaseService.backend.Types
             return 0;
         }
 
+        public static async Task<int> GetQuestionCount(int data_base_id)
+        {
+            using (var conn = new NpgsqlConnection(new ConfigManager().GetBotConnetion(data_base_id)))
+            {
+                var lst = new List<string>();
+                await conn.OpenAsync();
+                try
+                {
+                    string get_colums_titles = "SELECT COUNT(*) FROM questions";
+
+                    using (var command = new NpgsqlCommand(get_colums_titles, conn))
+                    {
+                        using (var reader = await command.ExecuteReaderAsync())
+                        {
+
+                            await reader.ReadAsync();
+                            return (int)reader.GetInt32(0);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+
+                    throw;
+                }
+                finally
+                { 
+                    await conn.CloseAsync();
+                    
+                }
+
+            }
+        }
     }
 }

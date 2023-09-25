@@ -11,7 +11,6 @@
       "environmentVariables": {
         "ASPNETCORE_URLS": "http://localhost:8000;https://localhost:8001"
       },
-      "distributionName": ""
     }
   }
 }
