@@ -7,7 +7,11 @@ section {
 
 .page-section {
   position: relative;
-  height: calc(100vh - 189px);
+  height: calc(100vh - 188px);
+}
+
+.hide-navigation {
+  margin-top: 100px;
 }
 
 .bot-list {
@@ -34,7 +38,7 @@ section {
   height: 65px;
   border-radius: 20px;
   box-shadow: 0 0 1.5vw rgba(255, 255, 255, 0.8);
-  margin-top: 150px;
+  margin-top: 110px;
 }
 // <<<<<<< Frontend-matpradkhan
 :host ::ng-deep .hide-navigation .carousel-control-prev,
