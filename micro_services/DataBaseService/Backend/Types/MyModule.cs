@@ -42,14 +42,13 @@ namespace DataBaseService.Backend.Types
                 _module.Buttons.AddRange(module.buttons.Select
                    (button => MyButton.ConvertToRPC(button)).ToList());
             }
-               
+
 
             return _module;
         }
 
         public static Task<MyModule> GetMoudleById(int data_base_id, int module_id)
         {
-            Console.WriteLine(module_id);
 
             return Task.Run(async () =>
             {
