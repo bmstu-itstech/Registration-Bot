@@ -5,6 +5,7 @@ import {MainPageComponent} from "./pages/main-page/main-page.component";
 import {CreationPageComponent} from "./account/creation-page/creation-page.component";
 import {ListPageComponent} from "./account/list-page/list-page.component";
 import {LoginCheckComponent} from "./login-check/login-check.component";
+import {SettingsPageComponent} from "./account/settings-page/settings-page.component";
 
 const routes: Routes = [
   {
@@ -18,6 +19,10 @@ const routes: Routes = [
   {
     path: 'list',
     component: ListPageComponent
+  },
+  {
+    path: 'settings',
+    component: SettingsPageComponent
   },
   {
     path: 'login',
