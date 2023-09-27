@@ -57,7 +57,6 @@ async def run_instance(bot_id):
         if user_status != Questionnaire.completed and \
                 user_status != Questionnaire.in_process and \
                 user_status != Questionnaire.on_approval:
-            await state.set_state(Questionnaire.in_process)
             await state.update_data(answers=dict(), prev_questions=list(), question_id=1)
             await message.answer(bot_status.start_message)
             await utils.send_question(state, message.chat.id, bot_id, bot)
