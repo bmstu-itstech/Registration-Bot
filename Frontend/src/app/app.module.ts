@@ -16,7 +16,8 @@ import { SettingsPageComponent } from './pages/settings-page/settings-page.compo
 
 import { LoginCheckComponent } from './login-check/login-check.component';
 import { FormsModule } from "@angular/forms";
-import {isAuthGuard} from "./guard/auth.guard";
+import {HttpClientModule} from "@angular/common/http";
+import {JsonHandlerService} from "./service/json-handler.service";
 
 
 @NgModule({
@@ -36,9 +37,10 @@ import {isAuthGuard} from "./guard/auth.guard";
     BrowserAnimationsModule,
     CarouselModule.forRoot(),
     PopoverModule.forRoot(),
-    ModalModule.forRoot()
+    ModalModule.forRoot(),
+    HttpClientModule
   ],
-  providers: [],
+  providers: [JsonHandlerService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

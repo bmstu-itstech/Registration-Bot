@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import {JsonHandlerService} from "../../service/json-handler.service";
 
 @Component({
   selector: 'app-creation-page',
@@ -7,8 +8,22 @@ import { Component } from '@angular/core';
 })
 export class CreationPageComponent {
   isSectionVisible = true;
-
-  toggleSections() {
+  constructor(private jsonHandlerService: JsonHandlerService) {
+    const jsonData = this.jsonHandlerService.getJsonData();
+  }
+  addJsonQuestion() {
+    const newQuestionKey = (this.jsonHandlerService.currentQuestionNumber).toString();
+    const newData = {
+      [newQuestionKey]: {
+        "question": "",
+        "answer_type": "",
+        "title": "",
+        "buttons": [],
+        "next_id": null
+      }
+    }
+    this.jsonHandlerService.updateJsonDataModules(newData);
+    this.jsonHandlerService.currentQuestionNumber++;
     this.isSectionVisible = !this.isSectionVisible;
   }
 }
