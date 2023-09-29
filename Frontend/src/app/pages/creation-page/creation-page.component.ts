@@ -6,4 +6,9 @@ import { Component } from '@angular/core';
   styleUrls: ['./creation-page.component.scss']
 })
 export class CreationPageComponent {
+  isSectionVisible = true;
+
+  toggleSections() {
+    this.isSectionVisible = !this.isSectionVisible;
+  }
 }
