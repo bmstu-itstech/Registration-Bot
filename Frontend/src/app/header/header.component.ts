@@ -9,6 +9,7 @@ export class HeaderComponent {
   @Input() routerOutletName:  string = '';
   headerTitles: { [key: string]: string } = {
     'list': 'Личный кабинет',
-    'creation': 'Создать нового бота'
+    'creation': 'Создать нового бота',
+    'settings': 'Настройка бота'
   };
 }
