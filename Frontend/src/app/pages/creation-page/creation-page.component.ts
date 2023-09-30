@@ -12,7 +12,8 @@ export class CreationPageComponent {
     const jsonData = this.jsonHandlerService.getJsonData();
   }
   addJsonQuestion() {
-    const newQuestionKey = (this.jsonHandlerService.currentQuestionNumber).toString();
+    const currentQuestionNumber = this.jsonHandlerService.getCurrentQuestionNumber()
+    const newQuestionKey = (currentQuestionNumber).toString();
     const newData = {
       [newQuestionKey]: {
         "question": "",
@@ -23,7 +24,8 @@ export class CreationPageComponent {
       }
     }
     this.jsonHandlerService.updateJsonDataModules(newData);
-    this.jsonHandlerService.currentQuestionNumber++;
+    const updatedQuestionNumber = currentQuestionNumber + 1;
+    this.jsonHandlerService.saveCurrentQuestionNumber(updatedQuestionNumber);
     this.isSectionVisible = !this.isSectionVisible;
   }
 }

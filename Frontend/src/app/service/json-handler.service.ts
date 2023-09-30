@@ -5,27 +5,43 @@ import { HttpClient } from '@angular/common/http';
   providedIn: 'root'
 })
 export class JsonHandlerService {
-  currentQuestionNumber = 1;
-  private jsonData: any = {
-    "journal": {
-      "modules": {
-      }
-    }
-  };
+  private currentQuestionNumberKey = 'currentQuestionNumber';
   private apiUrl = 'apiUrl';
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
+  getCurrentQuestionNumber() {
+    const storedValue = localStorage.getItem(this.currentQuestionNumberKey);
+    return storedValue ? parseInt(storedValue, 10) : 1;
+  }
+  saveCurrentQuestionNumber(currentQuestionNumber: number) {
+    localStorage.setItem(this.currentQuestionNumberKey, currentQuestionNumber.toString());
+  }
   getJsonData() {
-    return this.jsonData;
+    const jsonData = localStorage.getItem('jsonData');
+    return jsonData ? JSON.parse(jsonData) : null;
+  }
+  saveJsonData(data: any) {
+    localStorage.setItem('jsonData', JSON.stringify(data));
   }
   generateJsonFile(jsonData: any) {
     return this.http.post('/api/generate-json', jsonData);
   }
   updateJsonData(newData: any) {
-    this.jsonData = { ...this.jsonData, ...newData };
-    console.log(this.getJsonData());
+    const jsonData = this.getJsonData();
+    const updatedData = { ...jsonData, ...newData };
+    this.saveJsonData(updatedData);
+    console.log(updatedData);
   }
   updateJsonDataModules(newData: any) {
-    this.jsonData.journal.modules = { ...this.jsonData.journal.modules, ...newData };
-    console.log(this.getJsonData());
+    const jsonData = this.getJsonData();
+    if (!jsonData.journal) {
+      jsonData.journal = {};
+    }
+    if (!jsonData.journal.modules) {
+      jsonData.journal.modules = {};
+    }
+    const updatedModules = { ...jsonData.journal.modules, ...newData };
+    const updatedData = { ...jsonData, journal: { modules: updatedModules } };
+    this.saveJsonData(updatedData);
+    console.log(updatedData);
   }
 }
