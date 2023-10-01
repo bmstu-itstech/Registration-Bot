@@ -31,7 +31,6 @@ namespace DataBaseService.Services.bot
                 Code = 200,
             };
 
-
             if (bot == null)
             {
                 bot_response.State = "Error while getting bot";
@@ -86,6 +85,8 @@ namespace DataBaseService.Services.bot
             _logger.LogInformation($"Get Bot #{request.BotId}  Question #{request.QuestionId}");
 
             MyModule question = MyModule.GetMoudleById(request.BotId, request.QuestionId).Result;
+
+            question.Title = question.Title.Replace('_', ' ');
 
 
             return Task.FromResult(MyModule.ConvertToRPC(question));

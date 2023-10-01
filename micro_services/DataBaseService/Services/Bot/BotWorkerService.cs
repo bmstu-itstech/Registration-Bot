@@ -43,7 +43,9 @@ namespace DataBaseService.Services.Bot
                 {
                     colums.Add(key: module.Value.Title, value: module.Value.AnswerType);
                 }
-           
+
+                Console.WriteLine(request.StartMessage);
+                Console.WriteLine(request.EndMessage);
 
 
                 MyBot.UpdateBotGoogleToken(request.SheetsToken, bot_id, request.FromUser).Wait();
