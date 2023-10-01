@@ -10,8 +10,12 @@ import { ListPageComponent } from './account/list-page/list-page.component';
 import { HeaderComponent } from "./header/header.component";
 import { MainPageComponent } from './pages/main-page/main-page.component';
 import { AppRoutingModule } from './app-routing.module';
+
+import { SettingsPageComponent } from './account/settings-page/settings-page.component';
+
 import { LoginCheckComponent } from './login-check/login-check.component';
 import { FormsModule } from "@angular/forms";
+
 
 @NgModule({
   declarations: [
@@ -20,6 +24,7 @@ import { FormsModule } from "@angular/forms";
     ListPageComponent,
     HeaderComponent,
     MainPageComponent,
+    SettingsPageComponent,
     LoginCheckComponent
   ],
   imports: [

@@ -27,13 +27,6 @@ section {
   width: 500px;
 }
 
-.create-btn {
-  height: 65px;
-  border-radius: 20px;
-  box-shadow: 0 0 1.5vw rgba(255, 255, 255, 0.8);
-  margin-top: 90px;
-}
-
 .add-btn {
   position: relative;
   height: 100px;
@@ -53,4 +46,18 @@ section {
   height: 550px;
   background-color: #FFFFFFCC;
   border-radius: 30px;
+}
+
+.play-img {
+  width: 120px;
+}
+
+.play-btn {
+  padding: 0;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: none;
+  background-color: transparent;
+  margin-top: 50px;
 }
