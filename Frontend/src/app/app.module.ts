@@ -3,18 +3,21 @@ import { BrowserModule } from '@angular/platform-browser';
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {CarouselModule} from "ngx-bootstrap/carousel";
 import { PopoverModule } from 'ngx-bootstrap/popover';
+import {ModalModule} from "ngx-bootstrap/modal";
 
 import { AppComponent } from './app.component';
-import { CreationPageComponent } from './account/creation-page/creation-page.component';
-import { ListPageComponent } from './account/list-page/list-page.component';
+import { CreationPageComponent } from './pages/creation-page/creation-page.component';
+import { ListPageComponent } from './pages/list-page/list-page.component';
 import { HeaderComponent } from "./header/header.component";
 import { MainPageComponent } from './pages/main-page/main-page.component';
 import { AppRoutingModule } from './app-routing.module';
 
-import { SettingsPageComponent } from './account/settings-page/settings-page.component';
+import { SettingsPageComponent } from './pages/settings-page/settings-page.component';
 
 import { LoginCheckComponent } from './login-check/login-check.component';
 import { FormsModule } from "@angular/forms";
+import {HttpClientModule} from "@angular/common/http";
+import {JsonHandlerService} from "./service/json-handler.service";
 
 
 @NgModule({
@@ -33,9 +36,11 @@ import { FormsModule } from "@angular/forms";
     FormsModule,
     BrowserAnimationsModule,
     CarouselModule.forRoot(),
-    PopoverModule.forRoot()
+    PopoverModule.forRoot(),
+    ModalModule.forRoot(),
+    HttpClientModule
   ],
-  providers: [],
-  bootstrap: [AppComponent, MainPageComponent, HeaderComponent, ListPageComponent, CreationPageComponent]
+  providers: [JsonHandlerService],
+  bootstrap: [AppComponent]
 })
 export class AppModule { }
