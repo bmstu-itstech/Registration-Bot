@@ -15,7 +15,7 @@ class DataSenderService(p2b_grpc.DataSenderServicer):
                                                   tg_token=request.tg_token,
                                                   sheets_token=request.sheets_token, start_msg=request.start_message,
                                                   end_msg=request.end_message)
-           # await run_instance(resp.bot_id)
+            await run_instance(resp.bot_id)
             return resp
         except Exception as ex:
 
