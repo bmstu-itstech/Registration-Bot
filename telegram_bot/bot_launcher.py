@@ -127,9 +127,7 @@ async def run_instance(bot_id):
         await state.set_state(Questionnaire.completed)
         await callback_query.answer('Ответы записаны!')
         await bot.send_message(callback_query.message.chat.id,
-                               f'Спасибо, путник, за регистрацию. Не забудь на канал наш подписаться: '
-                               f'https://t.me/xiivzbmstu \n\nКоль еще вопросы будут, пиши ведунье нашей '
-                               f'@katet_rin \n\nВаш уникальный код: {response.code}')
+                               f'{bot_status.end_message} Ваш уникальный код: {response.code}')
 
     @router.callback_query(Text('get_back'))
     async def process_get_back(callback_query: CallbackQuery,
