@@ -1,0 +1,65 @@
+<!-- Bot creation page -->
+<section class="page-section bot-creation">
+  <div class="row">
+    <div class="col-5">
+      <div class="row d-flex justify-content-center flex-column">
+        <button type="button" class="btn text-white my-3 add-btn m-auto" (click)="lgModal1.show()">
+          <p class="fs-2 m-0">Api Sheets token</p>
+          <img src="../../../assets/icons/details.svg" class="details">
+        </button>
+        <div bsModal #lgModal1="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="dialog-sizes-name1">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h4 id="dialog-sizes-name1" class="modal-title pull-left">Api Sheets token</h4>
+                <button type="button" class="btn-close close pull-right" (click)="lgModal1.hide()" aria-label="Close">
+                  <span aria-hidden="true" class="visually-hidden">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <div class="m-3">
+                  <input type="text" [(ngModel)]="apiToken" class="form-control" id="apiToken" placeholder="Введите токен">
+                </div>
+                <div class="text-center">
+                  <button type="button" class="btn btn-primary" (click)="onApiTokenSubmit()">Подтвердить</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <button type="button" class="btn text-white my-3 add-btn m-auto"(click)="lgModal2.show()">
+          <img src="../../../assets/icons/details.svg" class="details">
+          <p class="fs-2 m-0">Telegram Bot Token</p>
+        </button>
+        <div bsModal #lgModal2="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="dialog-sizes-name2">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h4 id="dialog-sizes-name2" class="modal-title pull-left">Telegram Bot Token</h4>
+                <button type="button" class="btn-close close pull-right" (click)="lgModal2.hide()" aria-label="Close">
+                  <span aria-hidden="true" class="visually-hidden">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <div class="m-3">
+                  <input type="text" [(ngModel)]="telegramToken" class="form-control" id="telegramToken" placeholder="Введите токен">
+                </div>
+                <div class="text-center">
+                  <button type="button" class="btn btn-primary" (click)="onTelegramTokenSubmit()">Подтвердить</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <button type="button" class="play-btn mx-auto">
+          <img src="../../../assets/icons/play.svg" class="play-img">
+          <p class="fs-2 m-0 text-white">Запуск</p>
+        </button>
+      </div>
+    </div>
+    <div class="col-7 d-flex justify-content-center">
+      <div class="board"></div>
+    </div>
+  </div>
+  <img src="../../../assets/images/dots-left.svg" class="position-absolute bottom-0 ms-4" alt="...">
+</section>

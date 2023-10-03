@@ -2,10 +2,11 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Routes, RouterModule } from "@angular/router";
 import {MainPageComponent} from "./pages/main-page/main-page.component";
-import {CreationPageComponent} from "./account/creation-page/creation-page.component";
-import {ListPageComponent} from "./account/list-page/list-page.component";
+import {CreationPageComponent} from "./pages/creation-page/creation-page.component";
+import {ListPageComponent} from "./pages/list-page/list-page.component";
 import {LoginCheckComponent} from "./login-check/login-check.component";
-import {SettingsPageComponent} from "./account/settings-page/settings-page.component";
+import {SettingsPageComponent} from "./pages/settings-page/settings-page.component";
+import {isAuthGuard} from "./guard/auth.guard";
 
 const routes: Routes = [
   {
@@ -14,15 +15,18 @@ const routes: Routes = [
   },
   {
     path: 'creation',
-    component: CreationPageComponent
+    component: CreationPageComponent,
+    canActivate: [isAuthGuard]
   },
   {
     path: 'list',
-    component: ListPageComponent
+    component: ListPageComponent,
+    canActivate: [isAuthGuard]
   },
   {
     path: 'settings',
-    component: SettingsPageComponent
+    component: SettingsPageComponent,
+    canActivate: [isAuthGuard]
   },
   {
     path: 'login',
@@ -35,6 +39,6 @@ const routes: Routes = [
   imports: [
     CommonModule, RouterModule.forRoot(routes)
   ],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
 export class AppRoutingModule { }
