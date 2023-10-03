@@ -31,7 +31,7 @@ async def run_instance(bot_id):
     #     if bot.bot_survey_id == bot_id:
     #         token = bot.tg_token
     bot_status = await bot_client.get_bot(user_id=2, bot_id=bot_id)
-    logging.info(f'{bot_status.tg_token}, {bot_status.owner}')
+    logging.info(f'{bot_status.tg_token}, {bot_status.owner}, {bot_status.end_message}')
     token = bot_status.tg_token
 
 

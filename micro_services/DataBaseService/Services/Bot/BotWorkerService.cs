@@ -44,8 +44,6 @@ namespace DataBaseService.Services.Bot
                     colums.Add(key: module.Value.Title, value: module.Value.AnswerType);
                 }
 
-                Console.WriteLine(request.StartMessage);
-                Console.WriteLine(request.EndMessage);
 
 
                 MyBot.UpdateBotGoogleToken(request.SheetsToken, bot_id, request.FromUser).Wait();
@@ -60,7 +58,18 @@ namespace DataBaseService.Services.Bot
                 {
                     "Код"
                 };
-                header.AddRange(colums.Keys.ToList());
+
+                var journal = my_journal.Modules.OrderBy(module => module.Key);
+
+                foreach (var module in journal)
+                {
+                    Console.WriteLine(module.Value.Title);
+                    header.Add(module.Value.Title);
+                }
+
+               
+
+                
                 header.Add("Линк телеграм");
                 header.Add("Дата регистрации");
 

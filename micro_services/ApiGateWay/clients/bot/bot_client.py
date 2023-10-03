@@ -47,7 +47,6 @@ async def get_bot(user_id: int, bot_id: int):
     channel = grpc.aio.insecure_channel(os.getenv('DATABASE_CONNECTION'))
     stub = pb2_grpc.BotGetterStub(channel)
     response = await stub.GetBot(pb2.GetBotRequest(bot_id=bot_id, owner=user_id))
-    print(response)
     return response
 
 
