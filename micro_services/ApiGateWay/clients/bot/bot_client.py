@@ -27,24 +27,20 @@ async def get_question(bot_id: int, question_id: int):
     return response
 
 
-async def create_new_bot_asker(user_id: int, journal, tg_token: str, sheets_token: str, start_msg: str,end_msg: str):
+async def create_new_bot_asker(user_id: int, journal, tg_token: str, sheets_token: str, start_msg: str, end_msg: str):
     channel = grpc.aio.insecure_channel(os.getenv('DATABASE_CONNECTION'))
 
-    start = "Здравствуй, путник! Вижу я, что заплутал ты средь джунглей каменных. " \
-            "Устал, должно быть, ты с дороги, проходи да выпей чаю со мной.\n\nЕсли же " \
-            "ко мне пожаловал ты с дружиною более 4-х голов и хочешь оказаться с ней в " \
-            "одной колонне, то нужно сообщить их кода и ФИО нашей ведунье @katet_rin. " \
-            "\n\nА если меньше 4-х вас, то нужно будет в день мероприятия на переписи подойти " \
-            "всей командой к летописцу.\n\nА коли в дом ты мой вошёл, расскажи о себе. А я за это " \
-            "код тебе волшебный дам. Пригодится тебе он на очной переписи. Сказав его " \
-            "летописцу, быстро сможешь узнать, в какую дружину попал."
-    end = "Спасибо, путник, за регистрацию."
+    try:
+        stub = pb2_grpc.BotWorkerStub(channel)
+        response = await stub.CreateBot(
+            pb2.CreateBotRequest(from_user=user_id, journal=journal, start_message=start_msg,
+                                 tg_token=tg_token, sheets_token=sheets_token, end_message=end_msg))
+        return response
 
-    stub = pb2_grpc.BotWorkerStub(channel)
-    response = await stub.CreateBot(pb2.CreateBotRequest(from_user=user_id, journal=journal, start_message=start,
-                                                         tg_token=tg_token, sheets_token=sheets_token,end_message=end))
+    except Exception as ex:
+        print(ex)
+        return None
 
-    return response
 
 
 async def get_bot(user_id: int, bot_id: int):
