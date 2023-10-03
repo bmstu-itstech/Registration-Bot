@@ -57,7 +57,6 @@ async def run_instance(bot_id):
         if user_status != Questionnaire.completed and \
                 user_status != Questionnaire.in_process and \
                 user_status != Questionnaire.on_approval:
-            await state.set_state(Questionnaire.in_process)
             await state.update_data(answers=dict(), prev_questions=list(), question_id=1)
             await message.answer(bot_status.start_message)
             await utils.send_question(state, message.chat.id, bot_id, bot)
@@ -127,8 +126,8 @@ async def run_instance(bot_id):
                                                  callback_query.from_user.username)
         await state.set_state(Questionnaire.completed)
         await callback_query.answer('Ответы записаны!')
-        await bot.send_message(callback_query.message.chat.id, f'Спасибо, путник, за регистрацию.\n'
-                                                               f'Ваш уникальный код: {response.code}')
+        await bot.send_message(callback_query.message.chat.id,
+                               f'{bot_status.end_message} Ваш уникальный код: {response.code}')
 
     @router.callback_query(Text('get_back'))
     async def process_get_back(callback_query: CallbackQuery,
