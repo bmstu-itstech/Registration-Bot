@@ -8,7 +8,7 @@ message BaseResponse{
 }
 
 message BotResponse{
-   int32  id = 1;
+   int32  id = 1; 
    string tg_token = 2;
    string google_token = 3;
    int32 owner = 4;

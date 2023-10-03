@@ -33,6 +33,9 @@ async def run_instance(bot_id):
     bot_status = await bot_client.get_bot(user_id=2, bot_id=bot_id)
     logging.info(f'{bot_status.tg_token}, {bot_status.owner}')
     token = bot_status.tg_token
+
+
+
     # Если не найдено такого бота, прерываем функцию
     if token == "":
         logging.error(f'There is no bot with ID "{bot_id}"!')
