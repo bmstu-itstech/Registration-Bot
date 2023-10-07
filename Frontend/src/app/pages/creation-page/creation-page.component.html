@@ -19,7 +19,51 @@
       </div>
     </div>
     <div class="col-7 d-flex justify-content-center">
-      <div class="board"></div>
+      <div class="board">
+        <ngx-graph class="chart-container"
+                [links]="links"
+                [nodes]="nodes"
+                [nodeWidth]="200"
+                [nodeHeight]="50"
+                [curve]="curve"
+                [layoutSettings]="layoutSettings"
+                [update$]="update$"
+                [center$]="center$"
+                [zoomToFit$]="zoomToFit$"
+                #graph
+        >
+          <ng-template #defsTemplate>
+            <svg xmlns="http://www.w3.org/2000/svg">
+              <marker id="arrow" viewBox="0 -5 10 10" refX="8" refY="0" markerWidth="4" markerHeight="4" orient="auto">
+                <path d="M0,-5L10,0L0,5" class="arrow-head"/>
+              </marker>
+            </svg>
+          </ng-template>
+          <ng-template #nodeTemplate let-node>
+            <svg xmlns="http://www.w3.org/2000/svg">
+              <g class="node" [class.selected-node]="node['isSelected']" xmlns="http://www.w3.org/2000/svg" (click)="onNodeClick(node)">
+                <foreignObject width="200" height="50">
+                  <div class="cardContainer" xmlns="http://www.w3.org/1999/xhtml">
+                    <label class="name">{{ node.label }}</label>
+                  </div>
+                </foreignObject>
+              </g>
+            </svg>
+          </ng-template>
+          <ng-template #linkTemplate let-link>
+            <svg xmlns="http://www.w3.org/2000/svg">
+              <g class="edge">
+                <path class="line" stroke-width="3" d=""></path>
+              </g>
+            </svg>
+          </ng-template>
+        </ngx-graph>
+        <div
+          class="scroll-line"
+          [style.height.%]="scrollHeightPercentage"
+          (mousedown)="onScrollLineMouseDown($event)"
+        ></div>
+      </div>
     </div>
   </div>
   <img src="../../../assets/images/dots-left.svg" class="position-absolute bottom-0 ms-4" alt="...">

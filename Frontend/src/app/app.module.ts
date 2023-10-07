@@ -4,6 +4,8 @@ import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {CarouselModule} from "ngx-bootstrap/carousel";
 import { PopoverModule } from 'ngx-bootstrap/popover';
 import {ModalModule} from "ngx-bootstrap/modal";
+import {NgxGraphModule} from "@swimlane/ngx-graph";
+import {NgxChartsModule} from "@swimlane/ngx-charts";
 
 import { AppComponent } from './app.component';
 import { CreationPageComponent } from './pages/creation-page/creation-page.component';
@@ -38,7 +40,9 @@ import {JsonHandlerService} from "./service/json-handler.service";
     CarouselModule.forRoot(),
     PopoverModule.forRoot(),
     ModalModule.forRoot(),
-    HttpClientModule
+    HttpClientModule,
+    NgxGraphModule,
+    NgxChartsModule
   ],
   providers: [JsonHandlerService],
   bootstrap: [AppComponent]
