@@ -5,8 +5,6 @@ from grpc import aio
 from micro_services.ApiGateWay.web_api_rpc import web_api_pb2_grpc
 from micro_services.ApiGateWay.web_api_rpc import web_api_pb2
 from concurrent import futures
-
-
 async def serve():
     server = aio.server()
     web_api_pb2_grpc.add_DataSenderServicer_to_server(DataSenderService(), server)

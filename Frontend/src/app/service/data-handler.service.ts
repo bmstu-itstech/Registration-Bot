@@ -1,9 +1,14 @@
 import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DataHandlerService {
+  isAuthenticated(): boolean {
+    const authToken = this.getCookie('authToken');
+    return !!authToken;
+  }
   getCookie(name: string): string | null {
     const value = "; " + document.cookie;
     const parts = value.split("; " + name + "=");

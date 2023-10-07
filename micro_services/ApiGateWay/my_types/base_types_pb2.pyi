@@ -14,7 +14,7 @@ class BaseResponse(_message.Message):
     def __init__(self, state: _Optional[str] = ..., code: _Optional[int] = ...) -> None: ...
 
 class BotResponse(_message.Message):
-    __slots__ = ["id", "tg_token", "google_token", "owner", "bot_survey_id", "start_message", "state", "code"]
+    __slots__ = ["id", "tg_token", "google_token", "owner", "bot_survey_id", "start_message", "state", "code", "end_message"]
     ID_FIELD_NUMBER: _ClassVar[int]
     TG_TOKEN_FIELD_NUMBER: _ClassVar[int]
     GOOGLE_TOKEN_FIELD_NUMBER: _ClassVar[int]
@@ -23,6 +23,7 @@ class BotResponse(_message.Message):
     START_MESSAGE_FIELD_NUMBER: _ClassVar[int]
     STATE_FIELD_NUMBER: _ClassVar[int]
     CODE_FIELD_NUMBER: _ClassVar[int]
+    END_MESSAGE_FIELD_NUMBER: _ClassVar[int]
     id: int
     tg_token: str
     google_token: str
@@ -31,7 +32,8 @@ class BotResponse(_message.Message):
     start_message: str
     state: str
     code: int
-    def __init__(self, id: _Optional[int] = ..., tg_token: _Optional[str] = ..., google_token: _Optional[str] = ..., owner: _Optional[int] = ..., bot_survey_id: _Optional[int] = ..., start_message: _Optional[str] = ..., state: _Optional[str] = ..., code: _Optional[int] = ...) -> None: ...
+    end_message: str
+    def __init__(self, id: _Optional[int] = ..., tg_token: _Optional[str] = ..., google_token: _Optional[str] = ..., owner: _Optional[int] = ..., bot_survey_id: _Optional[int] = ..., start_message: _Optional[str] = ..., state: _Optional[str] = ..., code: _Optional[int] = ..., end_message: _Optional[str] = ...) -> None: ...
 
 class BotsResponse(_message.Message):
     __slots__ = ["bots"]

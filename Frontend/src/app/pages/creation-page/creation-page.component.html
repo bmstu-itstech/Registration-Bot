@@ -1,13 +1,13 @@
 <!-- Bot creation page -->
-<section class="page-section bot-creation">
+<section class="page-section bot-creation" *ngIf="isSectionVisible">
   <div class="row">
     <div class="col-5">
       <div class="row d-flex justify-content-center">
-        <button type="button" class="btn text-white my-3 add-btn" routerLink="/add_text_block">
+        <button type="button" class="btn text-white my-3 add-btn" (click)="addJsonQuestion()">
           <p class="fs-2 m-0">Добавить текстовый блок</p>
           <img src="../../../assets/icons/details.svg" class="details">
         </button>
-        <button type="button" class="btn text-white my-3 add-btn">
+        <button type="button" class="btn text-white my-3 add-btn" (click)="addJsonQuestion()">
           <ng-container (click)="$event.stopPropagation()">
             <img [popover]="'help'" class="details" src="../../../assets/icons/details.svg">
             <p class="fs-2 m-0">Добавить блок с кнопкой</p>

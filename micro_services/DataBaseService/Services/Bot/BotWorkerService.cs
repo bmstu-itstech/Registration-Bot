@@ -43,7 +43,7 @@ namespace DataBaseService.Services.Bot
                 {
                     colums.Add(key: module.Value.Title, value: module.Value.AnswerType);
                 }
-           
+
 
 
                 MyBot.UpdateBotGoogleToken(request.SheetsToken, bot_id, request.FromUser).Wait();
@@ -58,7 +58,18 @@ namespace DataBaseService.Services.Bot
                 {
                     "Код"
                 };
-                header.AddRange(colums.Keys.ToList());
+
+                var journal = my_journal.Modules.OrderBy(module => module.Key);
+
+                foreach (var module in journal)
+                {
+                    Console.WriteLine(module.Value.Title);
+                    header.Add(module.Value.Title);
+                }
+
+               
+
+                
                 header.Add("Линк телеграм");
                 header.Add("Дата регистрации");
 
@@ -124,7 +135,7 @@ namespace DataBaseService.Services.Bot
             });
         }
 
-        public override Task<BaseResponse> SetAnswers(SetAnswersRequest request, ServerCallContext context)
+        public override  Task<BaseResponse> SetAnswers(SetAnswersRequest request, ServerCallContext context)
         {
             _logger.LogInformation($"Set new Answer Request {request.TgChatId} ");
 
@@ -135,15 +146,22 @@ namespace DataBaseService.Services.Bot
             {
 
                 List<MyAnswer> answers = request.Answers.Select(answer => MyAnswer.ConvertFromRPC(answer)).ToList();
-
-                Console.WriteLine(answers.Count);
-
+                Dictionary<int, string> all_answers = new Dictionary<int, string>();
+               
+                for(int i = 1; i <=  MyBot.GetQuestionCount(request.BotId).Result; i++)
+                {
+                    all_answers[i] = "";
+                }
+                foreach (var answer in answers)
+                {
+                    all_answers[answer.Module_Id] = answer.Answer;
+                }
                 int user_code =  MyBot.SetAnswers(request.BotId, request.TgChatId,request.TelegramLink, answers).Result;
 
                 code = user_code;
 
                 // Вызвать метод таблц
-                SheetsClient.InputUser(request.BotId, user_code, request.TelegramLink, answers);
+                SheetsClient.InputUser(request.BotId, user_code, request.TelegramLink, all_answers);
             }
             catch (Exception ex)
             {
