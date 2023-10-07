@@ -1,0 +1,52 @@
+@import '../../../styles/colors.scss';
+@import '../../../styles/fonts.scss';
+
+section {
+  display: block;
+}
+
+.page-section {
+  padding: 60px 0;
+  position: relative;
+  height: calc(100vh - 188px);
+}
+
+.container-fluid {
+  padding: 50px 0;
+}
+
+.bot-creation {
+  background-color: #14104B;
+}
+
+.w-350 {
+  width: 350px;
+}
+
+.create-btn {
+  height: 65px;
+  border-radius: 20px;
+  box-shadow: 0 0 1.5vw rgba(255, 255, 255, 0.8);
+  margin-top: 90px;
+}
+
+.add-btn {
+  position: relative;
+  height: 100px;
+  width: 500px;
+  background-color: #FFFFFF4D;
+  border-radius: 30px;
+}
+
+.details {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+}
+
+.board {
+  width: 100%;
+  height: 350px;
+  background-color: #FFFFFFCC;
+  border-radius: 30px;
+}

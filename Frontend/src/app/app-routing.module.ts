@@ -6,6 +6,7 @@ import {CreationPageComponent} from "./account/creation-page/creation-page.compo
 import {ListPageComponent} from "./account/list-page/list-page.component";
 import {LoginCheckComponent} from "./login-check/login-check.component";
 import {SettingsPageComponent} from "./account/settings-page/settings-page.component";
+import {TextBlockPageComponent} from "./account/text-block-page/text-block-page.component";
 
 const routes: Routes = [
   {
@@ -27,6 +28,10 @@ const routes: Routes = [
   {
     path: 'login',
     component: LoginCheckComponent
+  },
+  {
+    path: 'add_text_block',
+    component: TextBlockPageComponent
   }
 ]
 

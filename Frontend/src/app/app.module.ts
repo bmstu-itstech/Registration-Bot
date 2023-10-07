@@ -15,6 +15,7 @@ import { SettingsPageComponent } from './account/settings-page/settings-page.com
 
 import { LoginCheckComponent } from './login-check/login-check.component';
 import { FormsModule } from "@angular/forms";
+import { TextBlockPageComponent } from './account/text-block-page/text-block-page.component';
 
 
 @NgModule({
@@ -25,7 +26,8 @@ import { FormsModule } from "@angular/forms";
     HeaderComponent,
     MainPageComponent,
     SettingsPageComponent,
-    LoginCheckComponent
+    LoginCheckComponent,
+    TextBlockPageComponent
   ],
   imports: [
     BrowserModule,
