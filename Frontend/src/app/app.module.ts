@@ -27,7 +27,8 @@ import {JsonHandlerService} from "./service/json-handler.service";
     HeaderComponent,
     MainPageComponent,
     SettingsPageComponent,
-    LoginCheckComponent
+    LoginCheckComponent,
+    TextBlockPageComponent
   ],
   imports: [
     BrowserModule,

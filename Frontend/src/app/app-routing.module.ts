@@ -5,7 +5,8 @@ import {MainPageComponent} from "./pages/main-page/main-page.component";
 import {CreationPageComponent} from "./pages/creation-page/creation-page.component";
 import {ListPageComponent} from "./pages/list-page/list-page.component";
 import {LoginCheckComponent} from "./login-check/login-check.component";
-import {SettingsPageComponent} from "./pages/settings-page/settings-page.component";
+import {SettingsPageComponent} from "./account/settings-page/settings-page.component";
+import {TextBlockPageComponent} from "./account/text-block-page/text-block-page.component";
 import {isAuthGuard} from "./guard/auth.guard";
 
 const routes: Routes = [
@@ -31,6 +32,10 @@ const routes: Routes = [
   {
     path: 'login',
     component: LoginCheckComponent
+  },
+  {
+    path: 'add_text_block',
+    component: TextBlockPageComponent
   }
 ]
 
