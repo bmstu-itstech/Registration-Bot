@@ -6,7 +6,7 @@ import { HttpClient } from '@angular/common/http';
 })
 export class JsonHandlerService {
   private currentQuestionNumberKey = 'currentQuestionNumber';
-  private apiUrl = 'http://localhost:3000/';
+  private apiUrl = 'http://localhost:12000';
   constructor(private http: HttpClient) {}
   getCurrentQuestionNumber() {
     const storedValue = localStorage.getItem(this.currentQuestionNumberKey);
@@ -23,7 +23,7 @@ export class JsonHandlerService {
     localStorage.setItem('jsonData', JSON.stringify(data));
   }
   parseJsonFile(jsonData: any) {
-    return this.http.post(this.apiUrl + 'parse-json', jsonData);
+    return this.http.post(this.apiUrl + '/parse-json', jsonData);
   }
   updateJsonData(newData: any) {
     const jsonData = this.getJsonData();

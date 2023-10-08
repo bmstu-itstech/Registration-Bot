@@ -20,8 +20,9 @@
     </div>
     <div class="col-7 d-flex justify-content-center">
       <div class="board">
-        <ngx-graph class="chart-container"
+        <ngx-graph
                 [links]="links"
+                [layout]="layout"
                 [nodes]="nodes"
                 [nodeWidth]="200"
                 [nodeHeight]="50"
@@ -40,8 +41,8 @@
             </svg>
           </ng-template>
           <ng-template #nodeTemplate let-node>
-            <svg xmlns="http://www.w3.org/2000/svg">
-              <g class="node" [class.selected-node]="node['isSelected']" xmlns="http://www.w3.org/2000/svg" (click)="onNodeClick(node)">
+            <svg xmlns="http://www.w3.org/2000/svg" [class.selected-node]="node['isSelected']" (click)="onNodeClick(node)">
+              <g class="node">
                 <foreignObject width="200" height="50">
                   <div class="cardContainer" xmlns="http://www.w3.org/1999/xhtml">
                     <label class="name">{{ node.label }}</label>
@@ -53,16 +54,14 @@
           <ng-template #linkTemplate let-link>
             <svg xmlns="http://www.w3.org/2000/svg">
               <g class="edge">
-                <path class="line" stroke-width="3" d=""></path>
+                <path class="line" stroke-width="3" d="" marker-end="url(#arrow)"></path>
               </g>
             </svg>
           </ng-template>
         </ngx-graph>
-        <div
-          class="scroll-line"
-          [style.height.%]="scrollHeightPercentage"
-          (mousedown)="onScrollLineMouseDown($event)"
-        ></div>
+        <div class="scroll-line">
+          <div class="scroll" (mousedown)="onScrollLineMouseDown($event)"></div>
+        </div>
       </div>
     </div>
   </div>

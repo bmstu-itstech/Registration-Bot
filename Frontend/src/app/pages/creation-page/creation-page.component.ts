@@ -1,9 +1,9 @@
 import {Component, ElementRef, HostListener, Input, OnInit, ViewChild} from '@angular/core';
 import {JsonHandlerService} from "../../service/json-handler.service";
 import {Edge, Layout, Node} from "@swimlane/ngx-graph";
+import {DagreNodesOnlyLayout} from "@swimlane/ngx-graph"
 import * as shape from 'd3-shape';
 import {Subject} from "rxjs";
-import {local} from "d3";
 
 export class QuestionBlock {
   id!: string;
@@ -35,6 +35,7 @@ export class CreationPageComponent implements OnInit {
   public layoutSettings = {
     orientation: 'TB'
   };
+  public layout: Layout = new DagreNodesOnlyLayout();
   public curve: any = shape.curveLinear;
   constructor(private jsonHandlerService: JsonHandlerService) {
     const jsonData = this.jsonHandlerService.getJsonData();

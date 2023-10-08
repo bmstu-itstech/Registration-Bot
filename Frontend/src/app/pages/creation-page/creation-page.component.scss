@@ -61,15 +61,16 @@ section {
   position: absolute;
   top: 0;
   right: 0;
-  width: 5px;
-  background-color: #14104BE5;
-  cursor: pointer;
-  opacity: 0.5;
-  transition: opacity 0.3s;
+  width: 10px;
+  height: 500px;
+  background-color: #FFFFFF;
+  border-radius: 30px;
+  margin: 20px;
 }
-
-.scroll-line:hover {
-  opacity: 1;
+.scroll {
+  background-color: #14104B;
+  cursor: pointer;
+  border-radius: 30px;
 }
 
 :host ::ng-deep {
@@ -107,26 +108,17 @@ section {
 }
 
 .selected-node {
-  animation: pulse 1s infinite alternate, selected-pulse 1s infinite alternate;
+  animation: pulse 1s infinite alternate;
 }
 
 @keyframes pulse {
-  0% {
-    border-radius: 20px;
-  }
-  50% {
-    border-radius: 20px;
-  }
-  100% {
-    border-radius: 20px;
-  }
-}
-
-@keyframes selected-pulse {
   from {
     outline: 5px dashed red;
+    border-radius: 30px;
   }
   to {
     outline: 5px solid blue;
+    border-radius: 30px;
   }
 }
+
