@@ -10,6 +10,7 @@ export class HeaderComponent {
   headerTitles: { [key: string]: string } = {
     'list': 'Личный кабинет',
     'creation': 'Создать нового бота',
+    'add_text_block': 'Добавление текстового блока',
     'settings': 'Настройка бота'
   };
 }

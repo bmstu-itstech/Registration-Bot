@@ -16,6 +16,7 @@ import { SettingsPageComponent } from './pages/settings-page/settings-page.compo
 
 import { LoginCheckComponent } from './login-check/login-check.component';
 import { FormsModule } from "@angular/forms";
+import { TextBlockPageComponent } from './account/text-block-page/text-block-page.component';
 import {HttpClientModule} from "@angular/common/http";
 import {JsonHandlerService} from "./service/json-handler.service";
 
@@ -28,7 +29,8 @@ import {JsonHandlerService} from "./service/json-handler.service";
     HeaderComponent,
     MainPageComponent,
     SettingsPageComponent,
-    LoginCheckComponent
+    LoginCheckComponent,
+    TextBlockPageComponent
   ],
   imports: [
     BrowserModule,
