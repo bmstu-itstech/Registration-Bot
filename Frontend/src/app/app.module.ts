@@ -16,6 +16,7 @@ import { MainPageComponent } from './pages/main-page/main-page.component';
 import { AppRoutingModule } from './app-routing.module';
 import { SettingsPageComponent } from './pages/settings-page/settings-page.component';
 import { LoginCheckComponent } from './login-check/login-check.component';
+import {TextBlockPageComponent} from './account/text-block-page/text-block-page.component';
 import { FormsModule } from "@angular/forms";
 import {JsonHandlerService} from "./service/json-handler.service";
 
