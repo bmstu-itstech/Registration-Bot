@@ -19,6 +19,7 @@ import { LoginCheckComponent } from './login-check/login-check.component';
 import {TextBlockPageComponent} from './account/text-block-page/text-block-page.component';
 import { FormsModule } from "@angular/forms";
 import {JsonHandlerService} from "./service/json-handler.service";
+import { GraphComponent } from './graph/graph.component';
 
 @NgModule({
   declarations: [
@@ -29,7 +30,8 @@ import {JsonHandlerService} from "./service/json-handler.service";
     MainPageComponent,
     SettingsPageComponent,
     LoginCheckComponent,
-    TextBlockPageComponent
+    TextBlockPageComponent,
+    GraphComponent
   ],
   imports: [
     BrowserModule,
