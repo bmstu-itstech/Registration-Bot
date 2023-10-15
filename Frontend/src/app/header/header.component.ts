@@ -11,6 +11,7 @@ export class HeaderComponent {
     'list': 'Личный кабинет',
     'creation': 'Создать нового бота',
     'add_text_block': 'Добавление текстового блока',
-    'settings': 'Настройка бота'
+    'settings': 'Настройка бота',
+    'edit-bot': 'Редактирование бота',
   };
 }

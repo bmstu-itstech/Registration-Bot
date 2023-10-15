@@ -19,6 +19,7 @@ import { FormsModule } from "@angular/forms";
 import { TextBlockPageComponent } from './account/text-block-page/text-block-page.component';
 import {HttpClientModule} from "@angular/common/http";
 import {JsonHandlerService} from "./service/json-handler.service";
+import { BotEditPageComponent } from './pages/bot-edit-page/bot-edit-page.component';
 
 
 @NgModule({
@@ -30,7 +31,8 @@ import {JsonHandlerService} from "./service/json-handler.service";
     MainPageComponent,
     SettingsPageComponent,
     LoginCheckComponent,
-    TextBlockPageComponent
+    TextBlockPageComponent,
+    BotEditPageComponent
   ],
   imports: [
     BrowserModule,
