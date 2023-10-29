@@ -19,6 +19,7 @@ import { LoginCheckComponent } from './login-check/login-check.component';
 import {TextBlockPageComponent} from './account/text-block-page/text-block-page.component';
 import { FormsModule } from "@angular/forms";
 import {JsonHandlerService} from "./service/json-handler.service";
+import { BotEditPageComponent } from './pages/bot-edit-page/bot-edit-page.component';
 import { GraphComponent } from './graph/graph.component';
 
 @NgModule({
@@ -31,6 +32,7 @@ import { GraphComponent } from './graph/graph.component';
     SettingsPageComponent,
     LoginCheckComponent,
     TextBlockPageComponent,
+    BotEditPageComponent,
     GraphComponent
   ],
   imports: [
