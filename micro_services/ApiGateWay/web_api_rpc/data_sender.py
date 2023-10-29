@@ -5,8 +5,15 @@ import micro_services.ApiGateWay.web_api_rpc.web_api_pb2_grpc as p2b_grpc
 import micro_services.ApiGateWay.clients.bot.bot_client as bot
 from telegram_bot.bot_launcher import run_instance
 
-
+## @brief Класс описывающий объект сервиса - входной точки для фронтенда.
 class DataSenderService(p2b_grpc.DataSenderServicer):
+    ## @brief Функция создания нового бота.
+    # @param self Объект класса 
+    # @param request Запрос, посылемый с фронтенда, имеет тип данных CreateBotRequest описан в bot.proto
+    # @param context Серверный контекст, понятие не имею зачем нужно 
+    # @return Ответ сервера, CreateBotResponse описан в bot.proto
+    # @see bot_client.create_new_bot_asker()
+    
     async def Create_Bot(self, request, context):
         print('Create new Bot Request')
 
@@ -18,5 +25,4 @@ class DataSenderService(p2b_grpc.DataSenderServicer):
             await run_instance(resp.bot_id)
             return resp
         except Exception as ex:
-
             return None

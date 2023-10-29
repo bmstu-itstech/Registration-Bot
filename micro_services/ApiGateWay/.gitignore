@@ -2,3 +2,5 @@ venv/
 .idea/
 conf.py
 *.pyc
+*.zip
+Doxyfile
