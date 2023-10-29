@@ -4,6 +4,9 @@ import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {CarouselModule} from "ngx-bootstrap/carousel";
 import { PopoverModule } from 'ngx-bootstrap/popover';
 import {ModalModule} from "ngx-bootstrap/modal";
+import {NgxGraphModule} from "@swimlane/ngx-graph";
+import {NgxChartsModule} from "@swimlane/ngx-charts";
+import {HttpClientModule} from "@angular/common/http";
 
 import { AppComponent } from './app.component';
 import { CreationPageComponent } from './pages/creation-page/creation-page.component';
@@ -11,15 +14,12 @@ import { ListPageComponent } from './pages/list-page/list-page.component';
 import { HeaderComponent } from "./header/header.component";
 import { MainPageComponent } from './pages/main-page/main-page.component';
 import { AppRoutingModule } from './app-routing.module';
-
 import { SettingsPageComponent } from './pages/settings-page/settings-page.component';
-
 import { LoginCheckComponent } from './login-check/login-check.component';
+import {TextBlockPageComponent} from './account/text-block-page/text-block-page.component';
 import { FormsModule } from "@angular/forms";
-import { TextBlockPageComponent } from './account/text-block-page/text-block-page.component';
-import {HttpClientModule} from "@angular/common/http";
 import {JsonHandlerService} from "./service/json-handler.service";
-
+import { GraphComponent } from './graph/graph.component';
 
 @NgModule({
   declarations: [
@@ -30,7 +30,8 @@ import {JsonHandlerService} from "./service/json-handler.service";
     MainPageComponent,
     SettingsPageComponent,
     LoginCheckComponent,
-    TextBlockPageComponent
+    TextBlockPageComponent,
+    GraphComponent
   ],
   imports: [
     BrowserModule,
@@ -40,7 +41,9 @@ import {JsonHandlerService} from "./service/json-handler.service";
     CarouselModule.forRoot(),
     PopoverModule.forRoot(),
     ModalModule.forRoot(),
-    HttpClientModule
+    HttpClientModule,
+    NgxGraphModule,
+    NgxChartsModule
   ],
   providers: [JsonHandlerService],
   bootstrap: [AppComponent]

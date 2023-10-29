@@ -1,0 +1,46 @@
+<ngx-graph
+  [links]="links"
+  [layout]="layout"
+  [nodes]="nodes"
+  [nodeWidth]="200"
+  [nodeHeight]="50"
+  [curve]="curve"
+  [layoutSettings]="layoutSettings"
+  [update$]="update$"
+  [center$]="center$"
+  [zoomToFit$]="zoomToFit$"
+  [panningEnabled]="false"
+  #graph
+>
+  <ng-template #defsTemplate>
+    <svg xmlns="http://www.w3.org/2000/svg">
+      <marker id="arrow" viewBox="0 -5 10 10" refX="8" refY="0" markerWidth="4" markerHeight="4" orient="auto">
+        <path d="M0,-5L10,0L0,5" class="arrow-head"/>
+      </marker>
+    </svg>
+  </ng-template>
+  <ng-template #nodeTemplate let-node>
+    <svg xmlns="http://www.w3.org/2000/svg"
+         [class.selected-node]="node['isSelected']"
+         (click)="onNodeClick(node)"
+          (mouseover)="onNodeMouseOver(node)">
+      <g class="node">
+        <foreignObject width="200" height="50">
+          <div class="cardContainer" xmlns="http://www.w3.org/1999/xhtml">
+            <label class="name">{{ node.label }}</label>
+          </div>
+        </foreignObject>
+      </g>
+    </svg>
+  </ng-template>
+  <ng-template #linkTemplate let-link>
+    <svg xmlns="http://www.w3.org/2000/svg">
+      <g class="edge" (mousedown)="onEdgeDragStart($event, link)" (mouseup)="onEdgeDragEnd()" (click)="deleteEdge(link)">
+        <path class="line" stroke-width="3" d="" marker-end="url(#arrow)"></path>
+      </g>
+    </svg>
+  </ng-template>
+</ngx-graph>
+<div class="scroll-line">
+  <div class="scroll"></div>
+</div>

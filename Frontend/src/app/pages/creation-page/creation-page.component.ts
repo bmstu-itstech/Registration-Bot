@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {JsonHandlerService} from "../../service/json-handler.service";
+import {GraphComponent} from "../../graph/graph.component";
 
 @Component({
   selector: 'app-creation-page',
@@ -7,10 +8,10 @@ import {JsonHandlerService} from "../../service/json-handler.service";
   styleUrls: ['./creation-page.component.scss']
 })
 export class CreationPageComponent {
-  isSectionVisible = true;
   constructor(private jsonHandlerService: JsonHandlerService) {
     const jsonData = this.jsonHandlerService.getJsonData();
   }
+  isSectionVisible = true;
   addJsonQuestion() {
     const currentQuestionNumber = this.jsonHandlerService.getCurrentQuestionNumber()
     const newQuestionKey = (currentQuestionNumber).toString();
@@ -28,4 +29,6 @@ export class CreationPageComponent {
     this.jsonHandlerService.saveCurrentQuestionNumber(updatedQuestionNumber);
     this.isSectionVisible = !this.isSectionVisible;
   }
+
+  protected readonly GraphComponent = GraphComponent;
 }
