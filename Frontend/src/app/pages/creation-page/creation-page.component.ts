@@ -8,6 +8,9 @@ import {GraphComponent} from "../../graph/graph.component";
   styleUrls: ['./creation-page.component.scss']
 })
 export class CreationPageComponent {
+  clearLocalStorage(){
+    return localStorage.clear();
+  }
   constructor(private jsonHandlerService: JsonHandlerService) {
     const jsonData = this.jsonHandlerService.getJsonData();
   }
@@ -29,6 +32,4 @@ export class CreationPageComponent {
     this.jsonHandlerService.saveCurrentQuestionNumber(updatedQuestionNumber);
     this.isSectionVisible = !this.isSectionVisible;
   }
-
-  protected readonly GraphComponent = GraphComponent;
 }
