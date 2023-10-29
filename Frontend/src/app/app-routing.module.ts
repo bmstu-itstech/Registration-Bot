@@ -37,6 +37,7 @@ const routes: Routes = [
   {
     path: 'add_text_block',
     component: TextBlockPageComponent
+    canActivate: [isAuthGuard]
   },
   {
     path: 'edit-bot',

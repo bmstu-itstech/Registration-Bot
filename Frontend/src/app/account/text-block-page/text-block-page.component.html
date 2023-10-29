@@ -3,10 +3,30 @@
   <div class="row">
     <div class="col-5">
       <div class="row d-flex justify-content-center">
-        <button type="button" class="btn text-white my-3 add-btn">
+        <button type="button" class="btn text-white my-3 add-btn" (click)="lgModal1.show()">
           <p class="fs-2 m-0">Название вопроса</p>
           <img src="../../../assets/icons/details.svg" class="details">
         </button>
+        <div bsModal #lgModal1="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="dialog-sizes-name1">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h4 id="dialog-sizes-name1" class="modal-title pull-left">Api Sheets token</h4>
+                <button type="button" class="btn-close close pull-right" (click)="lgModal1.hide()" aria-label="Close">
+                  <span aria-hidden="true" class="visually-hidden">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <div class="m-3">
+                  <input type="text" [(ngModel)]="question" class="form-control" id="apiToken" placeholder="Введите токен">
+                </div>
+                <div class="text-center">
+                  <button type="button" class="btn btn-primary" (click)="onQuestionSubmit()">Подтвердить</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
         <button type="button" class="btn text-white my-3 add-btn">
           <p class="fs-2 m-0">Тип ответа</p>
           <img src="../../../assets/icons/details.svg" class="details">
