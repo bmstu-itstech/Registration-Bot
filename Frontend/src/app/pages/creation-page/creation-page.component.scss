@@ -9,6 +9,7 @@ section {
   padding: 150px 0;
   position: relative;
   height: calc(100vh - 188px);
+  z-index: 0;
 }
 
 .container-fluid {
@@ -56,3 +57,4 @@ section {
   position: relative;
   overflow: visible;
 }
+
