@@ -139,7 +139,7 @@ async def run_instance(bot_id):
         await callback_query.message.delete()
         data = await state.get_data()
         previous_id = data['prev_questions'].pop()
-        data['answers'].pop(data['question_id'], None)
+        data['answers'].pop(str(data['question_id']), None)
         await state.update_data(prev_questions=data['prev_questions'], answers=data['answers'],
                                 question_id=previous_id)
         await utils.send_question(state, callback_query.message.chat.id, bot_id, bot)
