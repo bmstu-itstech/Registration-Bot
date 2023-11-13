@@ -27,4 +27,6 @@ func TestExampleConfiguration(t *testing.T) {
 			err.Error(),
 		)
 	}
+
+	t.Logf("Successfully loaded configuration: %v\n", cfg)
 }

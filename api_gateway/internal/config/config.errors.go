@@ -2,6 +2,7 @@ package config
 
 import "fmt"
 
+
 type ErrNotValidConfig struct {
 	comment string
 }

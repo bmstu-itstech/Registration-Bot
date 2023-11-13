@@ -7,18 +7,6 @@ import (
 )
 
 
-type Address struct {
-	Host string
-	Port uint16
-}
-
-
-type Config struct {
-	ApiGateway      Address
-	DatabaseService Address
-}
-
-
 func Load(path string) (*Config, error) {
 	viper.SetConfigFile(path)
 	err := viper.ReadInConfig()
