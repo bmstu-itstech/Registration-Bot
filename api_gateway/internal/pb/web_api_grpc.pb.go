@@ -43,21 +43,19 @@ func (c *dataSenderClient) Create_Bot(ctx context.Context, in *CreateBotRequest,
 }
 
 // DataSenderServer is the server API for DataSender service.
-// All implementations must embed UnimplementedDataSenderServer
+// All implementations should embed UnimplementedDataSenderServer
 // for forward compatibility
 type DataSenderServer interface {
 	Create_Bot(context.Context, *CreateBotRequest) (*CreateBotResponse, error)
-	mustEmbedUnimplementedDataSenderServer()
 }
 
-// UnimplementedDataSenderServer must be embedded to have forward compatible implementations.
+// UnimplementedDataSenderServer should be embedded to have forward compatible implementations.
 type UnimplementedDataSenderServer struct {
 }
 
 func (UnimplementedDataSenderServer) Create_Bot(context.Context, *CreateBotRequest) (*CreateBotResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Create_Bot not implemented")
 }
-func (UnimplementedDataSenderServer) mustEmbedUnimplementedDataSenderServer() {}
 
 // UnsafeDataSenderServer may be embedded to opt out of forward compatibility for this service.
 // Use of this interface is not recommended, as added methods to DataSenderServer will

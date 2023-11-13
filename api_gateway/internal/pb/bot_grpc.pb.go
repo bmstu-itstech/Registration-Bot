@@ -63,16 +63,15 @@ func (c *botGetterClient) GetAllBots(ctx context.Context, in *EmptyRequest, opts
 }
 
 // BotGetterServer is the server API for BotGetter service.
-// All implementations must embed UnimplementedBotGetterServer
+// All implementations should embed UnimplementedBotGetterServer
 // for forward compatibility
 type BotGetterServer interface {
 	GetBot(context.Context, *GetBotRequest) (*BotResponse, error)
 	GetQuestion(context.Context, *GetQuestionRequest) (*Module, error)
 	GetAllBots(context.Context, *EmptyRequest) (*BotsResponse, error)
-	mustEmbedUnimplementedBotGetterServer()
 }
 
-// UnimplementedBotGetterServer must be embedded to have forward compatible implementations.
+// UnimplementedBotGetterServer should be embedded to have forward compatible implementations.
 type UnimplementedBotGetterServer struct {
 }
 
@@ -85,7 +84,6 @@ func (UnimplementedBotGetterServer) GetQuestion(context.Context, *GetQuestionReq
 func (UnimplementedBotGetterServer) GetAllBots(context.Context, *EmptyRequest) (*BotsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAllBots not implemented")
 }
-func (UnimplementedBotGetterServer) mustEmbedUnimplementedBotGetterServer() {}
 
 // UnsafeBotGetterServer may be embedded to opt out of forward compatibility for this service.
 // Use of this interface is not recommended, as added methods to BotGetterServer will
@@ -241,7 +239,7 @@ func (c *botWorkerClient) SetAnswers(ctx context.Context, in *SetAnswersRequest,
 }
 
 // BotWorkerServer is the server API for BotWorker service.
-// All implementations must embed UnimplementedBotWorkerServer
+// All implementations should embed UnimplementedBotWorkerServer
 // for forward compatibility
 type BotWorkerServer interface {
 	CreateBot(context.Context, *CreateBotRequest) (*CreateBotResponse, error)
@@ -249,10 +247,9 @@ type BotWorkerServer interface {
 	UpdateBotTgToken(context.Context, *UpdateBotTgTokenRequest) (*BaseResponse, error)
 	UpdateBotGoogleToken(context.Context, *UpdateBotGoogleTokenRequest) (*BaseResponse, error)
 	SetAnswers(context.Context, *SetAnswersRequest) (*BaseResponse, error)
-	mustEmbedUnimplementedBotWorkerServer()
 }
 
-// UnimplementedBotWorkerServer must be embedded to have forward compatible implementations.
+// UnimplementedBotWorkerServer should be embedded to have forward compatible implementations.
 type UnimplementedBotWorkerServer struct {
 }
 
@@ -271,7 +268,6 @@ func (UnimplementedBotWorkerServer) UpdateBotGoogleToken(context.Context, *Updat
 func (UnimplementedBotWorkerServer) SetAnswers(context.Context, *SetAnswersRequest) (*BaseResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetAnswers not implemented")
 }
-func (UnimplementedBotWorkerServer) mustEmbedUnimplementedBotWorkerServer() {}
 
 // UnsafeBotWorkerServer may be embedded to opt out of forward compatibility for this service.
 // Use of this interface is not recommended, as added methods to BotWorkerServer will
