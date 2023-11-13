@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+option go_package = "internal/pb";
+
+import "proto/bot.proto";
+
+service DataSender {
+  rpc Create_Bot(CreateBotRequest) returns (CreateBotResponse);
+}

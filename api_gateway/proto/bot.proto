@@ -1,0 +1,73 @@
+syntax = "proto3";
+
+option go_package = "internal/pb";
+
+import "proto/base_types.proto";
+
+service BotGetter {
+    rpc GetBot(GetBotRequest) returns (BotResponse);
+	rpc GetQuestion(GetQuestionRequest) returns (Module);
+	rpc GetAllBots(EmptyRequest) returns (BotsResponse);
+}
+
+service BotWorker {
+	rpc CreateBot(CreateBotRequest) returns (CreateBotResponse);
+	rpc DeleteBot(DeleteBotRequest) returns (BaseResponse);
+	rpc UpdateBotTgToken(UpdateBotTgTokenRequest) returns (BaseResponse);
+	rpc UpdateBotGoogleToken(UpdateBotGoogleTokenRequest) returns (BaseResponse);
+	rpc SetAnswers(SetAnswersRequest) returns (BaseResponse);
+} 
+
+message GetBotRequest {
+	int32  bot_id = 1;
+	int32  owner = 2;
+}
+
+message UpdateBotTgTokenRequest {
+	int32  bot_id = 1;
+	int32  owner = 2;
+	string token = 3;
+}
+
+message UpdateBotGoogleTokenRequest {
+	int32  bot_id = 1;
+	int32  owner = 2;
+	string token = 3;
+}
+
+message CreateBotRequest {
+	int32   from_user = 1;
+	string  tg_token = 2;
+	string  sheets_token = 3;
+	Journal journal = 4;
+	string  start_message = 5;
+	string  end_message = 6;
+}
+
+message DeleteBotRequest {
+	int32   from_user = 1;
+	int32   bot_id = 2;
+
+}
+
+message GetQuestionRequest {
+	int32   bot_id = 1;
+	int32   question_id = 2;
+}
+
+message SetAnswersRequest {
+	int64   tg_chat_id = 1;
+	int32   bot_id = 2;
+	repeated Answer answers = 3;
+	string  telegram_link = 4;
+}
+
+message CreateBotResponse {
+	string  state = 1;
+	int32   code = 2;
+	int32   bot_id = 3;
+}
+
+message EmptyRequest {
+
+}
