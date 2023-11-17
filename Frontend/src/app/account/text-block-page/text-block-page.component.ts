@@ -1,5 +1,5 @@
 import {Component, TemplateRef, ViewChild} from '@angular/core';
-import {BsModalRef, BsModalService} from "ngx-bootstrap/modal";
+import { ModalDirective } from 'ngx-bootstrap/modal';
 import {JsonHandlerService} from "../../service/json-handler.service";
 
 @Component({
@@ -22,22 +22,40 @@ export class TextBlockPageComponent {
       "Введите название вопроса"
     ]
   }
-  @ViewChild('lgModal') lgModal!: BsModalRef;
+  @ViewChild(ModalDirective, { static: false }) modal?: ModalDirective;
   modalTitle: string = '';
   modalPlaceHolder: string = '';
   modalValue: string = '';
-  constructor(private jsonHandlerService: JsonHandlerService, private modalService: BsModalService) {
+  currentKey: string = '';
+  constructor(private jsonHandlerService: JsonHandlerService) {
     const jsonData = this.jsonHandlerService.getJsonData();
   }
-  openModal(key: string, template: TemplateRef<any>) {
-    if (this.questionFields[key]) {
-      this.modalTitle = this.questionFields[key][0];
-      this.modalPlaceHolder = this.questionFields[key][1];
-      this.modalValue = '';
-      this.lgModal = this.modalService.show(template);
+  openModal(key: string) {
+    if (this.currentKey == key) {
+      if (this.questionFields[key]) {
+        this.currentKey = key;
+        this.modalTitle = this.questionFields[key][0];
+        this.modalPlaceHolder = this.questionFields[key][1];
+        this.modal?.show();
+      }
+    } else {
+      if (this.questionFields[key]) {
+        this.currentKey = key;
+        this.modalTitle = this.questionFields[key][0];
+        this.modalPlaceHolder = this.questionFields[key][1];
+        this.modalValue = '';
+        this.modal?.show();
+      }
     }
   }
+  saveQuestionField(key: string) {
+    this.jsonHandlerService.updateJsonDataModules(key, this.modalValue);
+  }
   onModalSubmit() {
-    this.lgModal.hide();
+    this.saveQuestionField(this.currentKey);
+    this.modal?.hide();
+  }
+  modalHide() {
+    this.modal?.hide();
   }
 }
