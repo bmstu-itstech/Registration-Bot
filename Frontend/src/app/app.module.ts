@@ -7,6 +7,7 @@ import {ModalModule} from "ngx-bootstrap/modal";
 import {NgxGraphModule} from "@swimlane/ngx-graph";
 import {NgxChartsModule} from "@swimlane/ngx-charts";
 import {HttpClientModule} from "@angular/common/http";
+import {MatDialogModule} from '@angular/material/dialog';
 
 import { AppComponent } from './app.component';
 import { CreationPageComponent } from './pages/creation-page/creation-page.component';
@@ -19,7 +20,9 @@ import { LoginCheckComponent } from './login-check/login-check.component';
 import {TextBlockPageComponent} from './account/text-block-page/text-block-page.component';
 import { FormsModule } from "@angular/forms";
 import {JsonHandlerService} from "./service/json-handler.service";
+import { BotEditPageComponent } from './pages/bot-edit-page/bot-edit-page.component';
 import { GraphComponent } from './graph/graph.component';
+import { SendingPageComponent } from './pages/sending-page/sending-page.component';
 
 @NgModule({
   declarations: [
@@ -31,7 +34,9 @@ import { GraphComponent } from './graph/graph.component';
     SettingsPageComponent,
     LoginCheckComponent,
     TextBlockPageComponent,
-    GraphComponent
+    BotEditPageComponent,
+    GraphComponent,
+    SendingPageComponent
   ],
   imports: [
     BrowserModule,
@@ -43,7 +48,8 @@ import { GraphComponent } from './graph/graph.component';
     ModalModule.forRoot(),
     HttpClientModule,
     NgxGraphModule,
-    NgxChartsModule
+    NgxChartsModule,
+    MatDialogModule
   ],
   providers: [JsonHandlerService],
   bootstrap: [AppComponent]

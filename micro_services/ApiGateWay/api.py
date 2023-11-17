@@ -7,11 +7,12 @@ from dotenv import load_dotenv
 from micro_services.ApiGateWay.clients.bot.bot_client import *
 import asyncio
 
-
+## @brief Функция, запуска асинхронного цикла обраборотки gRPC запросов.
+#  Загружает константы и запускает основный цикл.
+#  @see server.serve()
 def main():
     load_dotenv()
     asyncio.run(serve())
-
 
 if __name__ == "__main__":
     main()

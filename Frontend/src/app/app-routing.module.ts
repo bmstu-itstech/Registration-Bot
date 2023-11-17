@@ -8,6 +8,8 @@ import {LoginCheckComponent} from "./login-check/login-check.component";
 import {SettingsPageComponent} from "./pages/settings-page/settings-page.component";
 import {TextBlockPageComponent} from "./account/text-block-page/text-block-page.component";
 import {isAuthGuard} from "./guard/auth.guard";
+import {BotEditPageComponent} from "./pages/bot-edit-page/bot-edit-page.component";
+import {SendingPageComponent} from "./pages/sending-page/sending-page.component";
 
 const routes: Routes = [
   {
@@ -37,6 +39,14 @@ const routes: Routes = [
     path: 'add_text_block',
     component: TextBlockPageComponent,
     canActivate: [isAuthGuard]
+  },
+  {
+    path: 'edit-bot',
+    component: BotEditPageComponent
+  },
+  {
+    path: 'sending',
+    component: SendingPageComponent
   }
 ]
 

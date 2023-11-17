@@ -598,12 +598,20 @@ namespace DataBaseService.backend.Types
                 {
                     try
                     {
-                        string create_new_answer = $"INSERT INTO answers (user_chat_id) VALUES({chatId})";
-
-                        using (var command = new NpgsqlCommand(create_new_answer, conn))
+                        try
                         {
-                            await command.ExecuteNonQueryAsync();
+                            string create_new_answer = $"INSERT INTO answers (user_chat_id) VALUES({chatId})";
+
+                            using (var command = new NpgsqlCommand(create_new_answer, conn))
+                            {
+                                await command.ExecuteNonQueryAsync();
+                            }
                         }
+                        catch (Exception ex)
+                        {
+
+                        }
+                   
 
                         string updatelink = $"UPDATE answers SET telegram_link = '{link}' WHERE user_chat_id = {chatId}--";
                         using (var command = new NpgsqlCommand(updatelink, conn))

@@ -1,6 +1,8 @@
 import {Component, OnInit} from '@angular/core';
 import {JsonHandlerService} from "../../service/json-handler.service";
 import {GraphComponent} from "../../graph/graph.component";
+import {MatDialog, MatDialogConfig} from "@angular/material/dialog";
+import {TextBlockPageComponent} from "../../account/text-block-page/text-block-page.component";
 
 @Component({
   selector: 'app-creation-page',
@@ -31,5 +33,20 @@ export class CreationPageComponent {
     const updatedQuestionNumber = currentQuestionNumber + 1;
     this.jsonHandlerService.saveCurrentQuestionNumber(updatedQuestionNumber);
     this.isSectionVisible = !this.isSectionVisible;
+  }
+
+  protected readonly GraphComponent = GraphComponent;
+  protected readonly open = open;
+
+  openModal() {
+    const dialogRef = this.dialog.open(TextBlockPageComponent, {
+      maxWidth: '100vw',
+      maxHeight: '100vh',
+      height: 'calc(100vh - 188px)',
+      width: '100%',
+      panelClass: 'full-screen-modal',
+      position: {top: '188px'},
+      disableClose: true
+    });
   }
 }
