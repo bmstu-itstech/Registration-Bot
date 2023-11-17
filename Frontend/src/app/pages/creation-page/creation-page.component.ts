@@ -27,7 +27,7 @@ export class CreationPageComponent {
         "next_id": null
       }
     }
-    this.jsonHandlerService.updateJsonDataModules(newData);
+    this.jsonHandlerService.updateJsonDataJournal(newData);
     const updatedQuestionNumber = currentQuestionNumber + 1;
     this.jsonHandlerService.saveCurrentQuestionNumber(updatedQuestionNumber);
     this.isSectionVisible = !this.isSectionVisible;

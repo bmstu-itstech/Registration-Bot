@@ -35,64 +35,35 @@ export class GraphComponent implements OnInit {
   };
   public layout: Layout = new DagreNodesOnlyLayout();
   public curve: any = shape.curveLinear;
-  constructor() {
+  constructor(private jsonHandlerService: JsonHandlerService) {
     this.questionBlocks = [
       {
         id: '1',
         name: 'Начало'
-      },
-      {
-        id: '2',
-        name: 'Employee 2',
-        upperId: '1'
-      },
-      {
-        id: '3',
-        name: 'Employee 3',
-        upperId: '1'
-      },
-      {
-        id: '4',
-        name: 'Employee 4',
-        upperId: '2'
-      },
-      {
-        id: '5',
-        name: 'Employee 5'
       }
     ];
-
   }
 
   public ngOnInit() {
-    const savedLinks = localStorage.getItem('graphLinks');
-    if (savedLinks) {
-      this.links = JSON.parse(savedLinks);
-    } else {
-      for (const questionBlock of this.questionBlocks) {
-        if (!questionBlock.upperId) {
-          continue;
-        }
-        const edge: Edge = {
-          source: questionBlock.upperId,
-          target: questionBlock.id,
-          label: ''
-        };
-        this.links.push(edge);
+    const savedGraphData = this.jsonHandlerService.getGraphDataFromModules();
+      if (!savedGraphData || savedGraphData.nodes.length === 0) {
+      } else {
+          this.nodes = savedGraphData.nodes;
+          this.links = savedGraphData.links;
       }
-    }
-    for (const questionBlock of this.questionBlocks) {
-      const node: Node = {
-        id: questionBlock.id,
-        label: questionBlock.name
-      };
-      this.nodes.push(node);
-    }
   }
   deleteEdge(link: Edge) {
     const edgeIndex = this.links.findIndex(edge => edge.source === link.source && edge.target === link.target);
     if (edgeIndex !== -1) {
-      this.links.splice(edgeIndex, 1);
+      const deletedEdge = this.links.splice(edgeIndex, 1)[0];
+      const jsonData = this.jsonHandlerService.getJsonData() || {};
+      if (jsonData && jsonData.journal.modules) {
+        const sourceModule = jsonData.journal.modules[deletedEdge.source];
+        if (sourceModule) {
+          sourceModule.next_id = null;
+          this.jsonHandlerService.saveJsonData(jsonData);
+        }
+      }
       this.updateGraph();
       localStorage.setItem('graphLinks', JSON.stringify(this.links));
     }
@@ -123,19 +94,32 @@ export class GraphComponent implements OnInit {
       const targetNode = this.selectedNodes[1];
       const existingEdge = this.links.find(edge => edge.source === sourceNode.id && edge.target === targetNode.id
         || edge.source === targetNode.id && edge.target === sourceNode.id);
-      if (!existingEdge) {
+      if (!existingEdge && !this.hasExistingNextId(sourceNode.id)) {
         const newEdge: Edge = {
           source: sourceNode.id,
           target: targetNode.id,
           label: ''
         }
         this.links.push(newEdge);
+        const jsonData = this.jsonHandlerService.getJsonData() || {};
+        if (jsonData && jsonData.journal.modules) {
+          const sourceModule = jsonData.journal.modules[sourceNode.id];
+          if (sourceModule) {
+            sourceModule.next_id = targetNode.id;
+            this.jsonHandlerService.saveJsonData(jsonData);
+          }
+        }
         localStorage.setItem('graphLinks', JSON.stringify(this.links));
         this.updateGraph();
       }
       this.selectedNodes.forEach(node => delete node['isSelected']);
       this.selectedNodes = [];
     }
+  }
+  private hasExistingNextId(nodeId: string): boolean {
+    const jsonData = this.jsonHandlerService.getJsonData() || {};
+    const sourceModule = jsonData.journal?.modules?.[nodeId];
+    return sourceModule?.next_id !== undefined && sourceModule?.next_id !== null;
   }
   onEdgeDragStart(event: MouseEvent, edge: Edge) {
     this.isDraggingEdge = true;
@@ -160,7 +144,14 @@ export class GraphComponent implements OnInit {
           this.links.splice(index, 1);
         }
         this.links.push(newEdge);
-        localStorage.setItem('graphLinks', JSON.stringify(this.links));
+        const jsonData = this.jsonHandlerService.getJsonData() || {};
+        if (jsonData.journal && jsonData.journal.modules) {
+          const sourceModule = jsonData.journal.modules[this.draggingEdge.source];
+          if (sourceModule) {
+            sourceModule.next_id = node.id;
+            this.jsonHandlerService.saveJsonData(jsonData);
+          }
+        }
         this.updateGraph();
       }
       this.isDraggingEdge = false;
