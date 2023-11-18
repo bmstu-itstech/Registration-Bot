@@ -7,7 +7,7 @@ import {ActivatedRoute, NavigationEnd, Router} from "@angular/router";
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  title = 'Frontend';
+  title = 'frontend';
   routerOutletName: string = '';
   constructor(private router: Router, private activatedRoute: ActivatedRoute) {
     this.router.events.subscribe(event => {
