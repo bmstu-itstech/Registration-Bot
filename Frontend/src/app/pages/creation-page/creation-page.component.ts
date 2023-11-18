@@ -13,7 +13,7 @@ export class CreationPageComponent {
   clearLocalStorage(){
     return localStorage.clear();
   }
-  constructor(private jsonHandlerService: JsonHandlerService) {
+  constructor(private jsonHandlerService: JsonHandlerService, private dialog: MatDialog) {
     const jsonData = this.jsonHandlerService.getJsonData();
   }
   isSectionVisible = true;

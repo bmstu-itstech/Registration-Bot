@@ -13,5 +13,6 @@ export class HeaderComponent {
     'add_text_block': 'Добавление текстового блока',
     'settings': 'Настройка бота',
     'edit-bot': 'Редактирование бота',
+    'sending': 'Bot title',
   };
 }

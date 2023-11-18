@@ -42,11 +42,13 @@ const routes: Routes = [
   },
   {
     path: 'edit-bot',
-    component: BotEditPageComponent
+    component: BotEditPageComponent,
+    canActivate: [isAuthGuard]
   },
   {
     path: 'sending',
-    component: SendingPageComponent
+    component: SendingPageComponent,
+    canActivate: [isAuthGuard]
   }
 ]
 
