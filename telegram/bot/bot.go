@@ -50,16 +50,8 @@ func (r *Runner) RunBot(botID int) error {
 		return err
 	}
 
-	go func() {
-		defer r.wg.Done()
-		bot.running = true
-		select {
-		case u := <-updates:
-			go r.HandleUpdate(botID, bot.api, u)
-		case <-bot.stop:
-			return
-		}
-	}()
+	go r.handleUpdates(botID, updates)
+	r.wg.Add(1)
 
 	return nil
 }
@@ -73,5 +65,6 @@ func (r *Runner) StopBot(botID int) error {
 	}
 	bot.stop <- struct{}{}
 	close(bot.stop)
+	bot.running = false
 	return nil
 }

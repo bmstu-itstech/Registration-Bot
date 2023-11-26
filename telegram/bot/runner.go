@@ -5,7 +5,7 @@ import (
 	"sync"
 )
 
-type Service interface {
+type Repository interface {
 }
 
 type Bot struct {
@@ -17,11 +17,13 @@ type Bot struct {
 type Runner struct {
 	wg   *sync.WaitGroup
 	bots map[int]*Bot
-	s    Service
+	repo Repository
 }
 
-func NewRunner(service Service) *Runner {
+func NewRunner(wg *sync.WaitGroup, repo Repository) *Runner {
 	return &Runner{
-		s: service,
+		wg:   wg,
+		bots: make(map[int]*Bot),
+		repo: repo,
 	}
 }
