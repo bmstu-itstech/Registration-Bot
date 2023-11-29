@@ -22,7 +22,9 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type DataSenderClient interface {
-	Create_Bot(ctx context.Context, in *CreateBotRequest, opts ...grpc.CallOption) (*CreateBotResponse, error)
+	CreateBot(ctx context.Context, in *CreateBotRequest, opts ...grpc.CallOption) (*CreateBotResponse, error)
+	TurnOnBot(ctx context.Context, in *TurnOnBotRequest, opts ...grpc.CallOption) (*BaseResponse, error)
+	TurnOffBot(ctx context.Context, in *TurnOffBotRequest, opts ...grpc.CallOption) (*BaseResponse, error)
 }
 
 type dataSenderClient struct {
@@ -33,9 +35,27 @@ func NewDataSenderClient(cc grpc.ClientConnInterface) DataSenderClient {
 	return &dataSenderClient{cc}
 }
 
-func (c *dataSenderClient) Create_Bot(ctx context.Context, in *CreateBotRequest, opts ...grpc.CallOption) (*CreateBotResponse, error) {
+func (c *dataSenderClient) CreateBot(ctx context.Context, in *CreateBotRequest, opts ...grpc.CallOption) (*CreateBotResponse, error) {
 	out := new(CreateBotResponse)
-	err := c.cc.Invoke(ctx, "/DataSender/Create_Bot", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/DataSender/CreateBot", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *dataSenderClient) TurnOnBot(ctx context.Context, in *TurnOnBotRequest, opts ...grpc.CallOption) (*BaseResponse, error) {
+	out := new(BaseResponse)
+	err := c.cc.Invoke(ctx, "/DataSender/TurnOnBot", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *dataSenderClient) TurnOffBot(ctx context.Context, in *TurnOffBotRequest, opts ...grpc.CallOption) (*BaseResponse, error) {
+	out := new(BaseResponse)
+	err := c.cc.Invoke(ctx, "/DataSender/TurnOffBot", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -46,15 +66,23 @@ func (c *dataSenderClient) Create_Bot(ctx context.Context, in *CreateBotRequest,
 // All implementations should embed UnimplementedDataSenderServer
 // for forward compatibility
 type DataSenderServer interface {
-	Create_Bot(context.Context, *CreateBotRequest) (*CreateBotResponse, error)
+	CreateBot(context.Context, *CreateBotRequest) (*CreateBotResponse, error)
+	TurnOnBot(context.Context, *TurnOnBotRequest) (*BaseResponse, error)
+	TurnOffBot(context.Context, *TurnOffBotRequest) (*BaseResponse, error)
 }
 
 // UnimplementedDataSenderServer should be embedded to have forward compatible implementations.
 type UnimplementedDataSenderServer struct {
 }
 
-func (UnimplementedDataSenderServer) Create_Bot(context.Context, *CreateBotRequest) (*CreateBotResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Create_Bot not implemented")
+func (UnimplementedDataSenderServer) CreateBot(context.Context, *CreateBotRequest) (*CreateBotResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateBot not implemented")
+}
+func (UnimplementedDataSenderServer) TurnOnBot(context.Context, *TurnOnBotRequest) (*BaseResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method TurnOnBot not implemented")
+}
+func (UnimplementedDataSenderServer) TurnOffBot(context.Context, *TurnOffBotRequest) (*BaseResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method TurnOffBot not implemented")
 }
 
 // UnsafeDataSenderServer may be embedded to opt out of forward compatibility for this service.
@@ -68,20 +96,56 @@ func RegisterDataSenderServer(s grpc.ServiceRegistrar, srv DataSenderServer) {
 	s.RegisterService(&DataSender_ServiceDesc, srv)
 }
 
-func _DataSender_Create_Bot_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _DataSender_CreateBot_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CreateBotRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(DataSenderServer).Create_Bot(ctx, in)
+		return srv.(DataSenderServer).CreateBot(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/DataSender/Create_Bot",
+		FullMethod: "/DataSender/CreateBot",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(DataSenderServer).Create_Bot(ctx, req.(*CreateBotRequest))
+		return srv.(DataSenderServer).CreateBot(ctx, req.(*CreateBotRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DataSender_TurnOnBot_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TurnOnBotRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DataSenderServer).TurnOnBot(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/DataSender/TurnOnBot",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DataSenderServer).TurnOnBot(ctx, req.(*TurnOnBotRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DataSender_TurnOffBot_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TurnOffBotRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DataSenderServer).TurnOffBot(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/DataSender/TurnOffBot",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DataSenderServer).TurnOffBot(ctx, req.(*TurnOffBotRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -94,8 +158,16 @@ var DataSender_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*DataSenderServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "Create_Bot",
-			Handler:    _DataSender_Create_Bot_Handler,
+			MethodName: "CreateBot",
+			Handler:    _DataSender_CreateBot_Handler,
+		},
+		{
+			MethodName: "TurnOnBot",
+			Handler:    _DataSender_TurnOnBot_Handler,
+		},
+		{
+			MethodName: "TurnOffBot",
+			Handler:    _DataSender_TurnOffBot_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -3,7 +3,19 @@ syntax = "proto3";
 option go_package = "internal/pb";
 
 import "proto/bot.proto";
+import "proto/base_types.proto";
 
 service DataSender {
-  rpc Create_Bot(CreateBotRequest) returns (CreateBotResponse);
+	rpc CreateBot(CreateBotRequest)   returns (CreateBotResponse);
+	rpc TurnOnBot(TurnOnBotRequest)   returns (BaseResponse);
+	rpc TurnOffBot(TurnOffBotRequest) returns (BaseResponse);
+}
+
+message TurnOnBotRequest {
+	int32   bot_id = 1;
+	string  token = 2;
+}
+
+message TurnOffBotRequest {
+	int32   bot_id = 1;
 }
