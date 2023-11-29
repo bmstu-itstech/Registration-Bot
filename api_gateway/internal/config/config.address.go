@@ -14,9 +14,3 @@ type Address struct {
 func (addr *Address) String() string {
 	return fmt.Sprintf("%s:%d", addr.Host, addr.Port)
 }
-
-
-type Config struct {
-	ApiGateway      Address
-	DatabaseService Address
-}

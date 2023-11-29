@@ -20,6 +20,7 @@ type ApiGatewayServer struct {
 }
 
 
+// Returns conifgured server structure
 func New(cfg *config.Config) (*ApiGatewayServer, error) {
 
 	grpcServer := grpc.NewServer()
@@ -31,7 +32,7 @@ func New(cfg *config.Config) (*ApiGatewayServer, error) {
 	}, nil
 }
 
-
+// Run gRPC server to accept requests from the frontend
 func (server *ApiGatewayServer) Run() {
 	var g group.Group
 	{

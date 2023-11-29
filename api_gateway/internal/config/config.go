@@ -6,7 +6,13 @@ import (
 	"github.com/spf13/viper"
 )
 
+// Main structure that stores entire server configuration
+type Config struct {
+	ApiGateway      Address
+	DatabaseService Address
+}
 
+// Returns the loaded configuration from a file
 func Load(path string) (*Config, error) {
 	viper.SetConfigFile(path)
 	err := viper.ReadInConfig()
@@ -28,7 +34,7 @@ func Load(path string) (*Config, error) {
 	return cfg, nil
 }
 
-
+// Returns nil if configuration is valid
 func (cfg *Config) Validate() error {
 	if cfg.ApiGateway.Host == "" {
 		return newErrNotValidConfig(

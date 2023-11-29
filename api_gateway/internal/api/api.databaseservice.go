@@ -11,11 +11,12 @@ import (
 )
 
 
+// Stub responsible for database requests
 type DatabaseServiceStub struct {
 	conn *grpc.ClientConn
 }
 
-
+// Returns new stub
 func NewDatabaseServiceStub(cfg *config.Config) (*DatabaseServiceStub, error) {
 	conn, err := grpc.Dial(
 		cfg.DatabaseService.String(),
@@ -30,12 +31,12 @@ func NewDatabaseServiceStub(cfg *config.Config) (*DatabaseServiceStub, error) {
 	}, nil
 }
 
-
+// Connection must be closed!
 func (stub *DatabaseServiceStub) Close() error {
 	return stub.conn.Close()
 }
 
-
+// Relaying a request to a database service
 func (stub *DatabaseServiceStub) Create_Bot(ctx context.Context, req *pb.CreateBotRequest) (*pb.CreateBotResponse, error) {
 	log.Printf("Got request: %v", req)
 	client := pb.NewBotWorkerClient(stub.conn)	

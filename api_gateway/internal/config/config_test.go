@@ -9,6 +9,7 @@ const (
 	PATH_TO_EXAMPLE_CONFIG = "../../config/example.yml"
 )
 
+// Checks functionality of configuration file decoder
 func TestExampleConfiguration(t *testing.T) {
 	cfg, err := config.Load(PATH_TO_EXAMPLE_CONFIG)
 	if err != nil {
