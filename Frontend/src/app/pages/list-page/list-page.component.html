@@ -3,7 +3,7 @@
     <carousel class="hide-navigation" [itemsPerSlide]="3" [interval]="0" [showIndicators]="false" [singleSlideOffset]="true" [noWrap]="true">
       <img class="mx-5 prev" (click)="navigateCarousel('prev')" src="../../../assets/icons/arrow-left.svg" alt="Previous">
       <div class="slide">
-        <slide *ngFor="let card of cards; let index = index">
+        <slide *ngFor="let card of cards; let index = index" class="bot-card" routerLink="/edit-bot">
           <div class="col-12 col-md-6 col-lg-4">
             <div class="bot-item mx-3 text-white">
               <p class="text-center h2 pt-5 m-0">{{ card.title }}</p>

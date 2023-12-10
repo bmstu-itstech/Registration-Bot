@@ -30,40 +30,46 @@
   width: 100px;
 }
 
-.loader {
+.loader-play {
+  animation: rotation 2s linear infinite;
+}
+
+.loader-pause, .loader-play {
   width: 500px;
   height: 500px;
   border-radius: 50%;
   position: absolute;
-  background: linear-gradient(0deg, rgba(127, 241, 71, 0.05) 33%, rgba(127, 241, 71, 1) 100%);
+  background: linear-gradient(0deg, rgba(127, 241, 71, 0.05) 40%, rgba(127, 241, 71, 1) 90%);
   box-sizing: border-box;
-  animation: rotation 2s linear infinite;
 }
-.loader::after {
+
+.loader-play::after, .loader-pause::after {
   content: '';
   box-sizing: border-box;
   position: absolute;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  width: 440px;
-  height: 440px;
+  width: 400px;
+  height: 400px;
   border-radius: 50%;
   background: #14104B;
 }
-@keyframes rotation {
-  0% { transform: rotate(0deg) }
-  100% { transform: rotate(360deg)}
-}
 
-.loader-text {
+.pause-text, .play-text {
+  display: flex;
+  align-items: center;
   width: 350px;
   height: 500px;
-  color: lightgrey;
+  color: lightgray;
   font-size: 50px;
   line-height: 100%;
   font-weight: bold;
   text-align: center;
+  z-index: 10000;
+}
+
+.play-text {
   animation-name: fading;
   animation-duration: 1500ms;
   animation-iteration-count: infinite;
@@ -77,4 +83,9 @@
   50% {
     opacity: 0.95;
   }
+}
+
+@keyframes rotation {
+  0% { transform: rotate(0deg) }
+  100% { transform: rotate(360deg)}
 }

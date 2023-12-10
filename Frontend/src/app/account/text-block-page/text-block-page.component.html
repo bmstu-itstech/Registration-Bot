@@ -3,10 +3,10 @@
   <div class="row">
     <div class="col-5">
       <div class="row d-flex justify-content-center">
-        <button type="button" class="btn text-white my-3 add-btn" (click)="lgModal1.show()">
-          <p class="fs-2 m-0">Название вопроса</p>
+        <div type="button" class="my-3 add-btn d-flex justify-content-center align-items-center" (click)="lgModal1.show()">
+          <p class="text-white fs-2 m-0">Название вопроса</p>
           <img src="../../../assets/icons/details.svg" class="details">
-        </button>
+        </div>
         <div bsModal #lgModal1="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="dialog-sizes-name1">
           <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -27,18 +27,18 @@
             </div>
           </div>
         </div>
-        <button type="button" class="btn text-white my-3 add-btn">
-          <p class="fs-2 m-0">Тип ответа</p>
+        <div class="add-btn d-flex justify-content-center align-items-center my-3">
+          <input class="text-filed fs-2 m-0 text-white" type="text" placeholder="Тип ответа">
           <img src="../../../assets/icons/details.svg" class="details">
-        </button>
-        <button type="button" class="btn text-white my-3 add-btn">
-          <p class="fs-2 m-0">Валидация</p>
+        </div>
+        <div class="add-btn d-flex justify-content-center align-items-center my-3">
+          <p class="fs-2 m-0 text-white">Валидация</p>
           <img src="../../../assets/icons/details.svg" class="details">
-        </button>
-        <button type="button" class="btn text-white my-3 add-btn">
-          <p class="fs-2 m-0">Еще что-то</p>
+        </div>
+        <div class="add-btn d-flex justify-content-center align-items-center my-3">
+          <p class="fs-2 m-0 text-white">Еще что-то</p>
           <img src="../../../assets/icons/details.svg" class="details">
-        </button>
+        </div>
       </div>
     </div>
     <div class="col-5 d-block ms-5">

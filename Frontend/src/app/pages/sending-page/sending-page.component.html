@@ -3,94 +3,27 @@
   <div class="row">
     <div class="col-7 d-flex flex-column justify-content-center">
       <div class="board overflow-scroll">
+
         <div class="row align-items-center m-4">
-          <button type="button" class="btn text-white add-btn m-auto">
-            <p class="fs-2 m-0">Название рассылки</p>
-          </button>
-          <button type="button" class="play-btn mx-auto">
-            <img class="play-img" src="../../../assets/icons/play.svg">
+          <div class="add-btn d-flex justify-content-center align-items-center m-auto">
+            <p class="fs-2 m-0 text-white">Название рассылки</p>
+          </div>
+          <button type="button" class="play-btn mx-auto"
+                  (click)="enableDisableRule()"
+                  [ngClass]="{'play' : toggle, 'pause': !toggle}">
+            <img class="play-img" src="{{status}}">
           </button>
         </div>
-        <div class="row align-items-center m-4">
-          <button type="button" class="btn text-white add-btn m-auto">
-            <p class="fs-2 m-0">Название рассылки</p>
-          </button>
-          <button type="button" class="play-btn mx-auto">
-            <img class="play-img" src="../../../assets/icons/play.svg">
-          </button>
-        </div>
-        <div class="row align-items-center m-4">
-          <button type="button" class="btn text-white add-btn m-auto">
-            <p class="fs-2 m-0">Название рассылки</p>
-          </button>
-          <button type="button" class="play-btn mx-auto">
-            <img class="play-img" src="../../../assets/icons/play.svg">
-          </button>
-        </div>
-        <div class="row align-items-center m-4">
-          <button type="button" class="btn text-white add-btn m-auto">
-            <p class="fs-2 m-0">Название рассылки</p>
-          </button>
-          <button type="button" class="play-btn mx-auto">
-            <img class="play-img" src="../../../assets/icons/play.svg">
-          </button>
-        </div>
-        <div class="row align-items-center m-4">
-          <button type="button" class="btn text-white add-btn m-auto">
-            <p class="fs-2 m-0">Название рассылки</p>
-          </button>
-          <button type="button" class="play-btn mx-auto">
-            <img class="play-img" src="../../../assets/icons/play.svg">
-          </button>
-        </div>
-        <div class="row align-items-center m-4">
-          <button type="button" class="btn text-white add-btn m-auto">
-            <p class="fs-2 m-0">Название рассылки</p>
-          </button>
-          <button type="button" class="play-btn mx-auto">
-            <img class="play-img" src="../../../assets/icons/play.svg">
-          </button>
-        </div>
-        <div class="row align-items-center m-4">
-          <button type="button" class="btn text-white add-btn m-auto">
-            <p class="fs-2 m-0">Название рассылки</p>
-          </button>
-          <button type="button" class="play-btn mx-auto">
-            <img class="play-img" src="../../../assets/icons/play.svg">
-          </button>
-        </div>
-        <div class="row align-items-center m-4">
-          <button type="button" class="btn text-white add-btn m-auto">
-            <p class="fs-2 m-0">Название рассылки</p>
-          </button>
-          <button type="button" class="play-btn mx-auto">
-            <img class="play-img" src="../../../assets/icons/play.svg">
-          </button>
-        </div>
-        <div class="row align-items-center m-4">
-          <button type="button" class="btn text-white add-btn m-auto">
-            <p class="fs-2 m-0">Название рассылки</p>
-          </button>
-          <button type="button" class="play-btn mx-auto">
-            <img class="play-img" src="../../../assets/icons/play.svg">
-          </button>
-        </div>
-        <div class="row align-items-center m-4">
-          <button type="button" class="btn text-white add-btn m-auto">
-            <p class="fs-2 m-0">Название рассылки</p>
-          </button>
-          <button type="button" class="play-btn mx-auto">
-            <img class="play-img" src="../../../assets/icons/play.svg">
-          </button>
-        </div>
+
+
       </div>
       <div class="d-flex justify-content-center">
         <img class="m-4 play-img" src="../../../assets/icons/add.svg">
       </div>
     </div>
     <div class="col-5 d-flex justify-content-center">
-      <div class="loader"></div>
-      <div class="loader-text d-flex align-items-center">Идет рассылка</div>
+      <div [ngClass]="{'loader-pause' : toggle, 'loader-play': !toggle}"></div>
+      <div [ngClass]="{'pause-text' : toggle, 'play-text': !toggle}">{{state}}</div>
     </div>
   </div>
   <img src="../../../assets/images/dots-left.svg" class="position-absolute bottom-0 ms-4" alt="...">
