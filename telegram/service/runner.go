@@ -7,26 +7,26 @@ import (
 	"sync"
 )
 
+//go:generate mockery --name Repository
 type Repository interface {
 }
 
 type Runner struct {
 	*sync.WaitGroup
 	bots map[int]chan struct{}
-	repo Repository
 }
 
-func NewRunner(wg *sync.WaitGroup, repo Repository) *Runner {
+func NewRunner(wg *sync.WaitGroup) *Runner {
 	return &Runner{
 		WaitGroup: wg,
 		bots:      make(map[int]chan struct{}),
-		repo:      repo,
 	}
 }
 
 // StartBot launches bot with provided id and returns error
 // if bot starting failed.
-func (r *Runner) StartBot(logger *logrus.Logger, botID int, token string) error {
+func (r *Runner) StartBot(logger *logrus.Logger, repo Repository,
+	botID int, token string) error {
 	api, err := tg.NewBotAPI(token)
 	if err != nil {
 		return err
@@ -44,6 +44,7 @@ func (r *Runner) StartBot(logger *logrus.Logger, botID int, token string) error 
 		id:     botID,
 		log:    logger.WithField("botID", botID),
 		stop:   make(chan struct{}),
+		repo:   repo,
 	}
 
 	r.bots[botID] = bot.stop
@@ -66,5 +67,6 @@ func (r *Runner) StopBot(botID int) error {
 	}
 	stop <- struct{}{}
 	close(stop)
+	delete(r.bots, botID)
 	return nil
 }
