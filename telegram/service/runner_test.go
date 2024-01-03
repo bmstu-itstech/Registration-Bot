@@ -2,10 +2,19 @@ package service
 
 import (
 	"Registration-Bot/model"
+	"Registration-Bot/telegram/service/mocks"
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"sync"
 	"testing"
 )
+
+func TestStartBotNonexistent(t *testing.T) {
+	r := NewRunner(&sync.WaitGroup{})
+	err := r.StartBot(logrus.New(), mocks.NewRepository(t), 1,
+		"incorrect token")
+	assert.Error(t, err)
+}
 
 func TestStopBot(t *testing.T) {
 	r := NewRunner(&sync.WaitGroup{})
