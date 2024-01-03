@@ -5,6 +5,13 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+const (
+	Unknown = iota
+	InProcess
+	OnApproval
+	Finished
+)
+
 //go:generate mockery --name Repository
 type Repository interface {
 	// SaveAnswer is used to save user's answer
@@ -13,6 +20,8 @@ type Repository interface {
 	GetStart(int) (string, error)
 	// GetFinal returns final message of bot
 	GetFinal(int) (string, error)
+	// GetStage returns user's current questionnaire stage
+	GetStage(int64) (int, error)
 }
 
 type Bot struct {
