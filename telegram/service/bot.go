@@ -23,30 +23,50 @@ type Bot struct {
 	repo Repository
 }
 
-func (b *Bot) handleMessage(u *tg.Message) {
+func (b *Bot) handleMessage(m *tg.Message) {
 	panic("not implemented!")
 }
 
-func (b *Bot) handleCallback(u *tg.CallbackQuery) {
+func (b *Bot) handleCallback(c *tg.CallbackQuery) {
 	panic("not implemented!")
 }
 
-func (b *Bot) handleStart(u *tg.Message) {
+func (b *Bot) handleStart(m *tg.Message) {
+	text, err := b.repo.GetStart(b.id)
+	if err != nil {
+		b.log.Error(err)
+		return
+	}
+	reply := tg.NewMessage(m.Chat.ID, text)
+	s, err := b.Send(reply)
+	if err != nil {
+		b.log.Error(err)
+		return
+	}
+	b.log.WithFields(logrus.Fields{
+		"chatID":    s.Chat.ID,
+		"messageID": s.MessageID,
+	}).Debug("Bot sent message")
+}
+
+func (b *Bot) handleReset(m *tg.Message) {
 	panic("not implemented!")
 }
 
-func (b *Bot) handleReset(u *tg.Message) {
-	panic("not implemented!")
-}
+func (b *Bot) handleCommand(m *tg.Message) {
+	b.log.WithFields(logrus.Fields{
+		"chatID":    m.Chat.ID,
+		"messageID": m.MessageID,
+		"command":   m.Command(),
+	}).Debug("Received command")
 
-func (b *Bot) handleCommand(u *tg.Message) {
-	switch u.Command() {
+	switch m.Command() {
 	case "start":
-		b.handleStart(u)
+		b.handleStart(m)
 	case "reset":
-		b.handleReset(u)
+		b.handleReset(m)
 	default:
-		m := tg.NewMessage(u.Chat.ID, "Неизвестная команда!")
+		m := tg.NewMessage(m.Chat.ID, "Неизвестная команда!")
 		_, err := b.Send(m)
 		if err != nil {
 			b.log.Error(err)
