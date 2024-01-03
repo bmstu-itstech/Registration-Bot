@@ -23,37 +23,29 @@ type Bot struct {
 	repo Repository
 }
 
-func (b *Bot) handleMessage(m *tg.Message) {
+func (b *Bot) handleMessage(m *tg.Message) (tg.Message, error) {
 	panic("not implemented!")
 }
 
-func (b *Bot) handleCallback(c *tg.CallbackQuery) {
+func (b *Bot) handleCallback(c *tg.CallbackQuery) (tg.Message, error) {
 	panic("not implemented!")
 }
 
-func (b *Bot) handleStart(m *tg.Message) {
+func (b *Bot) handleStart(m *tg.Message) (tg.Message, error) {
 	text, err := b.repo.GetStart(b.id)
 	if err != nil {
-		b.log.Error(err)
-		return
+		return tg.Message{}, err
 	}
 	reply := tg.NewMessage(m.Chat.ID, text)
 	s, err := b.Send(reply)
-	if err != nil {
-		b.log.Error(err)
-		return
-	}
-	b.log.WithFields(logrus.Fields{
-		"chatID":    s.Chat.ID,
-		"messageID": s.MessageID,
-	}).Debug("Bot sent message")
+	return s, err
 }
 
-func (b *Bot) handleReset(m *tg.Message) {
+func (b *Bot) handleReset(m *tg.Message) (tg.Message, error) {
 	panic("not implemented!")
 }
 
-func (b *Bot) handleCommand(m *tg.Message) {
+func (b *Bot) handleCommand(m *tg.Message) (tg.Message, error) {
 	b.log.WithFields(logrus.Fields{
 		"chatID":    m.Chat.ID,
 		"messageID": m.MessageID,
@@ -62,34 +54,43 @@ func (b *Bot) handleCommand(m *tg.Message) {
 
 	switch m.Command() {
 	case "start":
-		b.handleStart(m)
+		return b.handleStart(m)
 	case "reset":
-		b.handleReset(m)
+		return b.handleReset(m)
 	default:
-		m := tg.NewMessage(m.Chat.ID, "Неизвестная команда!")
-		_, err := b.Send(m)
-		if err != nil {
-			b.log.Error(err)
-		}
+		reply := tg.NewMessage(m.Chat.ID, "Неизвестная команда!")
+		return b.Send(reply)
 	}
 }
 
 func (b *Bot) listenUpdates(updates tg.UpdatesChannel) {
 	b.log.Info("Bot started")
 	for {
+		var sent tg.Message
+		var err error
+
 		select {
 		case u := <-updates:
 			switch {
 			case u.CallbackQuery != nil:
-				b.handleCallback(u.CallbackQuery)
+				sent, err = b.handleCallback(u.CallbackQuery)
 			case u.Message != nil && u.Message.IsCommand():
-				b.handleCommand(u.Message)
+				sent, err = b.handleCommand(u.Message)
 			case u.Message != nil:
-				b.handleMessage(u.Message)
+				sent, err = b.handleMessage(u.Message)
 			}
 		case <-b.stop:
 			b.log.Info("Bot stopped")
 			return
+		}
+
+		if err != nil {
+			b.log.Error(err)
+		} else {
+			b.log.WithFields(logrus.Fields{
+				"chatID":    sent.Chat.ID,
+				"messageID": sent.MessageID,
+			}).Debug("Bot sent message")
 		}
 	}
 }
