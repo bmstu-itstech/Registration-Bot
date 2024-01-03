@@ -5,6 +5,16 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+//go:generate mockery --name Repository
+type Repository interface {
+	// SaveAnswer is used to save user's answer
+	SaveAnswer(string) error
+	// GetStart returns start message of bot
+	GetStart(int) (string, error)
+	// GetFinal returns final message of bot
+	GetFinal(int) (string, error)
+}
+
 type Bot struct {
 	*tg.BotAPI
 	id   int

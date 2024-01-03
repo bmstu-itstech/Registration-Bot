@@ -7,10 +7,6 @@ import (
 	"sync"
 )
 
-//go:generate mockery --name Repository
-type Repository interface {
-}
-
 type Runner struct {
 	*sync.WaitGroup
 	bots map[int]chan struct{}
