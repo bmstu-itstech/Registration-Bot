@@ -16,7 +16,7 @@ type Repository interface {
 }
 
 type Bot struct {
-	*tg.BotAPI
+	api  *tg.BotAPI
 	id   int
 	log  logrus.FieldLogger
 	stop chan struct{}
@@ -37,7 +37,7 @@ func (b *Bot) handleStart(m *tg.Message) (tg.Message, error) {
 		return tg.Message{}, err
 	}
 	reply := tg.NewMessage(m.Chat.ID, text)
-	s, err := b.Send(reply)
+	s, err := b.api.Send(reply)
 	return s, err
 }
 
@@ -59,7 +59,7 @@ func (b *Bot) handleCommand(m *tg.Message) (tg.Message, error) {
 		return b.handleReset(m)
 	default:
 		reply := tg.NewMessage(m.Chat.ID, "Неизвестная команда!")
-		return b.Send(reply)
+		return b.api.Send(reply)
 	}
 }
 

@@ -36,11 +36,11 @@ func (r *Runner) StartBot(logger *logrus.Logger, repo Repository,
 	}
 
 	bot := &Bot{
-		BotAPI: api,
-		id:     botID,
-		log:    logger.WithField("botID", botID),
-		stop:   make(chan struct{}),
-		repo:   repo,
+		api:  api,
+		id:   botID,
+		log:  logger.WithField("botID", botID),
+		stop: make(chan struct{}),
+		repo: repo,
 	}
 
 	r.bots[botID] = bot.stop
