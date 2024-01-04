@@ -32,15 +32,55 @@ type Bot struct {
 	repo Repository
 }
 
-func (b *Bot) handleMessage(m *tg.Message) (tg.Message, error) {
+func (b *Bot) handleFinal(m *tg.Message) (tg.Message, error) {
 	panic("not implemented!")
+}
+
+func (b *Bot) handleMessage(m *tg.Message) (tg.Message, error) {
+	st, err := b.repo.GetStage(m.Chat.ID)
+	if err != nil {
+		return tg.Message{}, err
+	}
+	switch st {
+	case Finished:
+		return b.api.Send(tg.NewMessage(m.Chat.ID,
+			"Вы уже заполнили анкету!"))
+	case OnApproval:
+		return b.handleFinal(m)
+	case Unknown:
+		return b.handleStart(m)
+	}
+	return tg.Message{}, err
 }
 
 func (b *Bot) handleCallback(c *tg.CallbackQuery) (tg.Message, error) {
-	panic("not implemented!")
+	st, err := b.repo.GetStage(c.Message.Chat.ID)
+	if err != nil {
+		return tg.Message{}, err
+	}
+	if st == Finished {
+		return b.api.Send(tg.NewMessage(c.Message.Chat.ID,
+			"Вы уже заполнили анкету!"))
+	}
+	return tg.Message{}, err
 }
 
 func (b *Bot) handleStart(m *tg.Message) (tg.Message, error) {
+	st, err := b.repo.GetStage(m.Chat.ID)
+	if err != nil {
+		return tg.Message{}, err
+	}
+	switch st {
+	case Finished:
+		return b.api.Send(tg.NewMessage(m.Chat.ID,
+			"Вы уже заполнили анкету!"))
+	case InProcess:
+		return b.api.Send(tg.NewMessage(m.Chat.ID,
+			"Вы уже в процессе заполнения анкеты!"))
+	case OnApproval:
+		return b.api.Send(tg.NewMessage(m.Chat.ID,
+			"Вы уже в стадии подтверждения анкеты!"))
+	}
 	text, err := b.repo.GetStart(b.id)
 	if err != nil {
 		return tg.Message{}, err
