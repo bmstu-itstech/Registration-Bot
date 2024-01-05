@@ -94,6 +94,7 @@ func (b *Bot) handleMessage(m *tg.Message) (tg.Message, error) {
 	if err != nil {
 		return tg.Message{}, err
 	}
+
 	switch st.Stage {
 	case model.Finished:
 		return b.api.Send(tg.NewMessage(m.Chat.ID,
@@ -104,7 +105,16 @@ func (b *Bot) handleMessage(m *tg.Message) (tg.Message, error) {
 	case model.Unknown:
 		return b.handleStart(m)
 	}
-	return tg.Message{}, err
+
+	err = b.repo.SaveAnswer(m.Chat.ID, m.Text)
+	if err != nil {
+		return tg.Message{}, err
+	}
+	sent, err := b.sendQuestion(m)
+	if err != nil {
+		return tg.Message{}, err
+	}
+	return sent, err
 }
 
 func (b *Bot) handleCallback(c *tg.CallbackQuery) (tg.Message, error) {
@@ -115,11 +125,21 @@ func (b *Bot) handleCallback(c *tg.CallbackQuery) (tg.Message, error) {
 	if err != nil {
 		return tg.Message{}, err
 	}
+
 	if st.Stage == model.Finished {
 		return b.api.Send(tg.NewMessage(c.Message.Chat.ID,
 			"Вы уже заполнили анкету!"))
 	}
-	return tg.Message{}, err
+
+	err = b.repo.SaveAnswer(c.Message.Chat.ID, c.Message.Text)
+	if err != nil {
+		return tg.Message{}, err
+	}
+	sent, err := b.sendQuestion(c.Message)
+	if err != nil {
+		return tg.Message{}, err
+	}
+	return sent, err
 }
 
 func (b *Bot) handleStart(m *tg.Message) (tg.Message, error) {
