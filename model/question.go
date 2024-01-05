@@ -1,14 +1,15 @@
 package model
 
 type Button struct {
-	ID   int
-	Text string
+	Text           string
+	NextQuestionID int
 }
 
 type Question struct {
 	Text           string
 	Buttons        []Button
 	NextQuestionID int
+	Rhetorical     bool
 }
 
 func (q Question) HasButtons() bool {
