@@ -8,14 +8,14 @@ import (
 )
 
 type Runner struct {
-	*sync.WaitGroup
+	wg   *sync.WaitGroup
 	bots map[int]chan struct{}
 }
 
 func NewRunner(wg *sync.WaitGroup) *Runner {
 	return &Runner{
-		WaitGroup: wg,
-		bots:      make(map[int]chan struct{}),
+		wg:   wg,
+		bots: make(map[int]chan struct{}),
 	}
 }
 
@@ -45,9 +45,9 @@ func (r *Runner) StartBot(logger *logrus.Logger, repo Repository,
 
 	r.bots[botID] = bot.stop
 
-	r.Add(1)
+	r.wg.Add(1)
 	go func() {
-		defer r.Done()
+		defer r.wg.Done()
 		bot.listenUpdates(updates)
 	}()
 
