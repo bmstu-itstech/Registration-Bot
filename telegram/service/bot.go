@@ -134,34 +134,54 @@ func (b *Bot) handleCommand(m *tg.Message) (tg.Message, error) {
 	}
 }
 
+func (b *Bot) handleUpdate(u tg.Update) {
+	var sent tg.Message
+	var err error
+
+	switch {
+	case u.CallbackQuery != nil:
+		b.log.WithFields(logrus.Fields{
+			"chatID":    u.CallbackQuery.Message.Chat.ID,
+			"messageID": u.CallbackQuery.Message.MessageID,
+			"data":      u.CallbackQuery.Data,
+		}).Debug("Received callback")
+		sent, err = b.handleCallback(u.CallbackQuery)
+
+	case u.Message != nil && u.Message.IsCommand():
+		b.log.WithFields(logrus.Fields{
+			"chatID":    u.Message.Chat.ID,
+			"messageID": u.Message.MessageID,
+			"command":   u.Message.Command(),
+		}).Debug("Received command")
+		sent, err = b.handleCommand(u.Message)
+
+	case u.Message != nil:
+		b.log.WithFields(logrus.Fields{
+			"chatID":    u.Message.Chat.ID,
+			"messageID": u.Message.MessageID,
+		}).Debug("Received message")
+		sent, err = b.handleMessage(u.Message)
+	}
+
+	if err != nil {
+		b.log.Error(err)
+	} else {
+		b.log.WithFields(logrus.Fields{
+			"chatID":    sent.Chat.ID,
+			"messageID": sent.MessageID,
+		}).Debug("Bot sent message")
+	}
+}
+
 func (b *Bot) listenUpdates(updates tg.UpdatesChannel) {
 	b.log.Info("Bot started")
 	for {
-		var sent tg.Message
-		var err error
-
 		select {
 		case u := <-updates:
-			switch {
-			case u.CallbackQuery != nil:
-				sent, err = b.handleCallback(u.CallbackQuery)
-			case u.Message != nil && u.Message.IsCommand():
-				sent, err = b.handleCommand(u.Message)
-			case u.Message != nil:
-				sent, err = b.handleMessage(u.Message)
-			}
+			go b.handleUpdate(u)
 		case <-b.stop:
 			b.log.Info("Bot stopped")
 			return
-		}
-
-		if err != nil {
-			b.log.Error(err)
-		} else {
-			b.log.WithFields(logrus.Fields{
-				"chatID":    sent.Chat.ID,
-				"messageID": sent.MessageID,
-			}).Debug("Bot sent message")
 		}
 	}
 }
