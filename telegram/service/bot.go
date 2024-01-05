@@ -27,8 +27,20 @@ type Bot struct {
 	repo Repository
 }
 
-func (b *Bot) handleFinal(m *tg.Message) (tg.Message, error) {
-	panic("not implemented!")
+func (b *Bot) sendFinal(m *tg.Message) (tg.Message, error) {
+	err := b.repo.SetState(m.Chat.ID, model.State{
+		QuestionID: 0,
+		Stage:      model.Finished,
+	})
+	if err != nil {
+		return tg.Message{}, err
+	}
+	text, err := b.repo.GetFinal()
+	if err != nil {
+		return tg.Message{}, err
+	}
+	reply := tg.NewMessage(m.Chat.ID, text)
+	return b.api.Send(reply)
 }
 
 func (b *Bot) handleMessage(m *tg.Message) (tg.Message, error) {
@@ -41,7 +53,8 @@ func (b *Bot) handleMessage(m *tg.Message) (tg.Message, error) {
 		return b.api.Send(tg.NewMessage(m.Chat.ID,
 			"Вы уже заполнили анкету!"))
 	case model.OnApproval:
-		return b.handleFinal(m)
+		return b.api.Send(tg.NewMessage(m.Chat.ID,
+			"Вы уже в стадии подтверждения анкеты!"))
 	case model.Unknown:
 		return b.handleStart(m)
 	}
