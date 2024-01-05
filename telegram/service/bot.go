@@ -1,27 +1,22 @@
 package service
 
 import (
+	"Registration-Bot/model"
 	tg "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/sirupsen/logrus"
-)
-
-const (
-	Unknown = iota
-	InProcess
-	OnApproval
-	Finished
 )
 
 //go:generate mockery --name Repository
 type Repository interface {
 	// SaveAnswer is used to save user's answer
-	SaveAnswer(string) error
-	// GetStart returns start message of bot
-	GetStart(int) (string, error)
+	SaveAnswer(chatID int64, answer string) error
 	// GetFinal returns final message of bot
-	GetFinal(int) (string, error)
-	// GetStage returns user's current questionnaire stage
-	GetStage(int64) (int, error)
+	GetFinal() (string, error)
+	// GetQuestion gets current question text
+	GetQuestion(chatID int64) (string, error)
+
+	GetState(chatID int64) (model.State, error)
+	SetState(chatID int64, st model.State) error
 }
 
 type Bot struct {
@@ -37,28 +32,28 @@ func (b *Bot) handleFinal(m *tg.Message) (tg.Message, error) {
 }
 
 func (b *Bot) handleMessage(m *tg.Message) (tg.Message, error) {
-	st, err := b.repo.GetStage(m.Chat.ID)
+	st, err := b.repo.GetState(m.Chat.ID)
 	if err != nil {
 		return tg.Message{}, err
 	}
-	switch st {
-	case Finished:
+	switch st.Stage {
+	case model.Finished:
 		return b.api.Send(tg.NewMessage(m.Chat.ID,
 			"Вы уже заполнили анкету!"))
-	case OnApproval:
+	case model.OnApproval:
 		return b.handleFinal(m)
-	case Unknown:
+	case model.Unknown:
 		return b.handleStart(m)
 	}
 	return tg.Message{}, err
 }
 
 func (b *Bot) handleCallback(c *tg.CallbackQuery) (tg.Message, error) {
-	st, err := b.repo.GetStage(c.Message.Chat.ID)
+	st, err := b.repo.GetState(c.Message.Chat.ID)
 	if err != nil {
 		return tg.Message{}, err
 	}
-	if st == Finished {
+	if st.Stage == model.Finished {
 		return b.api.Send(tg.NewMessage(c.Message.Chat.ID,
 			"Вы уже заполнили анкету!"))
 	}
@@ -66,32 +61,46 @@ func (b *Bot) handleCallback(c *tg.CallbackQuery) (tg.Message, error) {
 }
 
 func (b *Bot) handleStart(m *tg.Message) (tg.Message, error) {
-	st, err := b.repo.GetStage(m.Chat.ID)
+	st, err := b.repo.GetState(m.Chat.ID)
 	if err != nil {
 		return tg.Message{}, err
 	}
-	switch st {
-	case Finished:
+	switch st.Stage {
+	case model.Finished:
 		return b.api.Send(tg.NewMessage(m.Chat.ID,
 			"Вы уже заполнили анкету!"))
-	case InProcess:
+	case model.InProcess:
 		return b.api.Send(tg.NewMessage(m.Chat.ID,
 			"Вы уже в процессе заполнения анкеты!"))
-	case OnApproval:
+	case model.OnApproval:
 		return b.api.Send(tg.NewMessage(m.Chat.ID,
 			"Вы уже в стадии подтверждения анкеты!"))
 	}
-	text, err := b.repo.GetStart(b.id)
+	err = b.repo.SetState(m.Chat.ID, model.State{
+		QuestionID: 1,
+		Stage:      model.InProcess,
+	})
+	if err != nil {
+		return tg.Message{}, err
+	}
+	text, err := b.repo.GetQuestion(m.Chat.ID)
 	if err != nil {
 		return tg.Message{}, err
 	}
 	reply := tg.NewMessage(m.Chat.ID, text)
-	s, err := b.api.Send(reply)
-	return s, err
+	return b.api.Send(reply)
 }
 
 func (b *Bot) handleReset(m *tg.Message) (tg.Message, error) {
-	panic("not implemented!")
+	err := b.repo.SetState(m.Chat.ID, model.State{
+		QuestionID: 0,
+		Stage:      model.Unknown,
+	})
+	if err != nil {
+		return tg.Message{}, err
+	}
+	reply := tg.NewMessage(m.Chat.ID, "Анкета сброшена!")
+	return b.api.Send(reply)
 }
 
 func (b *Bot) handleCommand(m *tg.Message) (tg.Message, error) {
