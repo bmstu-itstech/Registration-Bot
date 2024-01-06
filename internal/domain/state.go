@@ -1,4 +1,4 @@
-package model
+package domain
 
 const (
 	Unknown = iota

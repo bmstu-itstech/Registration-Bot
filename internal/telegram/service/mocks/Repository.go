@@ -3,7 +3,7 @@
 package mocks
 
 import (
-	model2 "Registration-Bot/internal/model"
+	model2 "Registration-Bot/internal/domain"
 	mock "github.com/stretchr/testify/mock"
 )
 

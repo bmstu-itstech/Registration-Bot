@@ -1,7 +1,7 @@
 package service
 
 import (
-	model2 "Registration-Bot/internal/model"
+	model2 "Registration-Bot/internal/domain"
 	"fmt"
 	tg "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/sirupsen/logrus"

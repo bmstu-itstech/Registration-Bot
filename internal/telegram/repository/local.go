@@ -1,7 +1,7 @@
 package repository
 
 import (
-	model2 "Registration-Bot/internal/model"
+	model2 "Registration-Bot/internal/domain"
 )
 
 type Repository struct {
