@@ -1,4 +1,4 @@
-package service
+package runner
 
 import (
 	"Registration-Bot/internal/domain/errors"

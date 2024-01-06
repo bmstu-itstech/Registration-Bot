@@ -1,7 +1,8 @@
-package service
+package runner
 
 import (
 	"Registration-Bot/internal/domain/errors"
+	"Registration-Bot/internal/telegram/service/bot"
 	tg "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/sirupsen/logrus"
 	"sync"
@@ -21,7 +22,7 @@ func NewRunner(wg *sync.WaitGroup) *Runner {
 
 // StartBot launches bot with provided id and returns error
 // if bot starting failed.
-func (r *Runner) StartBot(logger *logrus.Logger, repo Repository,
+func (r *Runner) StartBot(logger *logrus.Logger, repo bot.Repository,
 	botID int, token string) error {
 	api, err := tg.NewBotAPI(token)
 	if err != nil {
@@ -35,19 +36,13 @@ func (r *Runner) StartBot(logger *logrus.Logger, repo Repository,
 		return err
 	}
 
-	bot := &Bot{
-		api:  api,
-		log:  logger.WithField("botID", botID),
-		stop: make(chan struct{}),
-		repo: repo,
-	}
-
-	r.bots[botID] = bot.stop
+	b := bot.NewBot(make(chan struct{}), api, logger, repo)
+	r.bots[botID] = b.Stop
 
 	r.wg.Add(1)
 	go func() {
 		defer r.wg.Done()
-		bot.listenUpdates(updates)
+		b.ListenUpdates(updates)
 	}()
 
 	return nil
