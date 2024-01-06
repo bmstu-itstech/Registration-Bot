@@ -13,6 +13,34 @@ type Repository struct {
 	mock.Mock
 }
 
+// AddUser provides a mock function with given fields: chatID
+func (_m *Repository) AddUser(chatID int64) error {
+	ret := _m.Called(chatID)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(int64) error); ok {
+		r0 = rf(chatID)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// DeleteUser provides a mock function with given fields: chatID
+func (_m *Repository) DeleteUser(chatID int64) error {
+	ret := _m.Called(chatID)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(int64) error); ok {
+		r0 = rf(chatID)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // GetFinal provides a mock function with given fields:
 func (_m *Repository) GetFinal() (string, error) {
 	ret := _m.Called()

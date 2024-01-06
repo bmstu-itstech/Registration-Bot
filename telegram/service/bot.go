@@ -24,8 +24,13 @@ type Repository interface {
 	AddUser(chatID int64) error
 }
 
+//go:generate mockery --name BotAPI
+type BotAPI interface {
+	Send(tg.Chattable) (tg.Message, error)
+}
+
 type Bot struct {
-	api  *tg.BotAPI
+	api  BotAPI
 	id   int
 	log  logrus.FieldLogger
 	stop chan struct{}
