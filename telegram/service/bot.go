@@ -32,47 +32,54 @@ type Bot struct {
 	repo Repository
 }
 
-func (b *Bot) sendFinal(send chan tg.Chattable, m *tg.Message) error {
+func (b *Bot) sendFinal(m *tg.Message) (tg.Message, error) {
 	err := b.repo.SetState(m.Chat.ID, model.State{
 		QuestionID: 0,
 		Stage:      model.Finished,
 	})
 	if err != nil {
-		return err
+		return tg.Message{}, err
 	}
 	text, err := b.repo.GetFinal()
 	if err != nil {
-		return err
+		return tg.Message{}, err
 	}
 	reply := tg.NewMessage(m.Chat.ID, text)
-	send <- reply
-	return nil
+	return b.api.Send(reply)
 }
 
-func (b *Bot) sendQuestion(send chan tg.Chattable, m *tg.Message) error {
+func (b *Bot) sendQuestion(m *tg.Message) (tg.Message, error) {
 	q, err := b.repo.GetQuestion(m.Chat.ID)
 	if err != nil {
-		return err
+		return tg.Message{}, err
 	}
 
 	if q.Rhetorical {
 		reply := tg.NewMessage(m.Chat.ID, q.Text)
-		send <- reply
+		sent, err := b.api.Send(reply)
+		if err != nil {
+			return tg.Message{}, err
+		}
+
+		b.log.WithFields(logrus.Fields{
+			"chatID":    sent.Chat.ID,
+			"messageID": sent.MessageID,
+		}).Debug("Bot sent message")
+
 		err = b.repo.SetState(m.Chat.ID, model.State{
 			QuestionID: q.NextQuestionID,
 			Stage:      model.InProcess,
 		})
 		if err != nil {
-			return err
+			return tg.Message{}, err
 		}
-		return b.sendQuestion(send, m)
+		return b.sendQuestion(m)
 	}
 
 	reply := tg.NewMessage(m.Chat.ID, q.Text)
 
 	if !q.HasButtons() {
-		send <- reply
-		return nil
+		return b.api.Send(reply)
 	}
 
 	rows := make([]tg.InlineKeyboardButton, 0)
@@ -83,73 +90,76 @@ func (b *Bot) sendQuestion(send chan tg.Chattable, m *tg.Message) error {
 	}
 	board := tg.NewInlineKeyboardMarkup(rows)
 	reply.ReplyMarkup = board
-	send <- reply
-	return nil
+	return b.api.Send(reply)
 }
 
-func (b *Bot) handleMessage(send chan tg.Chattable, m *tg.Message) error {
+func (b *Bot) handleMessage(m *tg.Message) (tg.Message, error) {
 	st, err := b.repo.GetState(m.Chat.ID)
 	if err != nil {
-		return err
+		return tg.Message{}, err
 	}
 
 	switch st.Stage {
 	case model.Finished:
-		send <- tg.NewMessage(m.Chat.ID, "Вы уже заполнили анкету!")
-		return nil
+		return b.api.Send(tg.NewMessage(m.Chat.ID,
+			"Вы уже заполнили анкету!"))
 	case model.OnApproval:
-		send <- tg.NewMessage(m.Chat.ID, "Вы уже в стадии подтверждения анкеты!")
-		return nil
+		return b.api.Send(tg.NewMessage(m.Chat.ID,
+			"Вы уже в стадии подтверждения анкеты!"))
 	case model.Unknown:
-		return b.handleStart(send, m)
+		return b.handleStart(m)
 	}
 
 	err = b.repo.SaveAnswer(m.Chat.ID, m.Text)
 	if err != nil {
-		return err
+		return tg.Message{}, err
 	}
 	q, err := b.repo.GetQuestion(m.Chat.ID)
 	if err != nil {
-		return err
+		return tg.Message{}, err
 	}
 
 	if q.NextQuestionID == 0 {
-		return b.sendFinal(send, m)
+		return b.sendFinal(m)
 	}
 
 	err = b.repo.SetState(m.Chat.ID, model.State{
 		QuestionID: q.NextQuestionID,
 		Stage:      model.InProcess,
 	})
-	return b.sendQuestion(send, m)
+	return b.sendQuestion(m)
 }
 
-func (b *Bot) handleCallback(send chan tg.Chattable, c *tg.CallbackQuery) error {
+func (b *Bot) handleCallback(c *tg.CallbackQuery) (tg.Message, error) {
 	// delete buttons from bot message
 	edit := tg.NewEditMessageReplyMarkup(c.Message.Chat.ID, c.Message.MessageID,
 		tg.NewInlineKeyboardMarkup())
-	send <- edit
-
+	sent, err := b.api.Send(edit)
+	if err != nil {
+		return tg.Message{}, err
+	}
+	b.log.Info(sent)
 	st, err := b.repo.GetState(c.Message.Chat.ID)
 	if err != nil {
-		return err
+		return tg.Message{}, err
 	}
+
 	if st.Stage == model.Finished {
-		send <- tg.NewMessage(c.Message.Chat.ID, "Вы уже заполнили анкету!")
-		return nil
+		return b.api.Send(tg.NewMessage(c.Message.Chat.ID,
+			"Вы уже заполнили анкету!"))
 	}
 
 	err = b.repo.SaveAnswer(c.Message.Chat.ID, c.Message.Text)
 	if err != nil {
-		return err
+		return tg.Message{}, err
 	}
 
 	next, err := strconv.Atoi(c.Data)
 	if err != nil {
-		return err
+		return tg.Message{}, err
 	}
 	if next == 0 {
-		return b.sendFinal(send, c.Message)
+		return b.sendFinal(c.Message)
 	}
 
 	err = b.repo.SetState(c.Message.Chat.ID, model.State{
@@ -157,126 +167,105 @@ func (b *Bot) handleCallback(send chan tg.Chattable, c *tg.CallbackQuery) error 
 		Stage:      model.InProcess,
 	})
 	if err != nil {
-		return err
+		return tg.Message{}, err
 	}
-	return b.sendQuestion(send, c.Message)
+	return b.sendQuestion(c.Message)
 }
 
-func (b *Bot) handleStart(send chan tg.Chattable, m *tg.Message) error {
+func (b *Bot) handleStart(m *tg.Message) (tg.Message, error) {
 	err := b.repo.AddUser(m.Chat.ID)
 	if err != nil {
-		return err
+		return tg.Message{}, err
 	}
 	st, err := b.repo.GetState(m.Chat.ID)
 	if err != nil {
-		return err
+		return tg.Message{}, err
 	}
 	switch st.Stage {
 	case model.Finished:
-		send <- tg.NewMessage(m.Chat.ID, "Вы уже заполнили анкету!")
-		return nil
+		return b.api.Send(tg.NewMessage(m.Chat.ID,
+			"Вы уже заполнили анкету!"))
 	case model.InProcess:
-		send <- tg.NewMessage(m.Chat.ID, "Вы уже в процессе заполнения анкеты!")
-		return nil
+		return b.api.Send(tg.NewMessage(m.Chat.ID,
+			"Вы уже в процессе заполнения анкеты!"))
 	case model.OnApproval:
-		send <- tg.NewMessage(m.Chat.ID, "Вы уже в стадии подтверждения анкеты!")
-		return nil
+		return b.api.Send(tg.NewMessage(m.Chat.ID,
+			"Вы уже в стадии подтверждения анкеты!"))
 	}
 	err = b.repo.SetState(m.Chat.ID, model.State{
 		QuestionID: 1,
 		Stage:      model.InProcess,
 	})
 	if err != nil {
-		return err
+		return tg.Message{}, err
 	}
-	return b.sendQuestion(send, m)
+	return b.sendQuestion(m)
 }
 
-func (b *Bot) handleReset(send chan tg.Chattable, m *tg.Message) error {
+func (b *Bot) handleReset(m *tg.Message) (tg.Message, error) {
 	err := b.repo.DeleteUser(m.Chat.ID)
 	if err != nil {
-		return err
+		return tg.Message{}, err
 	}
 	err = b.repo.SetState(m.Chat.ID, model.State{
 		QuestionID: 0,
 		Stage:      model.Unknown,
 	})
 	if err != nil {
-		return err
+		return tg.Message{}, err
 	}
-	send <- tg.NewMessage(m.Chat.ID, "Анкета сброшена!")
-	return nil
+	reply := tg.NewMessage(m.Chat.ID, "Анкета сброшена!")
+	return b.api.Send(reply)
 }
 
-func (b *Bot) handleCommand(send chan tg.Chattable, m *tg.Message) error {
+func (b *Bot) handleCommand(m *tg.Message) (tg.Message, error) {
 	switch m.Command() {
 	case "start":
-		return b.handleStart(send, m)
+		return b.handleStart(m)
 	case "reset":
-		return b.handleReset(send, m)
+		return b.handleReset(m)
 	default:
-		send <- tg.NewMessage(m.Chat.ID, "Неизвестная команда!")
-		return nil
-	}
-}
-
-func (b *Bot) logSend(send chan tg.Chattable) {
-	for {
-		select {
-		case s := <-send:
-			sent, err := b.api.Send(s)
-			if err != nil {
-				b.log.WithFields(logrus.Fields{
-					"chatID":    sent.Chat.ID,
-					"messageID": sent.MessageID,
-				}).Error(err)
-			} else {
-				b.log.WithFields(logrus.Fields{
-					"chatID":    sent.Chat.ID,
-					"messageID": sent.MessageID,
-				}).Debug("Bot sent message")
-			}
-		case <-b.stop:
-			return
-		}
+		reply := tg.NewMessage(m.Chat.ID, "Неизвестная команда!")
+		return b.api.Send(reply)
 	}
 }
 
 func (b *Bot) handleUpdate(u tg.Update) {
+	var sent tg.Message
 	var err error
-	var l logrus.FieldLogger
-	send := make(chan tg.Chattable)
-	go b.logSend(send)
 
 	switch {
 	case u.CallbackQuery != nil:
-		l = b.log.WithFields(logrus.Fields{
+		b.log.WithFields(logrus.Fields{
 			"chatID":    u.CallbackQuery.Message.Chat.ID,
 			"messageID": u.CallbackQuery.Message.MessageID,
-			"text":      u.CallbackQuery.Message.Text,
-		})
-		l.Debug("Received callback")
-		err = b.handleCallback(send, u.CallbackQuery)
+			"data":      u.CallbackQuery.Data,
+		}).Debug("Received callback")
+		sent, err = b.handleCallback(u.CallbackQuery)
+
 	case u.Message != nil && u.Message.IsCommand():
-		l = b.log.WithFields(logrus.Fields{
+		b.log.WithFields(logrus.Fields{
 			"chatID":    u.Message.Chat.ID,
 			"messageID": u.Message.MessageID,
 			"command":   u.Message.Command(),
-		})
-		l.Debug("Received command")
-		err = b.handleCommand(send, u.Message)
+		}).Debug("Received command")
+		sent, err = b.handleCommand(u.Message)
+
 	case u.Message != nil:
-		l = b.log.WithFields(logrus.Fields{
+		b.log.WithFields(logrus.Fields{
 			"chatID":    u.Message.Chat.ID,
 			"messageID": u.Message.MessageID,
-			"text":      u.Message.Text,
-		})
-		l.Debug("Received message")
-		err = b.handleMessage(send, u.Message)
+		}).Debug("Received message")
+		sent, err = b.handleMessage(u.Message)
 	}
 
 	if err != nil {
-		l.Error(err)
+		b.log.Error(err)
+	} else {
+		b.log.WithFields(logrus.Fields{
+			"chatID":    sent.Chat.ID,
+			"messageID": sent.MessageID,
+		}).Debug("Bot sent message")
 	}
 }
 
