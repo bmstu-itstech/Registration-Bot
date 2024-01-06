@@ -226,7 +226,10 @@ func (b *Bot) logSend(send chan tg.Chattable) {
 		case s := <-send:
 			sent, err := b.api.Send(s)
 			if err != nil {
-				b.log.Error(err)
+				b.log.WithFields(logrus.Fields{
+					"chatID":    sent.Chat.ID,
+					"messageID": sent.MessageID,
+				}).Error(err)
 			} else {
 				b.log.WithFields(logrus.Fields{
 					"chatID":    sent.Chat.ID,
@@ -240,40 +243,32 @@ func (b *Bot) logSend(send chan tg.Chattable) {
 }
 
 func (b *Bot) handleUpdate(u tg.Update) {
-	// we use chan to send messages separately from func
-	send := make(chan tg.Chattable)
 	var err error
-
+	send := make(chan tg.Chattable)
 	go b.logSend(send)
+
+	l := b.log.WithFields(logrus.Fields{
+		"chatID":    u.CallbackQuery.Message.Chat.ID,
+		"messageID": u.CallbackQuery.Message.MessageID,
+	})
 
 	switch {
 	case u.CallbackQuery != nil:
-		b.log.WithFields(logrus.Fields{
-			"chatID":    u.CallbackQuery.Message.Chat.ID,
-			"messageID": u.CallbackQuery.Message.MessageID,
-			"data":      u.CallbackQuery.Data,
-		}).Debug("Received callback")
+		l.WithField("data", u.CallbackQuery.Data).
+			Debug("Received callback")
 		err = b.handleCallback(send, u.CallbackQuery)
-
 	case u.Message != nil && u.Message.IsCommand():
-		b.log.WithFields(logrus.Fields{
-			"chatID":    u.Message.Chat.ID,
-			"messageID": u.Message.MessageID,
-			"command":   u.Message.Command(),
-		}).Debug("Received command")
+		l.WithField("command", u.Message.Command()).
+			Debug("Received command")
 		err = b.handleCommand(send, u.Message)
-
 	case u.Message != nil:
-		b.log.WithFields(logrus.Fields{
-			"chatID":    u.Message.Chat.ID,
-			"messageID": u.Message.MessageID,
-		}).Debug("Received message")
+		l.WithField("messageText", u.Message.Text).
+			Debug("Received message")
 		err = b.handleMessage(send, u.Message)
 	}
 
 	if err != nil {
-		b.log.Error(err)
-		return
+		l.Error(err)
 	}
 }
 
