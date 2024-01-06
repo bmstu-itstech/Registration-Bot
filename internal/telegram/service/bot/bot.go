@@ -19,7 +19,7 @@ type Repository interface {
 	SetState(chatID int64, st domain.State) error
 }
 
-//go:generate mockery --name BotAPI
+//go:generate mockery --name API
 type API interface {
 	Send(m tg.Chattable) (tg.Message, error)
 }
