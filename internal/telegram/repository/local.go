@@ -1,18 +1,20 @@
 package repository
 
-import "Registration-Bot/model"
+import (
+	model2 "Registration-Bot/internal/model"
+)
 
 type Repository struct {
 	BotID     int
 	Final     string
-	Users     map[int64]model.State
-	Questions map[int]model.Question
+	Users     map[int64]model2.State
+	Questions map[int]model2.Question
 }
 
 func (r *Repository) SaveAnswer(chatID int64, answer string) error {
 	state, ok := r.Users[chatID]
 	if !ok {
-		return model.ErrUserNotFound
+		return model2.ErrUserNotFound
 	}
 	r.Users[chatID].Answers[state.QuestionID] = answer
 	return nil
@@ -22,38 +24,38 @@ func (r *Repository) GetFinal() (string, error) {
 	return r.Final, nil
 }
 
-func (r *Repository) GetQuestion(chatID int64) (model.Question, error) {
+func (r *Repository) GetQuestion(chatID int64) (model2.Question, error) {
 	state, ok := r.Users[chatID]
 	if !ok {
-		return model.Question{}, model.ErrUserNotFound
+		return model2.Question{}, model2.ErrUserNotFound
 	}
 	q, ok := r.Questions[state.QuestionID]
 	if !ok {
-		return model.Question{}, model.ErrQuestionNotFound
+		return model2.Question{}, model2.ErrQuestionNotFound
 	}
 	return q, nil
 }
 
-func (r *Repository) GetState(chatID int64) (model.State, error) {
+func (r *Repository) GetState(chatID int64) (model2.State, error) {
 	state, ok := r.Users[chatID]
 	if !ok {
-		return model.State{
+		return model2.State{
 			Answers: make(map[int]string),
 		}, nil
 	}
 	return state, nil
 }
 
-func (r *Repository) SetState(chatID int64, st model.State) error {
+func (r *Repository) SetState(chatID int64, st model2.State) error {
 	r.Users[chatID] = st
 	return nil
 }
 
-func NewRepository(botID int, final string, questions map[int]model.Question) *Repository {
+func NewRepository(botID int, final string, questions map[int]model2.Question) *Repository {
 	return &Repository{
 		BotID:     botID,
 		Final:     final,
-		Users:     make(map[int64]model.State),
+		Users:     make(map[int64]model2.State),
 		Questions: questions,
 	}
 }

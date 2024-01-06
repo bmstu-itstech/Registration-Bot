@@ -1,7 +1,7 @@
 package service
 
 import (
-	"Registration-Bot/model"
+	model2 "Registration-Bot/internal/model"
 	"fmt"
 	tg "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/sirupsen/logrus"
@@ -15,10 +15,10 @@ type Repository interface {
 	// GetFinal returns final message of bot
 	GetFinal() (string, error)
 	// GetQuestion returns current Question using user's saved state
-	GetQuestion(chatID int64) (model.Question, error)
+	GetQuestion(chatID int64) (model2.Question, error)
 
-	GetState(chatID int64) (model.State, error)
-	SetState(chatID int64, st model.State) error
+	GetState(chatID int64) (model2.State, error)
+	SetState(chatID int64, st model2.State) error
 }
 
 //go:generate mockery --name BotAPI
@@ -50,9 +50,9 @@ func (b *Bot) logSend(chatID int64, m tg.Chattable) {
 }
 
 func (b *Bot) sendFinal(m *tg.Message) {
-	err := b.repo.SetState(m.Chat.ID, model.State{
+	err := b.repo.SetState(m.Chat.ID, model2.State{
 		QuestionID: 0,
-		Stage:      model.Finished,
+		Stage:      model2.Finished,
 	})
 	if err != nil {
 		b.logErr(m.Chat.ID, err)
@@ -113,13 +113,13 @@ func (b *Bot) handleMessage(m *tg.Message) {
 	}
 
 	switch st.Stage {
-	case model.Finished:
+	case model2.Finished:
 		reply := tg.NewMessage(m.Chat.ID, "Вы уже заполнили анкету!")
 		b.logSend(m.Chat.ID, reply)
-	case model.OnApproval:
+	case model2.OnApproval:
 		reply := tg.NewMessage(m.Chat.ID, "Вы уже в стадии подтверждения анкеты!")
 		b.logSend(m.Chat.ID, reply)
-	case model.Unknown:
+	case model2.Unknown:
 		b.handleStart(m)
 	}
 
@@ -152,7 +152,7 @@ func (b *Bot) handleCallback(c *tg.CallbackQuery) {
 		b.logErr(c.Message.Chat.ID, err)
 	}
 
-	if st.Stage == model.Finished {
+	if st.Stage == model2.Finished {
 		reply := tg.NewMessage(c.Message.Chat.ID, "Вы уже заполнили анкету!")
 		b.logSend(c.Message.Chat.ID, reply)
 	}
@@ -184,13 +184,13 @@ func (b *Bot) handleStart(m *tg.Message) {
 		b.logErr(m.Chat.ID, err)
 	}
 	switch st.Stage {
-	case model.Finished:
+	case model2.Finished:
 		reply := tg.NewMessage(m.Chat.ID, "Вы уже заполнили анкету!")
 		b.logSend(m.Chat.ID, reply)
-	case model.InProcess:
+	case model2.InProcess:
 		reply := tg.NewMessage(m.Chat.ID, "Вы уже в процессе заполнения анкеты!")
 		b.logSend(m.Chat.ID, reply)
-	case model.OnApproval:
+	case model2.OnApproval:
 		reply := tg.NewMessage(m.Chat.ID, "Вы уже в стадии подтверждения анкеты!")
 		b.logSend(m.Chat.ID, reply)
 	}
@@ -203,9 +203,9 @@ func (b *Bot) handleStart(m *tg.Message) {
 }
 
 func (b *Bot) handleReset(m *tg.Message) {
-	err := b.repo.SetState(m.Chat.ID, model.State{
+	err := b.repo.SetState(m.Chat.ID, model2.State{
 		QuestionID: 0,
-		Stage:      model.Unknown,
+		Stage:      model2.Unknown,
 		Answers:    make(map[int]string),
 	})
 	if err != nil {

@@ -1,8 +1,8 @@
 package service
 
 import (
-	"Registration-Bot/model"
-	"Registration-Bot/telegram/service/mocks"
+	"Registration-Bot/internal/model"
+	"Registration-Bot/internal/telegram/service/mocks"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"sync"

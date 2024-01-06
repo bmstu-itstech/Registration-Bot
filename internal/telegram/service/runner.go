@@ -1,7 +1,7 @@
 package service
 
 import (
-	"Registration-Bot/model"
+	"Registration-Bot/internal/model"
 	tg "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/sirupsen/logrus"
 	"sync"

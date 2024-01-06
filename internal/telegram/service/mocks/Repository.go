@@ -3,8 +3,7 @@
 package mocks
 
 import (
-	model "Registration-Bot/model"
-
+	model2 "Registration-Bot/internal/model"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -66,18 +65,18 @@ func (_m *Repository) GetFinal() (string, error) {
 }
 
 // GetQuestion provides a mock function with given fields: chatID
-func (_m *Repository) GetQuestion(chatID int64) (model.Question, error) {
+func (_m *Repository) GetQuestion(chatID int64) (model2.Question, error) {
 	ret := _m.Called(chatID)
 
-	var r0 model.Question
+	var r0 model2.Question
 	var r1 error
-	if rf, ok := ret.Get(0).(func(int64) (model.Question, error)); ok {
+	if rf, ok := ret.Get(0).(func(int64) (model2.Question, error)); ok {
 		return rf(chatID)
 	}
-	if rf, ok := ret.Get(0).(func(int64) model.Question); ok {
+	if rf, ok := ret.Get(0).(func(int64) model2.Question); ok {
 		r0 = rf(chatID)
 	} else {
-		r0 = ret.Get(0).(model.Question)
+		r0 = ret.Get(0).(model2.Question)
 	}
 
 	if rf, ok := ret.Get(1).(func(int64) error); ok {
@@ -90,18 +89,18 @@ func (_m *Repository) GetQuestion(chatID int64) (model.Question, error) {
 }
 
 // GetState provides a mock function with given fields: chatID
-func (_m *Repository) GetState(chatID int64) (model.State, error) {
+func (_m *Repository) GetState(chatID int64) (model2.State, error) {
 	ret := _m.Called(chatID)
 
-	var r0 model.State
+	var r0 model2.State
 	var r1 error
-	if rf, ok := ret.Get(0).(func(int64) (model.State, error)); ok {
+	if rf, ok := ret.Get(0).(func(int64) (model2.State, error)); ok {
 		return rf(chatID)
 	}
-	if rf, ok := ret.Get(0).(func(int64) model.State); ok {
+	if rf, ok := ret.Get(0).(func(int64) model2.State); ok {
 		r0 = rf(chatID)
 	} else {
-		r0 = ret.Get(0).(model.State)
+		r0 = ret.Get(0).(model2.State)
 	}
 
 	if rf, ok := ret.Get(1).(func(int64) error); ok {
@@ -128,11 +127,11 @@ func (_m *Repository) SaveAnswer(chatID int64, answer string) error {
 }
 
 // SetState provides a mock function with given fields: chatID, st
-func (_m *Repository) SetState(chatID int64, st model.State) error {
+func (_m *Repository) SetState(chatID int64, st model2.State) error {
 	ret := _m.Called(chatID, st)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(int64, model.State) error); ok {
+	if rf, ok := ret.Get(0).(func(int64, model2.State) error); ok {
 		r0 = rf(chatID, st)
 	} else {
 		r0 = ret.Error(0)
