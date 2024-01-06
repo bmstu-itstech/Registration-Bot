@@ -19,6 +19,9 @@ type Repository interface {
 
 	GetState(chatID int64) (model.State, error)
 	SetState(chatID int64, st model.State) error
+
+	DeleteUser(chatID int64) error
+	AddUser(chatID int64) error
 }
 
 type Bot struct {
@@ -89,6 +92,7 @@ func (b *Bot) handleMessage(send chan tg.Chattable, m *tg.Message) error {
 	if err != nil {
 		return err
 	}
+
 	switch st.Stage {
 	case model.Finished:
 		send <- tg.NewMessage(m.Chat.ID, "Вы уже заполнили анкету!")
@@ -99,6 +103,7 @@ func (b *Bot) handleMessage(send chan tg.Chattable, m *tg.Message) error {
 	case model.Unknown:
 		return b.handleStart(send, m)
 	}
+
 	err = b.repo.SaveAnswer(m.Chat.ID, m.Text)
 	if err != nil {
 		return err
@@ -107,6 +112,11 @@ func (b *Bot) handleMessage(send chan tg.Chattable, m *tg.Message) error {
 	if err != nil {
 		return err
 	}
+
+	if q.NextQuestionID == 0 {
+		return b.sendFinal(send, m)
+	}
+
 	err = b.repo.SetState(m.Chat.ID, model.State{
 		QuestionID: q.NextQuestionID,
 		Stage:      model.InProcess,
@@ -138,6 +148,10 @@ func (b *Bot) handleCallback(send chan tg.Chattable, c *tg.CallbackQuery) error 
 	if err != nil {
 		return err
 	}
+	if next == 0 {
+		return b.sendFinal(send, c.Message)
+	}
+
 	err = b.repo.SetState(c.Message.Chat.ID, model.State{
 		QuestionID: next,
 		Stage:      model.InProcess,
@@ -149,6 +163,10 @@ func (b *Bot) handleCallback(send chan tg.Chattable, c *tg.CallbackQuery) error 
 }
 
 func (b *Bot) handleStart(send chan tg.Chattable, m *tg.Message) error {
+	err := b.repo.AddUser(m.Chat.ID)
+	if err != nil {
+		return err
+	}
 	st, err := b.repo.GetState(m.Chat.ID)
 	if err != nil {
 		return err
@@ -175,7 +193,11 @@ func (b *Bot) handleStart(send chan tg.Chattable, m *tg.Message) error {
 }
 
 func (b *Bot) handleReset(send chan tg.Chattable, m *tg.Message) error {
-	err := b.repo.SetState(m.Chat.ID, model.State{
+	err := b.repo.DeleteUser(m.Chat.ID)
+	if err != nil {
+		return err
+	}
+	err = b.repo.SetState(m.Chat.ID, model.State{
 		QuestionID: 0,
 		Stage:      model.Unknown,
 	})
@@ -187,12 +209,6 @@ func (b *Bot) handleReset(send chan tg.Chattable, m *tg.Message) error {
 }
 
 func (b *Bot) handleCommand(send chan tg.Chattable, m *tg.Message) error {
-	b.log.WithFields(logrus.Fields{
-		"chatID":    m.Chat.ID,
-		"messageID": m.MessageID,
-		"command":   m.Command(),
-	}).Debug("Received command")
-
 	switch m.Command() {
 	case "start":
 		return b.handleStart(send, m)
@@ -225,7 +241,7 @@ func (b *Bot) logSend(send chan tg.Chattable) {
 
 func (b *Bot) handleUpdate(u tg.Update) {
 	// we use chan to send messages separately from func
-	var send chan tg.Chattable
+	send := make(chan tg.Chattable)
 	var err error
 
 	go b.logSend(send)

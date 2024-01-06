@@ -13,5 +13,5 @@ type Question struct {
 }
 
 func (q Question) HasButtons() bool {
-	return len(q.Buttons) != 0
+	return q.Buttons != nil && len(q.Buttons) != 0
 }
