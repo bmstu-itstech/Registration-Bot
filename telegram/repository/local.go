@@ -2,40 +2,19 @@ package repository
 
 import "Registration-Bot/model"
 
-type User struct {
-	Answers map[int]string
-	State   model.State
-}
-
 type Repository struct {
 	BotID     int
 	Final     string
-	Users     map[int64]*User
+	Users     map[int64]model.State
 	Questions map[int]model.Question
 }
 
-func (r *Repository) AddUser(chatID int64) error {
-	_, ok := r.Users[chatID]
-	if !ok {
-		r.Users[chatID] = &User{
-			Answers: make(map[int]string),
-			State:   model.State{},
-		}
-	}
-	return nil
-}
-
-func (r *Repository) DeleteUser(chatID int64) error {
-	delete(r.Users, chatID)
-	return nil
-}
-
 func (r *Repository) SaveAnswer(chatID int64, answer string) error {
-	user, ok := r.Users[chatID]
+	state, ok := r.Users[chatID]
 	if !ok {
 		return model.ErrUserNotFound
 	}
-	r.Users[chatID].Answers[user.State.QuestionID] = answer
+	r.Users[chatID].Answers[state.QuestionID] = answer
 	return nil
 }
 
@@ -44,11 +23,11 @@ func (r *Repository) GetFinal() (string, error) {
 }
 
 func (r *Repository) GetQuestion(chatID int64) (model.Question, error) {
-	user, ok := r.Users[chatID]
+	state, ok := r.Users[chatID]
 	if !ok {
 		return model.Question{}, model.ErrUserNotFound
 	}
-	q, ok := r.Questions[user.State.QuestionID]
+	q, ok := r.Questions[state.QuestionID]
 	if !ok {
 		return model.Question{}, model.ErrQuestionNotFound
 	}
@@ -56,19 +35,17 @@ func (r *Repository) GetQuestion(chatID int64) (model.Question, error) {
 }
 
 func (r *Repository) GetState(chatID int64) (model.State, error) {
-	user, ok := r.Users[chatID]
+	state, ok := r.Users[chatID]
 	if !ok {
-		return model.State{}, model.ErrUserNotFound
+		return model.State{
+			Answers: make(map[int]string),
+		}, nil
 	}
-	return user.State, nil
+	return state, nil
 }
 
 func (r *Repository) SetState(chatID int64, st model.State) error {
-	user, ok := r.Users[chatID]
-	if !ok {
-		return model.ErrUserNotFound
-	}
-	user.State = st
+	r.Users[chatID] = st
 	return nil
 }
 
@@ -76,7 +53,7 @@ func NewRepository(botID int, final string, questions map[int]model.Question) *R
 	return &Repository{
 		BotID:     botID,
 		Final:     final,
-		Users:     make(map[int64]*User),
+		Users:     make(map[int64]model.State),
 		Questions: questions,
 	}
 }

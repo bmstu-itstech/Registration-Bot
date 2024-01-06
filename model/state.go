@@ -10,4 +10,5 @@ const (
 type State struct {
 	QuestionID int
 	Stage      int
+	Answers    map[int]string
 }

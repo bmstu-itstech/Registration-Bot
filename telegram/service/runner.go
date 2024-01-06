@@ -37,7 +37,6 @@ func (r *Runner) StartBot(logger *logrus.Logger, repo Repository,
 
 	bot := &Bot{
 		api:  api,
-		id:   botID,
 		log:  logger.WithField("botID", botID),
 		stop: make(chan struct{}),
 		repo: repo,

@@ -28,7 +28,7 @@ func (_m *Repository) AddUser(chatID int64) error {
 }
 
 // DeleteUser provides a mock function with given fields: chatID
-func (_m *Repository) DeleteUser(chatID int64) error {
+func (_m *Repository) ResetUser(chatID int64) error {
 	ret := _m.Called(chatID)
 
 	var r0 error

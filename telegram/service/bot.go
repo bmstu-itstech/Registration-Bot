@@ -19,9 +19,6 @@ type Repository interface {
 
 	GetState(chatID int64) (model.State, error)
 	SetState(chatID int64, st model.State) error
-
-	DeleteUser(chatID int64) error
-	AddUser(chatID int64) error
 }
 
 //go:generate mockery --name BotAPI
@@ -31,7 +28,6 @@ type BotAPI interface {
 
 type Bot struct {
 	api  BotAPI
-	id   int
 	log  logrus.FieldLogger
 	stop chan struct{}
 	repo Repository
@@ -71,10 +67,12 @@ func (b *Bot) sendQuestion(m *tg.Message) (tg.Message, error) {
 			"messageID": sent.MessageID,
 		}).Debug("Bot sent message")
 
-		err = b.repo.SetState(m.Chat.ID, model.State{
-			QuestionID: q.NextQuestionID,
-			Stage:      model.InProcess,
-		})
+		st, err := b.repo.GetState(m.Chat.ID)
+		if err != nil {
+			return tg.Message{}, err
+		}
+		st.QuestionID = q.NextQuestionID
+		err = b.repo.SetState(m.Chat.ID, st)
 		if err != nil {
 			return tg.Message{}, err
 		}
@@ -128,10 +126,8 @@ func (b *Bot) handleMessage(m *tg.Message) (tg.Message, error) {
 		return b.sendFinal(m)
 	}
 
-	err = b.repo.SetState(m.Chat.ID, model.State{
-		QuestionID: q.NextQuestionID,
-		Stage:      model.InProcess,
-	})
+	st.QuestionID = q.NextQuestionID
+	err = b.repo.SetState(m.Chat.ID, st)
 	return b.sendQuestion(m)
 }
 
@@ -167,10 +163,8 @@ func (b *Bot) handleCallback(c *tg.CallbackQuery) (tg.Message, error) {
 		return b.sendFinal(c.Message)
 	}
 
-	err = b.repo.SetState(c.Message.Chat.ID, model.State{
-		QuestionID: next,
-		Stage:      model.InProcess,
-	})
+	st.QuestionID = next
+	err = b.repo.SetState(c.Message.Chat.ID, st)
 	if err != nil {
 		return tg.Message{}, err
 	}
@@ -178,10 +172,6 @@ func (b *Bot) handleCallback(c *tg.CallbackQuery) (tg.Message, error) {
 }
 
 func (b *Bot) handleStart(m *tg.Message) (tg.Message, error) {
-	err := b.repo.AddUser(m.Chat.ID)
-	if err != nil {
-		return tg.Message{}, err
-	}
 	st, err := b.repo.GetState(m.Chat.ID)
 	if err != nil {
 		return tg.Message{}, err
@@ -197,10 +187,8 @@ func (b *Bot) handleStart(m *tg.Message) (tg.Message, error) {
 		return b.api.Send(tg.NewMessage(m.Chat.ID,
 			"Вы уже в стадии подтверждения анкеты!"))
 	}
-	err = b.repo.SetState(m.Chat.ID, model.State{
-		QuestionID: 1,
-		Stage:      model.InProcess,
-	})
+	st.QuestionID = 1
+	err = b.repo.SetState(m.Chat.ID, st)
 	if err != nil {
 		return tg.Message{}, err
 	}
@@ -208,13 +196,10 @@ func (b *Bot) handleStart(m *tg.Message) (tg.Message, error) {
 }
 
 func (b *Bot) handleReset(m *tg.Message) (tg.Message, error) {
-	err := b.repo.DeleteUser(m.Chat.ID)
-	if err != nil {
-		return tg.Message{}, err
-	}
-	err = b.repo.SetState(m.Chat.ID, model.State{
+	err := b.repo.SetState(m.Chat.ID, model.State{
 		QuestionID: 0,
 		Stage:      model.Unknown,
+		Answers:    make(map[int]string),
 	})
 	if err != nil {
 		return tg.Message{}, err
