@@ -5,6 +5,7 @@ import (
 	"fmt"
 	tg "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/sirupsen/logrus"
+	"strconv"
 )
 
 //go:generate mockery --name Repository
@@ -88,7 +89,6 @@ func (b *Bot) handleMessage(send chan tg.Chattable, m *tg.Message) error {
 	if err != nil {
 		return err
 	}
-
 	switch st.Stage {
 	case model.Finished:
 		send <- tg.NewMessage(m.Chat.ID, "Вы уже заполнили анкету!")
@@ -99,11 +99,18 @@ func (b *Bot) handleMessage(send chan tg.Chattable, m *tg.Message) error {
 	case model.Unknown:
 		return b.handleStart(send, m)
 	}
-
 	err = b.repo.SaveAnswer(m.Chat.ID, m.Text)
 	if err != nil {
 		return err
 	}
+	q, err := b.repo.GetQuestion(m.Chat.ID)
+	if err != nil {
+		return err
+	}
+	err = b.repo.SetState(m.Chat.ID, model.State{
+		QuestionID: q.NextQuestionID,
+		Stage:      model.InProcess,
+	})
 	return b.sendQuestion(send, m)
 }
 
@@ -117,13 +124,24 @@ func (b *Bot) handleCallback(send chan tg.Chattable, c *tg.CallbackQuery) error 
 	if err != nil {
 		return err
 	}
-
 	if st.Stage == model.Finished {
 		send <- tg.NewMessage(c.Message.Chat.ID, "Вы уже заполнили анкету!")
 		return nil
 	}
 
 	err = b.repo.SaveAnswer(c.Message.Chat.ID, c.Message.Text)
+	if err != nil {
+		return err
+	}
+
+	next, err := strconv.Atoi(c.Data)
+	if err != nil {
+		return err
+	}
+	err = b.repo.SetState(c.Message.Chat.ID, model.State{
+		QuestionID: next,
+		Stage:      model.InProcess,
+	})
 	if err != nil {
 		return err
 	}
