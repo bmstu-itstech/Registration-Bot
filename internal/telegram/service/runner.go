@@ -1,7 +1,7 @@
 package service
 
 import (
-	"Registration-Bot/internal/domain"
+	"Registration-Bot/internal/domain/errors"
 	tg "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/sirupsen/logrus"
 	"sync"
@@ -58,7 +58,7 @@ func (r *Runner) StartBot(logger *logrus.Logger, repo Repository,
 func (r *Runner) StopBot(botID int) error {
 	stop, ok := r.bots[botID]
 	if !ok {
-		return domain.ErrBotNotFound
+		return errors.ErrBotNotFound
 	}
 	stop <- struct{}{}
 	close(stop)

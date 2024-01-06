@@ -1,7 +1,7 @@
 package service
 
 import (
-	"Registration-Bot/internal/domain"
+	"Registration-Bot/internal/domain/errors"
 	"Registration-Bot/internal/telegram/service/mocks"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
@@ -29,5 +29,5 @@ func TestStopBot(t *testing.T) {
 func TestStopBotNonexistent(t *testing.T) {
 	r := NewRunner(&sync.WaitGroup{})
 	err := r.StopBot(-1)
-	assert.ErrorIs(t, err, domain.ErrBotNotFound)
+	assert.ErrorIs(t, err, errors.ErrBotNotFound)
 }

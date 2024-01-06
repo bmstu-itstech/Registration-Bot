@@ -2,6 +2,7 @@ package repository
 
 import (
 	model2 "Registration-Bot/internal/domain"
+	"Registration-Bot/internal/domain/errors"
 )
 
 type Repository struct {
@@ -14,7 +15,7 @@ type Repository struct {
 func (r *Repository) SaveAnswer(chatID int64, answer string) error {
 	state, ok := r.Users[chatID]
 	if !ok {
-		return model2.ErrUserNotFound
+		return errors.ErrUserNotFound
 	}
 	r.Users[chatID].Answers[state.QuestionID] = answer
 	return nil
@@ -27,11 +28,11 @@ func (r *Repository) GetFinal() (string, error) {
 func (r *Repository) GetQuestion(chatID int64) (model2.Question, error) {
 	state, ok := r.Users[chatID]
 	if !ok {
-		return model2.Question{}, model2.ErrUserNotFound
+		return model2.Question{}, errors.ErrUserNotFound
 	}
 	q, ok := r.Questions[state.QuestionID]
 	if !ok {
-		return model2.Question{}, model2.ErrQuestionNotFound
+		return model2.Question{}, errors.ErrQuestionNotFound
 	}
 	return q, nil
 }
