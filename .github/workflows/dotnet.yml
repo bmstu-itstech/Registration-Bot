@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./microservices/DataBaseService
+        working-directory: ./internal/database
 
     steps:
     - uses: actions/checkout@v3
@@ -32,7 +32,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./microservices/GoogleSheetsService
+        working-directory: ./internal/googlesheets
 
     steps:
       - uses: actions/checkout@v3
