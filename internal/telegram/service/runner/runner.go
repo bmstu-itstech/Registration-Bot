@@ -5,21 +5,17 @@ import (
 	"Registration-Bot/internal/telegram/service/bot"
 	tg "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/sirupsen/logrus"
-	"sync"
 )
 
 type Runner struct {
-	wg   *sync.WaitGroup
-	bots map[int]chan struct{}
+	bots map[int]*bot.Bot
 	log  logrus.FieldLogger
 	repo bot.Repository
 }
 
-func NewRunner(wg *sync.WaitGroup, log logrus.FieldLogger,
-	repo bot.Repository) *Runner {
+func NewRunner(log logrus.FieldLogger, repo bot.Repository) *Runner {
 	return &Runner{
-		wg:   wg,
-		bots: make(map[int]chan struct{}),
+		bots: make(map[int]*bot.Bot),
 		log:  log,
 		repo: repo,
 	}
@@ -40,14 +36,10 @@ func (r *Runner) StartBot(botID int, token string) error {
 		return err
 	}
 
-	b := bot.NewBot(make(chan struct{}), api, r.log, r.repo)
-	r.bots[botID] = b.Stop
+	b := bot.NewBot(api, r.log, r.repo, botID)
+	r.bots[botID] = b
 
-	r.wg.Add(1)
-	go func() {
-		defer r.wg.Done()
-		b.ListenUpdates(updates)
-	}()
+	go b.ListenUpdates(updates)
 
 	return nil
 }
@@ -55,12 +47,11 @@ func (r *Runner) StartBot(botID int, token string) error {
 // StopBot accepts an id of bot and stops the bot with provided
 // ID. If bot with provided ID doesn't exist, returns error.
 func (r *Runner) StopBot(botID int) error {
-	stop, ok := r.bots[botID]
+	b, ok := r.bots[botID]
 	if !ok {
 		return domain.ErrBotNotFound
 	}
-	stop <- struct{}{}
-	close(stop)
+	b.Stop()
 	delete(r.bots, botID)
 	return nil
 }

@@ -25,15 +25,20 @@ type API interface {
 }
 
 type Bot struct {
-	Stop chan struct{}
-	api  API
-	log  logrus.FieldLogger
-	repo Repository
+	stop  chan struct{}
+	api   API
+	log   logrus.FieldLogger
+	repo  Repository
+	botID int
 }
 
-func NewBot(stop chan struct{}, api API, log logrus.FieldLogger,
-	repo Repository) *Bot {
-	return &Bot{stop, api, log, repo}
+func NewBot(api API, log logrus.FieldLogger, repo Repository, botID int) *Bot {
+	return &Bot{
+		api:   api,
+		log:   log,
+		repo:  repo,
+		botID: botID,
+	}
 }
 
 func (b *Bot) ListenUpdates(updates tg.UpdatesChannel) {
@@ -42,9 +47,14 @@ func (b *Bot) ListenUpdates(updates tg.UpdatesChannel) {
 		select {
 		case u := <-updates:
 			go b.handleUpdate(u)
-		case <-b.Stop:
+		case <-b.stop:
 			b.log.Info("Bot stopped")
 			return
 		}
 	}
+}
+
+func (b *Bot) Stop() {
+	b.stop <- struct{}{}
+	close(b.stop)
 }
