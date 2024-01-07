@@ -20,6 +20,8 @@ func NewRunner(wg *sync.WaitGroup, log logrus.FieldLogger,
 	return &Runner{
 		wg:   wg,
 		bots: make(map[int]chan struct{}),
+		log:  log,
+		repo: repo,
 	}
 }
 
