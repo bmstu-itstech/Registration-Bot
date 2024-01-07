@@ -11,9 +11,12 @@ import (
 type Runner struct {
 	wg   *sync.WaitGroup
 	bots map[int]chan struct{}
+	log  logrus.FieldLogger
+	repo bot.Repository
 }
 
-func NewRunner(wg *sync.WaitGroup) *Runner {
+func NewRunner(wg *sync.WaitGroup, log logrus.FieldLogger,
+	repo bot.Repository) *Runner {
 	return &Runner{
 		wg:   wg,
 		bots: make(map[int]chan struct{}),
@@ -22,8 +25,7 @@ func NewRunner(wg *sync.WaitGroup) *Runner {
 
 // StartBot launches bot with provided id and returns error
 // if bot starting failed.
-func (r *Runner) StartBot(logger *logrus.Logger, repo bot.Repository,
-	botID int, token string) error {
+func (r *Runner) StartBot(botID int, token string) error {
 	api, err := tg.NewBotAPI(token)
 	if err != nil {
 		return err
@@ -36,7 +38,7 @@ func (r *Runner) StartBot(logger *logrus.Logger, repo bot.Repository,
 		return err
 	}
 
-	b := bot.NewBot(make(chan struct{}), api, logger, repo)
+	b := bot.NewBot(make(chan struct{}), api, r.log, r.repo)
 	r.bots[botID] = b.Stop
 
 	r.wg.Add(1)
