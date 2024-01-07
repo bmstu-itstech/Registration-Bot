@@ -8,7 +8,6 @@ import "google/protobuf/empty.proto";
 import "types.proto";
 
 service BotGateway {
-  rpc GetModules(google.protobuf.Empty) returns (Journal);
   rpc SaveAnswers(AnswersMap) returns (google.protobuf.Empty);
 }
 

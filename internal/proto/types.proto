@@ -17,7 +17,9 @@ message AnswersMap {
 }
 
 message Answer {
-  string text = 1;
+  oneof data {
+    string text = 1;
+  }
 }
 
 message Journal {
