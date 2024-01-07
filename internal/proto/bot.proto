@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package proto;
+
+option go_package = "Registration-Bot/internal/proto";
+
+import "google/protobuf/empty.proto";
+import "types.proto";
+
+service BotGateway {
+  rpc GetModules(google.protobuf.Empty) returns (Journal);
+  rpc SaveAnswers(AnswersMap) returns (google.protobuf.Empty);
+}
+
+service BotRunner {
+  rpc StartBot(StartBotRequest) returns (google.protobuf.Empty);
+  rpc StopBot(StopBotRequest) returns (google.protobuf.Empty);
+}
+
+message StartBotRequest {
+  int32 id = 1;
+  string token = 2;
+  LogLevel log = 3;
+}
+
+message StopBotRequest {
+  int32 id = 1;
+}
