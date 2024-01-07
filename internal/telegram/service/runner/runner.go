@@ -1,7 +1,7 @@
 package runner
 
 import (
-	"Registration-Bot/internal/domain/errors"
+	"Registration-Bot/internal/domain"
 	"Registration-Bot/internal/telegram/service/bot"
 	tg "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/sirupsen/logrus"
@@ -57,7 +57,7 @@ func (r *Runner) StartBot(botID int, token string) error {
 func (r *Runner) StopBot(botID int) error {
 	stop, ok := r.bots[botID]
 	if !ok {
-		return errors.ErrBotNotFound
+		return domain.ErrBotNotFound
 	}
 	stop <- struct{}{}
 	close(stop)

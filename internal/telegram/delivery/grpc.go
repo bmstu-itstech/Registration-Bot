@@ -1,7 +1,7 @@
 package delivery
 
 import (
-	domain "Registration-Bot/internal/domain/errors"
+	"Registration-Bot/internal/domain"
 	"Registration-Bot/internal/proto"
 	"context"
 	"errors"
