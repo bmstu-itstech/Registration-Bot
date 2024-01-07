@@ -8,7 +8,7 @@ import (
 )
 
 func (b *Bot) handleMessage(m *tg.Message) {
-	st, err := b.repo.GetState(m.Chat.ID)
+	st, err := b.repo.GetState(b.botID, m.Chat.ID)
 	if err != nil {
 		b.logErr(m.Chat.ID, err)
 	}
@@ -24,22 +24,22 @@ func (b *Bot) handleMessage(m *tg.Message) {
 		b.handleStart(m)
 	}
 
-	err = b.repo.SaveAnswer(m.Chat.ID, m.Text)
+	err = b.repo.SaveAnswer(b.botID, m.Chat.ID, m.Text)
 	if err != nil {
 		b.logErr(m.Chat.ID, err)
 	}
-	q, err := b.repo.GetQuestion(m.Chat.ID)
+	q, err := b.repo.GetCurrentModule(b.botID, m.Chat.ID)
 	if err != nil {
 		b.logErr(m.Chat.ID, err)
 	}
 
-	if q.NextQuestionID == 0 {
+	if q.NextModuleID == 0 {
 		b.sendFinal(m)
 		return
 	}
 
-	st.QuestionID = q.NextQuestionID
-	err = b.repo.SetState(m.Chat.ID, st)
+	st.QuestionID = q.NextModuleID
+	err = b.repo.SetState(b.botID, m.Chat.ID, st)
 	b.sendQuestion(m)
 }
 
@@ -48,7 +48,7 @@ func (b *Bot) handleCallback(c *tg.CallbackQuery) {
 	edit := tg.NewEditMessageReplyMarkup(c.Message.Chat.ID, c.Message.MessageID,
 		tg.NewInlineKeyboardMarkup())
 	b.logSend(c.Message.Chat.ID, edit)
-	st, err := b.repo.GetState(c.Message.Chat.ID)
+	st, err := b.repo.GetState(b.botID, c.Message.Chat.ID)
 	if err != nil {
 		b.logErr(c.Message.Chat.ID, err)
 	}
@@ -58,7 +58,7 @@ func (b *Bot) handleCallback(c *tg.CallbackQuery) {
 		b.logSend(c.Message.Chat.ID, reply)
 	}
 
-	err = b.repo.SaveAnswer(c.Message.Chat.ID, c.Message.Text)
+	err = b.repo.SaveAnswer(b.botID, c.Message.Chat.ID, c.Message.Text)
 	if err != nil {
 		b.logErr(c.Message.Chat.ID, err)
 	}
@@ -72,7 +72,7 @@ func (b *Bot) handleCallback(c *tg.CallbackQuery) {
 	}
 
 	st.QuestionID = next
-	err = b.repo.SetState(c.Message.Chat.ID, st)
+	err = b.repo.SetState(b.botID, c.Message.Chat.ID, st)
 	if err != nil {
 		b.logErr(c.Message.Chat.ID, err)
 	}
@@ -80,7 +80,7 @@ func (b *Bot) handleCallback(c *tg.CallbackQuery) {
 }
 
 func (b *Bot) handleStart(m *tg.Message) {
-	st, err := b.repo.GetState(m.Chat.ID)
+	st, err := b.repo.GetState(b.botID, m.Chat.ID)
 	if err != nil {
 		b.logErr(m.Chat.ID, err)
 	}
@@ -96,7 +96,7 @@ func (b *Bot) handleStart(m *tg.Message) {
 		b.logSend(m.Chat.ID, reply)
 	}
 	st.QuestionID = 1
-	err = b.repo.SetState(m.Chat.ID, st)
+	err = b.repo.SetState(b.botID, m.Chat.ID, st)
 	if err != nil {
 		b.logErr(m.Chat.ID, err)
 	}
@@ -104,7 +104,7 @@ func (b *Bot) handleStart(m *tg.Message) {
 }
 
 func (b *Bot) handleReset(m *tg.Message) {
-	err := b.repo.SetState(m.Chat.ID, domain.State{
+	err := b.repo.SetState(b.botID, m.Chat.ID, domain.State{
 		QuestionID: 0,
 		Stage:      domain.Unknown,
 		Answers:    make(map[int]string),

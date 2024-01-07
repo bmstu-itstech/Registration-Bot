@@ -7,7 +7,7 @@ import (
 )
 
 func (b *Bot) sendFinal(m *tg.Message) {
-	err := b.repo.SetState(m.Chat.ID, domain.State{
+	err := b.repo.SetState(b.botID, m.Chat.ID, domain.State{
 		QuestionID: 0,
 		Stage:      domain.Finished,
 	})
@@ -15,7 +15,7 @@ func (b *Bot) sendFinal(m *tg.Message) {
 		b.logErr(m.Chat.ID, err)
 		return
 	}
-	text, err := b.repo.GetFinal()
+	text, err := b.repo.GetFinal(b.botID)
 	if err != nil {
 		b.logErr(m.Chat.ID, err)
 		return
@@ -25,7 +25,7 @@ func (b *Bot) sendFinal(m *tg.Message) {
 }
 
 func (b *Bot) sendQuestion(m *tg.Message) {
-	q, err := b.repo.GetQuestion(m.Chat.ID)
+	q, err := b.repo.GetCurrentModule(b.botID, m.Chat.ID)
 	if err != nil {
 		b.logErr(m.Chat.ID, err)
 		return
@@ -35,13 +35,13 @@ func (b *Bot) sendQuestion(m *tg.Message) {
 		reply := tg.NewMessage(m.Chat.ID, q.Text)
 		b.logSend(m.Chat.ID, reply)
 
-		st, err := b.repo.GetState(m.Chat.ID)
+		st, err := b.repo.GetState(b.botID, m.Chat.ID)
 		if err != nil {
 			b.logErr(m.Chat.ID, err)
 			return
 		}
-		st.QuestionID = q.NextQuestionID
-		err = b.repo.SetState(m.Chat.ID, st)
+		st.QuestionID = q.NextModuleID
+		err = b.repo.SetState(b.botID, m.Chat.ID, st)
 		if err != nil {
 			b.logErr(m.Chat.ID, err)
 			return
@@ -55,7 +55,7 @@ func (b *Bot) sendQuestion(m *tg.Message) {
 		for _, button := range q.Buttons {
 			rows = append(rows,
 				tg.NewInlineKeyboardButtonData(button.Text,
-					fmt.Sprintf("%d", button.NextQuestionID)))
+					fmt.Sprintf("%d", button.NextModuleID)))
 		}
 		board := tg.NewInlineKeyboardMarkup(rows)
 		reply.ReplyMarkup = board

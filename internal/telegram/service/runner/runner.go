@@ -23,7 +23,8 @@ func NewRunner(log logrus.FieldLogger, repo bot.Repository) *Runner {
 
 // StartBot launches bot with provided id and returns error
 // if bot starting failed.
-func (r *Runner) StartBot(botID int, token string) error {
+func (r *Runner) StartBot(botID int, token string, journal map[int]domain.Module,
+	final string) error {
 	api, err := tg.NewBotAPI(token)
 	if err != nil {
 		return err

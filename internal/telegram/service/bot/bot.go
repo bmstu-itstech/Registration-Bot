@@ -8,15 +8,14 @@ import (
 
 //go:generate mockery --name Repository
 type Repository interface {
-	// SaveAnswer is used to save user's answer
-	SaveAnswer(chatID int64, answer string) error
-	// GetFinal returns final message of bot
-	GetFinal() (string, error)
-	// GetQuestion returns current Question using user's saved state
-	GetQuestion(chatID int64) (domain.Question, error)
-
-	GetState(chatID int64) (domain.State, error)
-	SetState(chatID int64, st domain.State) error
+	SaveAnswer(botID int, chatID int64, text string) error
+	SetModuleID(botID int, chatID int64, questionID int) error
+	GetCurrentModule(botID int, chatID int64) (domain.Module, error)
+	SetStage(botID int, chatID int64, stage int) error
+	GetFinal(botID int) (string, error)
+	AddBot(botID int, journal map[int]domain.Module, final string) error
+	GetState(botID int, chatID int64) (domain.State, error)
+	SetState(botID int, chatID int64, st domain.State) error
 }
 
 //go:generate mockery --name API

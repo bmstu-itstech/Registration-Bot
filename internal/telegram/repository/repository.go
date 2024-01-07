@@ -64,13 +64,12 @@ func (r *Repository) SetState(botID int, chatID int64, st domain.State) error {
 }
 
 // SaveAnswer is used to save user's answer
-func (r *Repository) SaveAnswer(botID int, chatID int64, questionID int,
-	text string) error {
+func (r *Repository) SaveAnswer(botID int, chatID int64, text string) error {
 	st, err := r.GetState(botID, chatID)
 	if err != nil {
 		return err
 	}
-	st.Answers[questionID] = text
+	st.Answers[st.QuestionID] = text
 	return r.SetState(botID, chatID, st)
 }
 

@@ -13,85 +13,13 @@ type Repository struct {
 	mock.Mock
 }
 
-// GetFinal provides a mock function with given fields:
-func (_m *Repository) GetFinal() (string, error) {
-	ret := _m.Called()
-
-	var r0 string
-	var r1 error
-	if rf, ok := ret.Get(0).(func() (string, error)); ok {
-		return rf()
-	}
-	if rf, ok := ret.Get(0).(func() string); ok {
-		r0 = rf()
-	} else {
-		r0 = ret.Get(0).(string)
-	}
-
-	if rf, ok := ret.Get(1).(func() error); ok {
-		r1 = rf()
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// GetQuestion provides a mock function with given fields: chatID
-func (_m *Repository) GetQuestion(chatID int64) (domain.Question, error) {
-	ret := _m.Called(chatID)
-
-	var r0 domain.Question
-	var r1 error
-	if rf, ok := ret.Get(0).(func(int64) (domain.Question, error)); ok {
-		return rf(chatID)
-	}
-	if rf, ok := ret.Get(0).(func(int64) domain.Question); ok {
-		r0 = rf(chatID)
-	} else {
-		r0 = ret.Get(0).(domain.Question)
-	}
-
-	if rf, ok := ret.Get(1).(func(int64) error); ok {
-		r1 = rf(chatID)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// GetState provides a mock function with given fields: chatID
-func (_m *Repository) GetState(chatID int64) (domain.State, error) {
-	ret := _m.Called(chatID)
-
-	var r0 domain.State
-	var r1 error
-	if rf, ok := ret.Get(0).(func(int64) (domain.State, error)); ok {
-		return rf(chatID)
-	}
-	if rf, ok := ret.Get(0).(func(int64) domain.State); ok {
-		r0 = rf(chatID)
-	} else {
-		r0 = ret.Get(0).(domain.State)
-	}
-
-	if rf, ok := ret.Get(1).(func(int64) error); ok {
-		r1 = rf(chatID)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// SaveAnswer provides a mock function with given fields: chatID, answer
-func (_m *Repository) SaveAnswer(chatID int64, answer string) error {
-	ret := _m.Called(chatID, answer)
+// AddBot provides a mock function with given fields: botID, journal, final
+func (_m *Repository) AddBot(botID int, journal map[int]domain.Module, final string) error {
+	ret := _m.Called(botID, journal, final)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(int64, string) error); ok {
-		r0 = rf(chatID, answer)
+	if rf, ok := ret.Get(0).(func(int, map[int]domain.Module, string) error); ok {
+		r0 = rf(botID, journal, final)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -99,13 +27,127 @@ func (_m *Repository) SaveAnswer(chatID int64, answer string) error {
 	return r0
 }
 
-// SetState provides a mock function with given fields: chatID, st
-func (_m *Repository) SetState(chatID int64, st domain.State) error {
-	ret := _m.Called(chatID, st)
+// GetCurrentModule provides a mock function with given fields: botID, chatID
+func (_m *Repository) GetCurrentModule(botID int, chatID int64) (domain.Module, error) {
+	ret := _m.Called(botID, chatID)
+
+	var r0 domain.Module
+	var r1 error
+	if rf, ok := ret.Get(0).(func(int, int64) (domain.Module, error)); ok {
+		return rf(botID, chatID)
+	}
+	if rf, ok := ret.Get(0).(func(int, int64) domain.Module); ok {
+		r0 = rf(botID, chatID)
+	} else {
+		r0 = ret.Get(0).(domain.Module)
+	}
+
+	if rf, ok := ret.Get(1).(func(int, int64) error); ok {
+		r1 = rf(botID, chatID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetFinal provides a mock function with given fields: botID
+func (_m *Repository) GetFinal(botID int) (string, error) {
+	ret := _m.Called(botID)
+
+	var r0 string
+	var r1 error
+	if rf, ok := ret.Get(0).(func(int) (string, error)); ok {
+		return rf(botID)
+	}
+	if rf, ok := ret.Get(0).(func(int) string); ok {
+		r0 = rf(botID)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	if rf, ok := ret.Get(1).(func(int) error); ok {
+		r1 = rf(botID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetState provides a mock function with given fields: botID, chatID
+func (_m *Repository) GetState(botID int, chatID int64) (domain.State, error) {
+	ret := _m.Called(botID, chatID)
+
+	var r0 domain.State
+	var r1 error
+	if rf, ok := ret.Get(0).(func(int, int64) (domain.State, error)); ok {
+		return rf(botID, chatID)
+	}
+	if rf, ok := ret.Get(0).(func(int, int64) domain.State); ok {
+		r0 = rf(botID, chatID)
+	} else {
+		r0 = ret.Get(0).(domain.State)
+	}
+
+	if rf, ok := ret.Get(1).(func(int, int64) error); ok {
+		r1 = rf(botID, chatID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// SaveAnswer provides a mock function with given fields: botID, chatID, text
+func (_m *Repository) SaveAnswer(botID int, chatID int64, text string) error {
+	ret := _m.Called(botID, chatID, text)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(int64, domain.State) error); ok {
-		r0 = rf(chatID, st)
+	if rf, ok := ret.Get(0).(func(int, int64, string) error); ok {
+		r0 = rf(botID, chatID, text)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// SetModuleID provides a mock function with given fields: botID, chatID, questionID
+func (_m *Repository) SetModuleID(botID int, chatID int64, questionID int) error {
+	ret := _m.Called(botID, chatID, questionID)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(int, int64, int) error); ok {
+		r0 = rf(botID, chatID, questionID)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// SetStage provides a mock function with given fields: botID, chatID, stage
+func (_m *Repository) SetStage(botID int, chatID int64, stage int) error {
+	ret := _m.Called(botID, chatID, stage)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(int, int64, int) error); ok {
+		r0 = rf(botID, chatID, stage)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// SetState provides a mock function with given fields: botID, chatID, st
+func (_m *Repository) SetState(botID int, chatID int64, st domain.State) error {
+	ret := _m.Called(botID, chatID, st)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(int, int64, domain.State) error); ok {
+		r0 = rf(botID, chatID, st)
 	} else {
 		r0 = ret.Error(0)
 	}
