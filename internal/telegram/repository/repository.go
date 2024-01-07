@@ -2,11 +2,11 @@ package repository
 
 import (
 	"Registration-Bot/internal/domain"
-	"Registration-Bot/internal/telegram/repository/client"
+	"Registration-Bot/internal/telegram/repository/grpc"
 )
 
 type Repository struct {
-	Adapter client.Client
+	Adapter grpc.Client
 	Bots    map[int]*Bot
 }
 
