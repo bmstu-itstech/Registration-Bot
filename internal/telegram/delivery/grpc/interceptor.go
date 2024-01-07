@@ -1,4 +1,4 @@
-package delivery
+package grpc
 
 import (
 	"context"
