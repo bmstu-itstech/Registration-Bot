@@ -18,16 +18,21 @@ jobs:
         with:
           go-version: 'stable'
 
-      - name: Install Protoc
-        run: |
-          mkdir -p $HOME/protoc
-          curl -sSL https://github.com/protocolbuffers/protobuf/releases/download/v25.1/protoc-25.1-linux-x86_64.zip -o protoc.zip
-          unzip protoc.zip -d $HOME/protoc
-          export PATH=$HOME/protoc/bin:$PATH
+      - uses: arduino/setup-protoc@v1
 
-      - name: Install protoc-gen-go
+      - name: Installing protoc-gen-go
         run: |
-          go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+          go get github.com/golang/protobuf/protoc-gen-go
+          go get google.golang.org/grpc/cmd/protoc-gen-go-grpc
+      - name: Generating protos
+        run: |
+          protoc -I=$PROTO_DIR \ 
+          --go_out=$GEN_OUT_DIR \ 
+          --go-grpc_out=$GEN_OUT_DIR \
+          $(find $PROTO_DIR -type f -name '*.proto')
+        env:
+          GEN_OUT_DIR: internal/proto
+          PROTO_DIR: internal/proto
 
       - name: Install Mockery
         run: |
