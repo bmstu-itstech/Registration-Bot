@@ -18,6 +18,13 @@ jobs:
         with:
           go-version: 'stable'
 
+      - name: Install Protoc
+        uses: arduino/setup-protoc@v2
+
+      - name: Install Mockery
+        run: |
+          sudo apt-get -y install mockery
+
       - name: Build
         working-directory: ./
         run: |
