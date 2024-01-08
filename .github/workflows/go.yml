@@ -20,6 +20,7 @@ jobs:
 
       - name: Install Protoc
         run: |
+          export PATH=$PATH:$(go env GOPATH)/bin
           sudo apt install protobuf-compiler
 
       - name: Install Mockery
@@ -29,8 +30,8 @@ jobs:
       - name: Build
         working-directory: ./
         run: |
-          go generate -x ./...
           go mod tidy
+          go generate -x ./...
           go build -v ./...
 
       - name: Lint
