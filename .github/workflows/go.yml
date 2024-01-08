@@ -20,12 +20,18 @@ jobs:
 
       - name: Install Protoc
         run: |
-          export PATH=$PATH:$(go env GOPATH)/bin
-          sudo apt install protobuf-compiler
+          mkdir -p $HOME/protoc
+          curl -sSL https://github.com/protocolbuffers/protobuf/releases/download/v25.1/protoc-25.1-linux-x86_64.zip -o protoc.zip
+          unzip protoc.zip -d $HOME/protoc
+          export PATH=$HOME/protoc/bin:$PATH
+
+      - name: Install protoc-gen-go
+        run: |
+          go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
 
       - name: Install Mockery
         run: |
-          sudo apt-get -y install mockery
+          go get github.com/vektra/mockery/.../
 
       - name: Build
         working-directory: ./
