@@ -24,6 +24,7 @@ jobs:
         run: |
           go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
           go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+
       - name: Generating protos
         run: |
           protoc -I=$PROTO_DIR --go_out=$GEN_OUT_DIR --go-grpc_out=$GEN_OUT_DIR $(find $PROTO_DIR -type f -name '*.proto')
@@ -31,9 +32,9 @@ jobs:
           GEN_OUT_DIR: internal/proto
           PROTO_DIR: internal/proto
 
-      - name: Install Mockery
-        run: |
-          go get github.com/vektra/mockery/.../
+      - uses: brokeyourbike/go-mockery-action@v0
+        with:
+          mockery-version: '2.39.1'
 
       - name: Build
         working-directory: ./
