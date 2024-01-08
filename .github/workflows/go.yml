@@ -19,7 +19,8 @@ jobs:
           go-version: 'stable'
 
       - name: Install Protoc
-        uses: arduino/setup-protoc@v2
+        run: |
+          sudo apt install protobuf-compiler
 
       - name: Install Mockery
         run: |
