@@ -45,8 +45,8 @@ func (b *Bot) ListenUpdates(updates tg.UpdatesChannel) {
 	b.log.Info("Bot started")
 	for {
 		select {
-		//case u := <-updates:
-		//	go b.handleUpdate(u)
+		case u := <-updates:
+			go b.handleUpdate(u)
 		case <-b.stop:
 			b.log.Info("Bot stopped")
 			return

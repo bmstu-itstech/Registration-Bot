@@ -40,6 +40,9 @@ func (b *Bot) handleMessage(m *tg.Message) {
 
 	st.QuestionID = q.NextModuleID
 	err = b.repo.SetState(b.botID, m.Chat.ID, st)
+	if err != nil {
+		b.logErr(m.Chat.ID, err)
+	}
 	b.sendQuestion(m)
 }
 
