@@ -33,6 +33,7 @@ type Bot struct {
 
 func NewBot(api API, log logrus.FieldLogger, repo Repository, botID int) *Bot {
 	return &Bot{
+		stop:  make(chan struct{}),
 		api:   api,
 		log:   log,
 		repo:  repo,
@@ -44,8 +45,8 @@ func (b *Bot) ListenUpdates(updates tg.UpdatesChannel) {
 	b.log.Info("Bot started")
 	for {
 		select {
-		case u := <-updates:
-			go b.handleUpdate(u)
+		//case u := <-updates:
+		//	go b.handleUpdate(u)
 		case <-b.stop:
 			b.log.Info("Bot stopped")
 			return
