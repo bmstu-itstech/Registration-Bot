@@ -2,12 +2,10 @@ package repository
 
 import (
 	"Registration-Bot/internal/domain"
-	"Registration-Bot/internal/telegram/repository/grpc"
 )
 
 type Repository struct {
-	Adapter grpc.Client
-	Bots    map[int]*Bot
+	Bots map[int]*Bot
 }
 
 func NewRepository(bots map[int]*Bot) *Repository {
@@ -116,9 +114,9 @@ func (r *Repository) PushAnswers(botID int, chatID int64) error {
 	if !ok {
 		return domain.ErrBotNotFound
 	}
-	st, ok := b.States[chatID]
+	_, ok = b.States[chatID]
 	if !ok {
 		return domain.ErrUserNotFound
 	}
-	return r.Adapter.PushAnswers(st.Answers)
+	return nil
 }

@@ -2,16 +2,6 @@ syntax = "proto3";
 
 option go_package = "Registration-Bot/internal/proto";
 
-enum LogLevel {
-  PANIC_LEVEL = 0;
-  FATAL_LEVEL = 1;
-  ERROR_LEVEL = 2;
-  WARN_LEVEL = 3;
-  INFO_LEVEL = 4;
-  DEBUG_LEVEL = 5;
-  TRACE_LEVEL = 6;
-}
-
 message AnswersMap {
   map<int32, Answer> answers = 1;
 }

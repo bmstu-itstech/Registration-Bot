@@ -2,8 +2,8 @@ package runner
 
 import (
 	"Registration-Bot/internal/domain"
-	"Registration-Bot/internal/telegram/service/bot"
-	"Registration-Bot/internal/telegram/service/bot/mocks"
+	"Registration-Bot/internal/telegram/usecase/bot"
+	"Registration-Bot/internal/telegram/usecase/bot/mocks"
 	tg "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/sirupsen/logrus"
 	"github.com/sirupsen/logrus/hooks/test"
