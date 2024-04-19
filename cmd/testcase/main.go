@@ -42,7 +42,7 @@ func main() {
 	journal[4] = domain.Module{
 		Text:         "Из какой ты группы?",
 		Buttons:      nil,
-		NextModuleID: 5,
+		NextModuleID: 0,
 		Rhetorical:   false,
 	}
 	journal[5] = domain.Module{
