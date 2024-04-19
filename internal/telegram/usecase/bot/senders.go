@@ -47,6 +47,7 @@ func (b *Bot) sendQuestion(m *tg.Message) {
 			return
 		}
 		b.sendQuestion(m)
+		return
 	}
 
 	reply := tg.NewMessage(m.Chat.ID, q.Text)

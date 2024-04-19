@@ -48,9 +48,9 @@ func (b *Bot) handleMessage(m *tg.Message) {
 
 func (b *Bot) handleCallback(c *tg.CallbackQuery) {
 	// delete buttons from bot message
-	edit := tg.NewEditMessageReplyMarkup(c.Message.Chat.ID, c.Message.MessageID,
-		tg.NewInlineKeyboardMarkup())
-	b.logSend(c.Message.Chat.ID, edit)
+	//edit := tg.NewEditMessageReplyMarkup(c.Message.Chat.ID, c.Message.MessageID,
+	//	tg.NewInlineKeyboardMarkup())
+	//b.logSend(c.Message.Chat.ID, edit)
 	st, err := b.repo.GetState(b.botID, c.Message.Chat.ID)
 	if err != nil {
 		b.logErr(c.Message.Chat.ID, err)
@@ -99,6 +99,8 @@ func (b *Bot) handleStart(m *tg.Message) {
 		b.logSend(m.Chat.ID, reply)
 	}
 	st.QuestionID = 1
+	st.Stage = domain.InProcess
+	st.Answers = make(map[int]string)
 	err = b.repo.SetState(b.botID, m.Chat.ID, st)
 	if err != nil {
 		b.logErr(m.Chat.ID, err)
