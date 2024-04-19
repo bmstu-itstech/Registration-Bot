@@ -1,4 +1,4 @@
-package repository
+package local
 
 import (
 	"Registration-Bot/internal/domain"
