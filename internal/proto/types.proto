@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+option go_package = "Registration-Bot/internal/proto";
+
+message AnswersMap {
+  map<int32, Answer> answers = 1;
+}
+
+message Answer {
+  oneof data {
+    string text = 1;
+  }
+}
+
+message Journal {
+  map<int32, Module> modules = 1;
+}
+
+message Module {
+  string text = 1;
+  repeated Button buttons = 2;
+  int32 next_id = 3;
+  bool rhetorical = 4;
+}
+
+message Button {
+  string text = 1;
+  int32 next_id = 2;
+}

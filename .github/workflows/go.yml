@@ -1,0 +1,49 @@
+name: Go
+
+on:
+  push:
+    branches: [ "master", "main" ]
+  pull_request:
+    branches: [ "master", "main" ]
+
+jobs:
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 'stable'
+
+      - uses: arduino/setup-protoc@v1
+
+      - name: Installing protoc-gen-go
+        run: |
+          go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+          go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+
+      - uses: brokeyourbike/go-mockery-action@v0
+        with:
+          mockery-version: '2.39.1'
+
+      - name: Build
+        working-directory: ./
+        run: |
+          go mod tidy
+          go generate -x ./...
+          go build -v ./...
+
+      - name: Lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: latest
+          working-directory: ./
+
+      - name: Unit tests
+        working-directory: ./
+        run: |
+          go mod tidy
+          go test ./... -v -race -coverpkg=./...

@@ -1,7 +1,0 @@
-venv/
-.idea/
-doc?
-conf.py
-*.pyc
-*.zip
-Doxyfile

@@ -3,23 +3,23 @@ secrets.json
 
 =======darleet=======
 
-# Ignore PyCharm settings files
+# PyCharm settings files
 .idea/
 
-# Ignore venv
+# Virtual environment
 venv/
 
-# Ignore DBs
+# DB files
 *.sqlite
 *.db
 
-# Ignore cache
+# Cache
 */__pycache__/
 *.pyc
 
-# Ignore configs
+# Configs
 config.py
 *.env
 
-# Ignore test files
-*.json
+# Generated files
+*.pb.go
